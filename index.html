@@ -63,11 +63,31 @@
   .overlay button:hover { background:#ffe89a; }
   #endscreen { display:none; }
   #pausescreen { display:none; }
+  #startscreen { display:none; }
   .btnrow { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
   .overlay button.ghost { background:#2b3b52; color:#dde6f2; }
   .overlay button.ghost:hover { background:#3a4f6c; }
   #winTitle { color:#7ee787; }
   #loseTitle { color:#ff6b6b; }
+
+  /* 主页 / 模式选择 */
+  #homescreen h1 { background:linear-gradient(180deg,#fff3c4,#ffd76a 60%,#e0a92c);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 6px 24px rgba(255,215,106,.18); }
+  .sub { font-size:14px; color:#8fa3bd; margin-top:-10px; letter-spacing:1px; }
+  .modes { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+  .overlay button.mode { width:216px; padding:22px 16px; border-radius:14px; background:#141b27;
+    border:2px solid #33415a; color:#dde6f2; cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:10px; letter-spacing:0; font-size:16px; font-weight:normal; transition:.15s; }
+  .overlay button.mode:hover { transform:translateY(-5px); border-color:#ffd76a;
+    box-shadow:0 10px 26px rgba(255,215,106,.22); background:#1a2432; }
+  .mode .mi { font-size:34px; line-height:1; }
+  .mode .body { display:flex; flex-direction:column; gap:5px; align-items:center; }
+  .mode .mn { font-size:19px; font-weight:bold; color:#fff; letter-spacing:1px; }
+  .mode .md { font-size:12px; color:#8fa3bd; line-height:1.5; font-weight:normal; }
+  .overlay button.mode.locked { opacity:.42; cursor:not-allowed; }
+  .overlay button.mode.locked:hover { transform:none; border-color:#33415a; box-shadow:none; background:#141b27; }
+  .overlay button.mini { padding:8px 22px; font-size:14px; letter-spacing:1px; }
 
   /* 结算统计 */
   .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 130px));
@@ -78,6 +98,8 @@
   #endInfo { font-size:13px; color:#8fa3bd; max-width:92vw; }
   #endInfo b { color:#c9d8ea; }
   .ver { font-size:12px !important; color:#55647c !important; letter-spacing:1px; }
+  /* 主页等非对局界面隐藏 HUD */
+  body:not(.ingame) #hud, body:not(.ingame) #hearts, body:not(.ingame) #xpline { visibility:hidden; }
 
   /* 手机适配 */
   @media (max-width: 720px){
@@ -91,6 +113,13 @@
     .card .note { font-size:11px; margin-top:5px; padding-top:5px; }
     .overlay h1 { font-size:32px; letter-spacing:2px; }
     .overlay p { font-size:13px; padding:0 20px; }
+    .modes { flex-direction:column; gap:10px; width:86vw; max-width:340px; }
+    .overlay button.mode { width:100%; padding:12px 16px; flex-direction:row;
+      justify-content:flex-start; gap:14px; text-align:left; }
+    .mode .mi { font-size:26px; }
+    .mode .body { align-items:flex-start; gap:2px; }
+    .mode .mn { font-size:16px; }
+    .mode .md { font-size:11px; }
     #timer { font-size:26px; }
     #stats { font-size:12px; }
     .heart { width:19px; height:19px; }
@@ -116,13 +145,43 @@
     <div class="cards" id="cards"></div>
   </div>
 
+  <div class="overlay" id="homescreen">
+    <h1>肉鸽求生</h1>
+    <p class="sub">攻击全自动 · 专注走位与强化搭配 · 选择模式开始</p>
+    <div class="modes">
+      <button class="mode" id="modeClassic">
+        <div class="mi">⏱</div>
+        <div class="body">
+          <div class="mn">十分钟模式</div>
+          <div class="md">撑过 10 分钟即胜利 · 第 8 分钟最终 BOSS</div>
+        </div>
+      </button>
+      <button class="mode locked" disabled>
+        <div class="mi">♾</div>
+        <div class="body">
+          <div class="mn">无尽模式</div>
+          <div class="md">敬请期待</div>
+        </div>
+      </button>
+      <button class="mode locked" disabled>
+        <div class="mi">🔥</div>
+        <div class="body">
+          <div class="mn">BOSS 试炼</div>
+          <div class="md">敬请期待</div>
+        </div>
+      </button>
+    </div>
+    <p class="ver">v2.2</p>
+  </div>
+
   <div class="overlay" id="startscreen">
     <h1 style="color:#ffd76a">十分钟 · 肉鸽求生</h1>
     <p>WASD / 方向键 移动 · 手机<b style="color:#ffd76a">任意位置按住拖动</b>即出摇杆 · 攻击全自动 · 捡拾经验水晶升级并三选一强化<br>
     青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v2.1</p>
+    <button id="startBackBtn" class="ghost mini">← 返回模式选择</button>
+    <p class="ver">v2.2</p>
   </div>
 
   <div class="overlay" id="pausescreen">
@@ -131,6 +190,7 @@
     <div class="btnrow">
       <button id="resumeBtn">继续游戏</button>
       <button id="restartBtn" class="ghost">重新开始</button>
+      <button id="pauseHomeBtn" class="ghost">回到主页</button>
     </div>
   </div>
 
@@ -139,7 +199,10 @@
     <h1 id="loseTitle">💀 你被吞没了…</h1>
     <div id="endStats" class="stats-grid"></div>
     <p id="endInfo"></p>
-    <button id="retryBtn">再来一局</button>
+    <div class="btnrow">
+      <button id="retryBtn">再来一局</button>
+      <button id="endHomeBtn" class="ghost">回到主页</button>
+    </div>
   </div>
 </div>
 
@@ -167,12 +230,12 @@ addEventListener('resize', resize); resize();
 
 const GAME_TIME = 600;      // 整局 10 分钟（秒）
 const BOSS_TIME = 480;      // 第 8 分钟刷最终 BOSS，留 2 分钟 BOSS 战
-const SLASH_ARC = 0.26;     // 斩击初始半角（约 30° 扇面，收窄以换更远射程）
-const SLASH_ARC_STEP = 0.15; // 分裂弹每多一发，扇面加宽的半角
+const SLASH_ARC = 0.26;     // 斩击半角（约 30° 扇面，收窄以换更远射程）
 const SLASH_RADIUS = 300;   // 斩击射程（原 200，提升 50%）
 const SLASH8_RADIUS = 330;  // 八向斩击半径
 const SLASH_CHARGE = 8;     // 移动充能满 8 秒释放八向斩击
 const HP_GROWTH = 0.60;     // 敌人血量随时间成长的总量下调 40%（原为 1.0）
+const MAX_ALIVE = 160;      // 场上存活敌人上限（防止刷太快导致卡顿）
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / end
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
@@ -239,7 +302,7 @@ const UPGRADES = [
   { icon:'👟', name:'疾风步', desc:'移动速度 +12%', note:'走位拉扯的本钱', apply:p=>p.speed*=1.12 },
   { icon:'❤️', name:'强健体魄', desc:'生命上限 +25，并立即回满', note:'残血时选它等于一次复活', apply:p=>{p.maxHp+=25;p.hp=p.maxHp;} },
   { icon:'🧲', name:'磁力水晶', desc:'拾取范围 +40%', note:'后期满地水晶时收益极高', apply:p=>p.magnet*=1.4 },
-  { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中 · 斩击流：每层额外加宽斩击角度', apply:p=>p.multi+=1 },
+  { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中 · 斩击流：每层在身周额外多一道斩击（360° 均匀分布）', apply:p=>p.multi+=1 },
   { icon:'🎯', name:'穿透弹', desc:'子弹可多穿透 1 个敌人', note:'敌人排成一串时收益翻倍', apply:p=>p.pierce+=1 },
   { icon:'💊', name:'再生', desc:'每秒回复 1 点生命', note:'越早拿越值', apply:p=>p.regen+=1 },
   { icon:'🧛', name:'吸血鬼', desc:'每击杀 1 个敌人，回复 1% 生命上限', note:'限选 1 次 · 与斩击、旋风、分裂弹等高频击杀流派配合收益最高', max:1,
@@ -251,10 +314,10 @@ const UPGRADES = [
   { icon:'🔥', name:'灼热弹', desc:'命中附加灼烧，持续 3 秒掉血', note:'对高血量敌人收益明显', apply:p=>p.burn+=2 },
   { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
-    note:'限选 1 次 · 每击杀 1 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
-    apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; } },
+    note:'限选 1 次 · 每击杀 5 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
+    apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; p.killHpCount=0; } },
   { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出窄扇形斩击（100% 伤害，射程 300，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
-    note:'限选 1 次 · 斩击角度较窄，每次分裂弹都会加宽 · 移动充能 8 秒后八向斩击（400% 伤害）', max:1,
+    note:'限选 1 次 · 斩击角度较窄，每层分裂弹额外多一道斩击（前、后、360° 均匀分布）· 移动充能 8 秒后八向斩击（400% 伤害）', max:1,
     apply:p=>{ p.slashMode=true; p.slashEnergy=0; p.speed*=1.15; } },
 ];
 
@@ -263,7 +326,7 @@ function newGame(){
   player = { x:0, y:0, r:14, hp:100, maxHp:100, speed:200, dmg:10, fireDelay:0.45,
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
     level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0,
-    atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, faceAng:0, vampire:false,
+    atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, killHpCount:0, faceAng:0, vampire:false,
     taken:{} };
   enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[]; dmgNums=[];
   spawnTimer=0; gameTime=0; kills=0; shake=0;
@@ -346,9 +409,13 @@ function update(dt){
         player.fireT = 1.0;
         const ang = Math.atan2(best.y-player.y, best.x-player.x);
         player.faceAng = ang;
-        // 斩击半角：初始较窄，分裂弹每多一发都加宽扇面
-        const halfArc = SLASH_ARC + (player.multi-1)*SLASH_ARC_STEP;
-        slashAttack(ang, 1.0*player.dmg, R, halfArc, '#dff3ff');
+        // 分裂弹：斩击流不再是"加宽扇面"，而是每层多一道斩击，均匀铺满 360°
+        // 1 层=正前方；2 层=前 + 后；3 层=三个方向，以此类推
+        const n = Math.max(1, player.multi);
+        for (let i=0;i<n;i++){
+          const a = ang + i*Math.PI*2/n;
+          slashAttack(a, player.dmg, R, SLASH_ARC, i===0 ? '#dff3ff' : '#a8dcff');
+        }
       }
     }
   } else if (player.fireT<=0){
@@ -489,10 +556,15 @@ function update(dt){
       if (player.xp >= player.xpNeed){ levelUp(); return; }
     }
   }
-  // 生成（频率随时间持续加快：开局 1.2 秒一只 → 末段 0.22 秒一只）
+  // 生成（开局约 0.75 秒一只，末段压缩到 0.13 秒一只；场上存活数有上限防卡顿）
   spawnTimer -= dt;
-  const rate = Math.max(0.22, 1.2 - gameTime/GAME_TIME*0.98);
-  if (spawnTimer<=0){ spawnTimer = rate; spawnEnemy(); }
+  const rate = Math.max(0.13, 0.75 - gameTime/GAME_TIME*0.62);
+  if (spawnTimer<=0){
+    spawnTimer = rate;
+    let alive = 0;
+    for (const e of enemies) if (e.type!=='ebullet') alive++;
+    if (alive < MAX_ALIVE) spawnEnemy();
+  }
   // 粒子
   for (let i=parts.length-1;i>=0;i--){
     const p=parts[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
@@ -568,8 +640,11 @@ function burst(x,y,col,n){
 function killEnemy(e){
   kills++;
   burst(e.x,e.y,e.col,10);
-  // 坦克引擎：每击杀 1 个敌人，生命上限 +1%（基于选择时的血量上限）
-  if (player.killHpBase > 0) player.maxHp += player.killHpBase * 0.01;
+  // 坦克引擎：每击杀 5 个敌人，生命上限 +1%（基于选择时的血量上限）
+  if (player.killHpBase > 0 && e.type !== 'boss'){
+    player.killHpCount = (player.killHpCount || 0) + 1;
+    if (player.killHpCount % 5 === 0) player.maxHp += player.killHpBase * 0.01;
+  }
   // 吸血鬼：每击杀 1 个敌人，回复 1% 生命上限
   if (player.vampire) player.hp = Math.min(player.maxHp, player.hp + player.maxHp*0.01);
   // 水晶先向外弹出并停留片刻（避免被磁力瞬间吸走、看不到掉落）
@@ -824,6 +899,7 @@ function draw(){
 let last = performance.now();
 function loop(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
+  document.body.classList.toggle('ingame', state !== 'menu');
   if (state==='playing') update(dt);
   else if (state==='levelup'||state==='end') updateHUD();
   draw();
@@ -851,10 +927,6 @@ function setPaused(p){
 }
 pauseBtn.onclick = e => { e.stopPropagation(); setPaused(state === 'playing'); };
 document.getElementById('resumeBtn').onclick = ()=> setPaused(false);
-document.getElementById('restartBtn').onclick = ()=>{
-  pauseScreen.style.display = 'none'; pauseBtn.textContent = '⏸';
-  newGame(); spawnedBoss=false; state='playing';
-};
 addEventListener('keydown', e => {
   const k = e.key.toLowerCase();
   if (k === 'p' || k === 'escape'){
@@ -865,16 +937,40 @@ addEventListener('keydown', e => {
 // 切到后台自动暂停（避免回来时被围杀）
 document.addEventListener('visibilitychange', ()=>{ if (document.hidden) setPaused(true); });
 
-document.getElementById('startBtn').onclick = ()=>{
-  document.getElementById('startscreen').style.display='none';
+// ---------- 页面切换 ----------
+const homescreen = document.getElementById('homescreen');
+const startscreen = document.getElementById('startscreen');
+const endscreen   = document.getElementById('endscreen');
+function hideAll(){
+  homescreen.style.display='none';
+  startscreen.style.display='none';
+  pauseScreen.style.display='none';
+  endscreen.style.display='none';
+  pauseBtn.textContent='⏸';
+}
+function goHome(){
+  hideAll();
+  state = 'menu';
+  joyEnd();
+  homescreen.style.display='flex';
+}
+function enterClassic(){          // 主页 → 十分钟模式 → 玩法说明
+  hideAll();
+  state = 'menu';
+  startscreen.style.display='flex';
+}
+function startClassic(){          // 真正开局
+  hideAll();
   newGame(); spawnedBoss=false; state='playing';
-  pauseScreen.style.display='none'; pauseBtn.textContent='⏸';
-};
-document.getElementById('retryBtn').onclick = ()=>{
-  document.getElementById('endscreen').style.display='none';
-  newGame(); spawnedBoss=false; state='playing';
-  pauseScreen.style.display='none'; pauseBtn.textContent='⏸';
-};
+}
+
+document.getElementById('modeClassic').onclick = enterClassic;
+document.getElementById('startBackBtn').onclick = goHome;
+document.getElementById('startBtn').onclick = startClassic;
+document.getElementById('retryBtn').onclick = startClassic;
+document.getElementById('endHomeBtn').onclick = goHome;
+document.getElementById('pauseHomeBtn').onclick = goHome;
+document.getElementById('restartBtn').onclick = startClassic;
 </script>
 </body>
 </html>
