@@ -31,13 +31,18 @@
   #levelup { position:absolute; inset:0; background:rgba(5,8,15,.85); display:none;
     flex-direction:column; align-items:center; justify-content:center; gap:16px; }
   #levelup h2 { color:#ffd76a; font-size:30px; letter-spacing:4px; }
-  #levelup .cards { display:flex; gap:18px; }
-  .card { width:200px; padding:20px 16px; background:#161c28; border:2px solid #3a4a66;
+  #levelup .cards { display:flex; gap:14px; align-items:stretch; }
+  .card { width:228px; padding:18px 15px; background:#161c28; border:2px solid #3a4a66;
     border-radius:12px; color:#dde6f2; cursor:pointer; text-align:center; transition:.15s; }
   .card:hover { transform:translateY(-6px); border-color:#ffd76a; box-shadow:0 8px 24px rgba(255,215,106,.25); }
-  .card .icon { font-size:34px; margin-bottom:10px; }
-  .card .name { font-size:18px; font-weight:bold; margin-bottom:8px; color:#fff; }
-  .card .desc { font-size:13px; color:#9fb0c8; line-height:1.5; }
+  .card .icon { font-size:32px; margin-bottom:8px; }
+  .card .name { font-size:17px; font-weight:bold; margin-bottom:8px; color:#fff; }
+  .card .desc { font-size:13px; color:#c9d8ea; line-height:1.55; }
+  .card .note { font-size:11px; color:#7d8ea6; line-height:1.45; margin-top:8px;
+    padding-top:8px; border-top:1px dashed #2c3850; }
+  .badge { display:inline-block; font-size:10px; font-weight:normal; color:#ffd76a;
+    border:1px solid #6b5a2a; background:#2a2415; border-radius:4px; padding:1px 5px;
+    margin-left:6px; vertical-align:middle; }
   /* 开始 / 结束 */
   .overlay { position:absolute; inset:0; background:rgba(5,8,15,.92); display:flex;
     flex-direction:column; align-items:center; justify-content:center; gap:20px; color:#e8e8e8; text-align:center; }
@@ -64,10 +69,12 @@
   @media (max-width: 720px){
     #levelup h2 { font-size:22px; }
     #levelup .cards { flex-direction:column; gap:10px; width:86vw; max-width:340px; }
-    .card { width:100%; padding:14px; display:flex; align-items:center; gap:12px; text-align:left; }
-    .card .icon { font-size:26px; margin:0; }
-    .card .name { font-size:16px; margin-bottom:4px; }
-    .card .desc { font-size:12px; }
+    .card { width:100%; padding:12px 14px; display:flex; align-items:flex-start; gap:12px; text-align:left; }
+    .card .icon { font-size:24px; margin:2px 0 0; }
+    .card .body { flex:1; }
+    .card .name { font-size:15px; margin-bottom:3px; }
+    .card .desc { font-size:12px; line-height:1.45; }
+    .card .note { font-size:11px; margin-top:5px; padding-top:5px; }
     .overlay h1 { font-size:32px; letter-spacing:2px; }
     .overlay p { font-size:13px; padding:0 20px; }
     #timer { font-size:26px; }
@@ -98,7 +105,7 @@
     青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v1.5</p>
+    <p class="ver">v1.6</p>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -136,7 +143,8 @@ const GAME_TIME = 600; // 10 分钟（秒）
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / end
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
-let stats = { bullet:0, burn:0, orb:0 };
+let slashFx = [];   // 斩击特效
+let stats = { bullet:0, burn:0, orb:0, slash:0 };
 let camX = 0, camY = 0; // 相机（世界无限，跟随玩家）
 const keys = {};
 addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
@@ -190,29 +198,40 @@ cv.addEventListener('touchmove', e => {
 );
 
 // ---------- 升级池 ----------
+// max: 可选择的次数上限（不写=无限叠加）
 const UPGRADES = [
-  { icon:'⚔️', name:'利刃', desc:'伤害 +25%', apply:p=>p.dmg*=1.25 },
-  { icon:'⚡', name:'急速扳机', desc:'攻击速度 +20%', apply:p=>p.fireDelay*=0.8 },
-  { icon:'👟', name:'疾风步', desc:'移动速度 +12%', apply:p=>p.speed*=1.12 },
-  { icon:'❤️', name:'强健体魄', desc:'最大生命 +25 并回满', apply:p=>{p.maxHp+=25;p.hp=p.maxHp;} },
-  { icon:'🧲', name:'磁力水晶', desc:'拾取范围 +40%', apply:p=>p.magnet*=1.4 },
-  { icon:'🔱', name:'分裂弹', desc:'多发射 1 发子弹', apply:p=>p.multi+=1 },
-  { icon:'🎯', name:'穿透弹', desc:'子弹可穿透 +1 个敌人', apply:p=>p.pierce+=1 },
-  { icon:'💊', name:'再生', desc:'每秒回复 1 点生命（可叠加）', apply:p=>p.regen+=1 },
-  { icon:'💥', name:'致命一击', desc:'暴击率 +10%（双倍伤害）', apply:p=>p.crit+=0.10 },
-  { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌，撞击敌人（每分钟 +1 颗，上限为层数）', apply:p=>p.orbs+=1 },
-  { icon:'🔥', name:'灼热弹', desc:'子弹附带灼烧，每秒造成额外伤害', apply:p=>p.burn+=2 },
-  { icon:'🛡️', name:'减伤装甲', desc:'受到伤害 -15%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
+  { icon:'⚔️', name:'利刃', desc:'攻击伤害 +25%', note:'滚雪球核心，越早拿越赚', apply:p=>p.dmg*=1.25 },
+  { icon:'⚡', name:'急速扳机', desc:'攻击间隔 -20%，出手更快', note:'与利刃、分裂弹叠加收益最高', apply:p=>p.fireDelay*=0.8 },
+  { icon:'👟', name:'疾风步', desc:'移动速度 +12%', note:'走位拉扯的本钱', apply:p=>p.speed*=1.12 },
+  { icon:'❤️', name:'强健体魄', desc:'生命上限 +25，并立即回满', note:'残血时选它等于一次复活', apply:p=>{p.maxHp+=25;p.hp=p.maxHp;} },
+  { icon:'🧲', name:'磁力水晶', desc:'拾取范围 +40%', note:'后期满地水晶时收益极高', apply:p=>p.magnet*=1.4 },
+  { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中', apply:p=>p.multi+=1 },
+  { icon:'🎯', name:'穿透弹', desc:'子弹可多穿透 1 个敌人', note:'敌人排成一串时收益翻倍', apply:p=>p.pierce+=1 },
+  { icon:'💊', name:'再生', desc:'每秒回复 1 点生命', note:'越早拿越值', apply:p=>p.regen+=1 },
+  { icon:'💥', name:'致命一击', desc:'暴击率 +10%（暴击双倍伤害）', note:'初始暴击率 5%', apply:p=>p.crit+=0.10 },
+  { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌撞击敌人；每 45 秒 +1 颗，可无限增涨',
+    note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
+    apply:p=>{ p.orbs = 1; p.orbT = 45; } },
+  { icon:'🔥', name:'灼热弹', desc:'命中附加灼烧，持续 3 秒掉血', note:'对高血量敌人收益明显', apply:p=>p.burn+=2 },
+  { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
+  { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
+    note:'限选 1 次 · 每击杀 1 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
+    apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; } },
+  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝移动方向挥出扇形斩击（60% 伤害，范围伤害）',
+    note:'限选 1 次 · 移动充能 15 秒后，以自身为中心八向斩击（400% 伤害）', max:1,
+    apply:p=>{ p.slashMode=true; p.slashEnergy=0; } },
 ];
 
 // ---------- 初始化 ----------
 function newGame(){
   player = { x:0, y:0, r:14, hp:100, maxHp:100, speed:200, dmg:10, fireDelay:0.45,
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
-    level:1, xp:0, xpNeed:5, orbT:0, orbAngle:0, invul:0 };
-  enemies=[]; gems=[]; bullets=[]; parts=[];
+    level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0,
+    atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, faceAng:0,
+    taken:{} };
+  enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[];
   spawnTimer=0; gameTime=0; kills=0; shake=0;
-  stats = { bullet:0, burn:0, orb:0 };
+  stats = { bullet:0, burn:0, orb:0, slash:0 };
   camX=0; camY=0;
   joyEnd(); lastHeartKey = '';
 }
@@ -262,12 +281,31 @@ function update(dt){
   player.y += dy/len*player.speed*dt;
   if (player.invul>0) player.invul-=dt;
   if (player.regen>0) player.hp = Math.min(player.maxHp, player.hp+player.regen*dt);
-  // 自动攻击最近敌人
+  // 记录朝向（斩击方向用）
+  const moving = (dx!==0 || dy!==0);
+  if (moving) player.faceAng = Math.atan2(dy, dx);
+
+  // 攻击：子弹流 / 斩击流
   player.fireT -= dt;
-  if (player.fireT<=0){
+  if (player.slashMode){
+    // 移动充能：满 15 秒释放八向斩击
+    if (moving) player.slashEnergy += dt;
+    if (player.slashEnergy >= 15){
+      player.slashEnergy = 0;
+      releaseSlash8();
+    }
+    if (player.fireT <= 0){
+      player.fireT = 1.0;
+      // 斩击距离同样受攻击距离限制（坦克引擎会缩短它）
+      slashAttack(player.faceAng, 0.6*player.dmg, Math.min(200, player.atkRange), 0.9, '#dff3ff');
+    }
+  } else if (player.fireT<=0){
     let best=null, bd=1e9;
-    for (const e of enemies){ const d=Math.hypot(e.x-player.x,e.y-player.y); if(d<bd){bd=d;best=e;} }
-    if (best && bd < 460){
+    for (const e of enemies){
+      if (e.type==='ebullet') continue;
+      const d=Math.hypot(e.x-player.x,e.y-player.y); if(d<bd){bd=d;best=e;}
+    }
+    if (best && bd < player.atkRange){
       player.fireT = player.fireDelay;
       const ang = Math.atan2(best.y-player.y, best.x-player.x);
       for (let i=0;i<player.multi;i++){
@@ -277,16 +315,12 @@ function update(dt){
       }
     }
   }
-  // 旋风盾：每分钟 +1 颗，上限为强化层数
+  // 护体旋风：每 45 秒 +1 颗（仅可选 1 次，无限增涨）
   if (player.orbs>0){
     player.orbT -= dt;
-    if (player.orbT<=0){
-      player.orbT = 60;
-      player.orbCharges = Math.min(player.orbs, (player.orbCharges||0)+1);
-    }
-    player.orbAngle += dt*3;
-    const nb = Math.min(player.orbCharges||0, player.orbs);
-    for (let i=0;i<nb;i++){
+    if (player.orbT<=0){ player.orbT = 45; player.orbs += 1; }
+    player.orbAngle += dt*2.2;
+    for (let i=0;i<player.orbs;i++){
       const ox = player.x + Math.cos(player.orbAngle + i*Math.PI*2/player.orbs)*55;
       const oy = player.y + Math.sin(player.orbAngle + i*Math.PI*2/player.orbs)*55;
       for (let j=enemies.length-1;j>=0;j--){
@@ -410,18 +444,56 @@ function update(dt){
     const p=parts[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
     if (p.life<=0) parts.splice(i,1);
   }
+  // 斩击特效计时
+  for (let i=slashFx.length-1;i>=0;i--){
+    slashFx[i].life -= dt;
+    if (slashFx[i].life<=0) slashFx.splice(i,1);
+  }
   if (shake>0) shake-=dt*20;
   camX = player.x - (W/viewScale)/2; camY = player.y - (H/viewScale)/2;
   updateHUD();
 }
 
 function hurtFlash(e){ e.hurtT = 0.1; }
+
+// ---------- 斩击（爽煎滑蛋） ----------
+function slashAttack(ang, dmg, radius, halfArc, col){
+  slashFx.push({ x:player.x, y:player.y, ang, arc:halfArc, radius, life:0.22, maxLife:0.22, col });
+  for (let j=enemies.length-1;j>=0;j--){
+    const e = enemies[j];
+    if (e.hp<=0 || e.type==='ebullet') continue;
+    const d = Math.hypot(e.x-player.x, e.y-player.y);
+    if (d > radius + e.r) continue;
+    let da = Math.atan2(e.y-player.y, e.x-player.x) - ang;
+    while (da >  Math.PI) da -= Math.PI*2;
+    while (da < -Math.PI) da += Math.PI*2;
+    if (Math.abs(da) > halfArc) continue;
+    let dm = dmg;
+    if (Math.random() < player.crit) dm *= 2;
+    stats.slash += dm;
+    e.hp -= dm; hurtFlash(e);
+    if (player.burn>0){ e.burnT=3; e.burnDmg=player.burn; }
+    burst(e.x,e.y,col,3);
+    if (e.hp<=0) killEnemy(e);
+  }
+}
+function releaseSlash8(){
+  shake = 10;
+  const R = Math.min(260, player.atkRange);
+  slashFx.push({ x:player.x, y:player.y, ring:true, radius:R, life:0.4, maxLife:0.4, col:'#ffe9a8' });
+  for (let k=0;k<8;k++){
+    const a = k/8*Math.PI*2 + player.faceAng;
+    slashAttack(a, 4*player.dmg, R, 0.62, '#ffe9a8');
+  }
+}
 function burst(x,y,col,n){
   for(let i=0;i<n;i++) parts.push({x,y,vx:(Math.random()-0.5)*200,vy:(Math.random()-0.5)*200,life:0.3,col});
 }
 function killEnemy(e){
   kills++;
   burst(e.x,e.y,e.col,10);
+  // 坦克引擎：每击杀 1 个敌人，生命上限 +1%（基于选择时的血量上限）
+  if (player.killHpBase > 0) player.maxHp += player.killHpBase * 0.01;
   // 水晶先向外弹出并停留片刻（避免被磁力瞬间吸走、看不到掉落）
   if (e.xp>0) for(let i=0;i<e.xp;i++){
     const a = Math.random()*Math.PI*2, sp = 40+Math.random()*40;
@@ -433,13 +505,24 @@ function levelUp(){
   player.level++; player.xp -= player.xpNeed; player.xpNeed = Math.floor(player.xpNeed*1.1+2);
   state='levelup';
   joyEnd();
-  const pool = [...UPGRADES].sort(()=>Math.random()-0.5).slice(0,3);
+  // 限选次数的强化（如护体旋风、坦克引擎、爽煎滑蛋）选过后不再出现
+  const avail = UPGRADES.filter(u => !u.max || (player.taken[u.name]||0) < u.max);
+  const pool = avail.sort(()=>Math.random()-0.5).slice(0,3);
   const box = document.getElementById('cards');
   box.innerHTML='';
   for (const u of pool){
     const c = document.createElement('div'); c.className='card';
-    c.innerHTML = `<div class="icon">${u.icon}</div><div class="name">${u.name}</div><div class="desc">${u.desc}</div>`;
-    c.onclick = ()=>{ u.apply(player); document.getElementById('levelup').style.display='none'; state='playing'; };
+    const badge = u.max ? `<span class="badge">限选 ${u.max} 次</span>` : '';
+    c.innerHTML = `<div class="icon">${u.icon}</div>
+      <div class="body"><div class="name">${u.name}${badge}</div>
+      <div class="desc">${u.desc}</div>
+      <div class="note">${u.note||''}</div></div>`;
+    c.onclick = ()=>{
+      u.apply(player);
+      player.taken[u.name] = (player.taken[u.name]||0) + 1;
+      document.getElementById('levelup').style.display='none';
+      state='playing';
+    };
     box.appendChild(c);
   }
   document.getElementById('levelup').style.display='flex';
@@ -449,7 +532,7 @@ function endGame(win){
   document.getElementById('winTitle').style.display = win?'block':'none';
   document.getElementById('loseTitle').style.display = win?'none':'block';
   const m = Math.floor(gameTime/60), s = Math.floor(gameTime%60);
-  const total = Math.round(stats.bullet + stats.burn + stats.orb);
+  const total = Math.round(stats.bullet + stats.burn + stats.orb + stats.slash);
   const dps = Math.round(total / Math.max(1, gameTime));
   const pct = v => total>0 ? Math.round(v/total*100) : 0;
   const card = (v,k) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`;
@@ -459,8 +542,12 @@ function endGame(win){
     + card(dps, '每秒伤害')
     + card(player.level, '等级')
     + card(`${m}:${String(s).padStart(2,'0')}`, '存活时间');
-  document.getElementById('endInfo').innerHTML =
-    `伤害来源：<b>子弹 ${pct(stats.bullet)}%</b> · <b>灼烧 ${pct(stats.burn)}%</b> · <b>旋风 ${pct(stats.orb)}%</b>`;
+  const src = [];
+  if (stats.bullet>0) src.push(`<b>子弹 ${pct(stats.bullet)}%</b>`);
+  if (stats.slash>0)  src.push(`<b>斩击 ${pct(stats.slash)}%</b>`);
+  if (stats.burn>0)   src.push(`<b>灼烧 ${pct(stats.burn)}%</b>`);
+  if (stats.orb>0)    src.push(`<b>旋风 ${pct(stats.orb)}%</b>`);
+  document.getElementById('endInfo').innerHTML = '伤害来源：' + (src.join(' · ') || '—');
   document.getElementById('endscreen').style.display='flex';
 }
 
@@ -560,21 +647,45 @@ function draw(){
   }
   // 旋风盾
   if (player.orbs>0){
-    for (let i=0;i<Math.min(player.orbCharges||0,player.orbs);i++){
+    for (let i=0;i<player.orbs;i++){
       const ox2 = player.x + Math.cos(player.orbAngle + i*Math.PI*2/player.orbs)*55;
       const oy2 = player.y + Math.sin(player.orbAngle + i*Math.PI*2/player.orbs)*55;
-      ctx.fillStyle='#7ee7d8'; ctx.beginPath(); ctx.arc(ox2,oy2,9,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(ox2,oy2,9,0,Math.PI*2);
+      ctx.fillStyle='#7ee7d8'; ctx.fill();
+      ctx.lineWidth=1.5; ctx.strokeStyle='rgba(0,40,40,0.55)'; ctx.stroke();
     }
   }
+  // 斩击特效
+  for (const s of slashFx){
+    const p = 1 - s.life/s.maxLife;
+    const r = s.radius * (0.55 + 0.5*p);
+    ctx.globalAlpha = (1-p)*0.95;
+    ctx.strokeStyle = s.col;
+    ctx.lineWidth = s.ring ? Math.max(2, 5*(1-p)) : Math.max(3, 16*(1-p));
+    ctx.beginPath();
+    if (s.ring) ctx.arc(s.x, s.y, r, 0, Math.PI*2);
+    else ctx.arc(s.x, s.y, r, s.ang - s.arc, s.ang + s.arc);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
   // 玩家
   ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
   ctx.fillStyle = player.invul>0 && Math.floor(gameTime*20)%2 ? '#666' : '#f2f2f2';
   ctx.fill();
   ctx.lineWidth = 2.5; ctx.strokeStyle = '#2b6cff'; ctx.stroke();
+  // 斩击充能环（满 15 秒释放八向斩击）
+  if (player.slashMode){
+    const t = Math.min(1, player.slashEnergy/15);
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, player.r+9, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
+    ctx.lineWidth = 4; ctx.strokeStyle = t>=0.999 ? '#ffe9a8' : 'rgba(255,233,168,0.75)';
+    ctx.stroke();
+  }
   ctx.fillStyle='#2b6cff'; // 朝向指示
   let nearest=null,bd=1e9;
   for(const e of enemies){const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd){bd=d;nearest=e;}}
-  const fa = nearest?Math.atan2(nearest.y-player.y,nearest.x-player.x):0;
+  const fa = player.slashMode ? player.faceAng
+    : (nearest?Math.atan2(nearest.y-player.y,nearest.x-player.x):0);
   ctx.beginPath(); ctx.arc(player.x+Math.cos(fa)*10, player.y+Math.sin(fa)*10, 5, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 
