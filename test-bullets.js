@@ -124,25 +124,31 @@ assert(damaged.length === 5, `雷电链接命中 5 个敌人（实际 ${damaged.
 assert(damaged.every(e => Math.abs(e.hp - 950) < 0.01), '被链接的敌人各受 50% 伤害（-50）');
 assert(G.chainFx.length === 5, `生成 5 段闪电特效（实际 ${G.chainFx.length}）`);
 
-// --- 7. 灼烧弹：8 秒、每秒 0.5% 最大生命、不可叠加 ---
+// --- 7. 灼烧弹：持续 3 秒、每秒 = 基础伤害的 50%、可叠加 ---
 G.newGame('classic'); G.state='playing'; G.player.atkRange=0;
 const eBurn = { x:300, y:0, type:'grunt', id:90020, r:14, hp:1000, maxHp:1000,
   spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 };
 G.enemies = [eBurn];
-G.applyBulletEffect({ bt:'burn' }, eBurn, 10);
-assert(eBurn.burnT === 8, '点燃 8 秒');
-assert(Math.abs(eBurn.burnDmg - eBurn.maxHp*0.005) < 0.001, '每秒掉 0.5% 最大生命（5/秒）');
-// 再命中一次不应叠加
-G.applyBulletEffect({ bt:'burn' }, eBurn, 10);
-assert(Math.abs(eBurn.burnDmg - 5) < 0.001, '再次命中不叠加（伤害仍为 5/秒）');
+G.applyBulletEffect({ bt:'burn', dmg:10 }, eBurn, 10);
+assert(eBurn.burnT === 3, '点燃 3 秒');
+assert(Math.abs(eBurn.burnDmg - 5) < 0.001, `每秒基础伤害的 50%（10 基础 → 5/秒，实际 ${eBurn.burnDmg}）`);
+// 再命中一次应当叠加，并刷新持续时间
+G.applyBulletEffect({ bt:'burn', dmg:20 }, eBurn, 20);
+assert(Math.abs(eBurn.burnDmg - 15) < 0.001, `可叠加（5 + 20×50% = 15/秒，实际 ${eBurn.burnDmg}）`);
+assert(eBurn.burnT === 3, '再次命中刷新持续时间为 3 秒');
 // 烧伤掉血
 const hpB = eBurn.hp;
 G.update(1/60);
-assert(Math.abs((hpB - eBurn.hp) - 5/60) < 0.05, '灼烧按秒结算掉血');
+assert(Math.abs((hpB - eBurn.hp) - 15/60) < 0.05, '灼烧按秒结算叠加后的掉血');
+// 烧完之后强度清零，不会把旧叠加带到下一次点燃
+eBurn.burnT = 0.001; G.update(1/60); G.update(1/60);
+assert(eBurn.burnDmg === 0, '燃烧结束后强度清零');
 
 // 状态栏：灼烧只显示累计总伤害
-G.stats.burn = 1234.4;
+G.stats.burn = 0;
 G.state = 'playing';
+G.updateStatusBar();
+G.stats.burn = 1234.4;      // 0 → 正数会立即刷新（不受 0.4 秒节流限制）
 G.updateStatusBar();
 const barHtml = els['statbar'].innerHTML;
 assert(barHtml.indexOf('🔥 灼烧') >= 0, '状态栏新增灼烧行');

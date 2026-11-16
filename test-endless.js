@@ -82,10 +82,11 @@ G.update(1/60);
 assert(G.bossWarn > 0, 'BOSS 计时到 0 后进入登场警告');
 G.bossWarn = 0.01;
 G.update(1/60);
-const boss = G.enemies.find(e => e.type==='bhboss' || e.type==='boss');
+const boss = G.enemies.find(e => e.type==='bhboss' || e.type==='boss' || e.type==='eyeboss');
 assert(boss, 'BOSS 已登场');
 assert(G.endlessBosses === 1, `BOSS 计数 = ${G.endlessBosses}`);
-assert(boss.maxHp === (boss.type==='bhboss' ? 2000 : 2200), `首个 BOSS 血量无加成（${boss.maxHp}）`);
+const BASE_HP = { bhboss:2000, boss:2200, eyeboss:5000 };
+assert(boss.maxHp === BASE_HP[boss.type], `首个 BOSS 血量无加成（${boss.maxHp}）`);
 
 // --- 击杀 BOSS：掉大量经验水晶 + 额外三选一，不结束游戏 ---
 // （真实流程中由伤害结算方调用 killEnemy 后自行 splice 移除尸体）
@@ -101,8 +102,8 @@ assert(!G.enemies.some(e => e === boss), 'BOSS 已移除，游戏继续');
 // --- 第二个 BOSS 血量 +50% ---
 G.endlessBossT = 0.01; G.update(1/60);
 G.bossWarn = 0.01; G.update(1/60);
-const boss2 = G.enemies.find(e => e.type==='bhboss' || e.type==='boss');
-assert(boss2 && boss2.maxHp === Math.round((boss2.type==='bhboss'?2000:2200)*1.5),
+const boss2 = G.enemies.find(e => e.type==='bhboss' || e.type==='boss' || e.type==='eyeboss');
+assert(boss2 && boss2.maxHp === Math.round(BASE_HP[boss2.type]*1.5),
   `第二个 BOSS 血量 +50%（${boss2 && boss2.maxHp}）`);
 
 // --- 10 分钟后无限增强乘区 ---
