@@ -50,6 +50,15 @@
   #winTitle { color:#7ee787; }
   #loseTitle { color:#ff6b6b; }
 
+  /* 结算统计 */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 130px));
+    gap:10px; justify-content:center; max-width:92vw; }
+  .stat { background:#161c28; border:1px solid #2d3a4f; border-radius:10px; padding:12px 8px; }
+  .stat .v { font-size:22px; font-weight:bold; color:#ffd76a; line-height:1.2; }
+  .stat .k { font-size:12px; color:#8fa3bd; margin-top:3px; }
+  #endInfo { font-size:13px; color:#8fa3bd; max-width:92vw; }
+  #endInfo b { color:#c9d8ea; }
+
   /* 手机适配 */
   @media (max-width: 720px){
     #levelup h2 { font-size:22px; }
@@ -93,6 +102,7 @@
   <div class="overlay" id="endscreen">
     <h1 id="winTitle">🏆 你活下来了！</h1>
     <h1 id="loseTitle">💀 你被吞没了…</h1>
+    <div id="endStats" class="stats-grid"></div>
     <p id="endInfo"></p>
     <button id="retryBtn">再来一局</button>
   </div>
@@ -124,6 +134,7 @@ const GAME_TIME = 600; // 10 分钟（秒）
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / end
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
+let stats = { bullet:0, burn:0, orb:0 };
 let camX = 0, camY = 0; // 相机（世界无限，跟随玩家）
 const keys = {};
 addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
@@ -187,7 +198,7 @@ const UPGRADES = [
   { icon:'🎯', name:'穿透弹', desc:'子弹可穿透 +1 个敌人', apply:p=>p.pierce+=1 },
   { icon:'💊', name:'再生', desc:'每秒回复 1 点生命（可叠加）', apply:p=>p.regen+=1 },
   { icon:'💥', name:'致命一击', desc:'暴击率 +10%（双倍伤害）', apply:p=>p.crit+=0.10 },
-  { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌，撞击敌人（每 30 秒充能一层）', apply:p=>p.orbs+=1 },
+  { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌，撞击敌人（每分钟 +1 颗，上限为层数）', apply:p=>p.orbs+=1 },
   { icon:'🔥', name:'灼热弹', desc:'子弹附带灼烧，每秒造成额外伤害', apply:p=>p.burn+=2 },
   { icon:'🛡️', name:'减伤装甲', desc:'受到伤害 -15%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
 ];
@@ -199,6 +210,7 @@ function newGame(){
     level:1, xp:0, xpNeed:5, orbT:0, orbAngle:0, invul:0 };
   enemies=[]; gems=[]; bullets=[]; parts=[];
   spawnTimer=0; gameTime=0; kills=0; shake=0;
+  stats = { bullet:0, burn:0, orb:0 };
   camX=0; camY=0;
   joyEnd(); lastHeartKey = '';
 }
@@ -216,9 +228,9 @@ function spawnEnemy(){
   if (t>120 && roll>0.85) type='tank';
   if (t>240 && roll>0.72) type='shooter';
   const e = { x, y, type, id:++eid, hurtT:0, burnT:0, burnDmg:0 };
-  if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60; e.spd=70+diff*50; e.dmg=10+diff*15; e.col='#c94f4f'; e.xp=1; }
-  if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30; e.spd=150+diff*70; e.dmg=8+diff*10; e.col='#e6b84f'; e.xp=1; }
-  if (type==='tank'){ e.r=26; e.hp=e.maxHp=90+diff*220; e.spd=40+diff*25; e.dmg=20+diff*25; e.col='#8f5fd0'; e.xp=3; }
+  if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60; e.spd=70+diff*50; e.dmg=10; e.col='#c94f4f'; e.xp=1; }
+  if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30; e.spd=150+diff*70; e.dmg=8; e.col='#e6b84f'; e.xp=1; }
+  if (type==='tank'){ e.r=26; e.hp=e.maxHp=90+diff*220; e.spd=40+diff*25; e.dmg=20; e.col='#8f5fd0'; e.xp=3; }
   if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
     e.shootT = 1+Math.random()*2; }
   enemies.push(e);
@@ -263,18 +275,28 @@ function update(dt){
       }
     }
   }
-  // 旋风盾
+  // 旋风盾：每分钟 +1 颗，上限为强化层数
   if (player.orbs>0){
     player.orbT -= dt;
-    if (player.orbT<=0){ player.orbT = 30; player.orbCharges = (player.orbCharges||0)+1; }
+    if (player.orbT<=0){
+      player.orbT = 60;
+      player.orbCharges = Math.min(player.orbs, (player.orbCharges||0)+1);
+    }
     player.orbAngle += dt*3;
-    for (let i=0;i<Math.min(player.orbCharges,player.orbs);i++){
+    const nb = Math.min(player.orbCharges||0, player.orbs);
+    for (let i=0;i<nb;i++){
       const ox = player.x + Math.cos(player.orbAngle + i*Math.PI*2/player.orbs)*55;
       const oy = player.y + Math.sin(player.orbAngle + i*Math.PI*2/player.orbs)*55;
-      for (const e of enemies){
-        if (Math.hypot(e.x-ox,e.y-oy) < e.r+10 && !e.orbHit){
-          e.orbHit = true; e.hp -= 25 + player.dmg; hurtFlash(e);
-          setTimeout(()=>e.orbHit=false, 300);
+      for (let j=enemies.length-1;j>=0;j--){
+        const e = enemies[j];
+        if (e.hp<=0 || e.type==='ebullet') continue;
+        if (Math.hypot(e.x-ox,e.y-oy) < e.r+10){
+          if ((e.orbCd||0) > gameTime) continue;
+          e.orbCd = gameTime + 0.3;
+          const od = 25 + player.dmg;
+          stats.orb += od; e.hp -= od; hurtFlash(e);
+          burst(e.x,e.y,'#7ee7d8',3);
+          if (e.hp<=0) killEnemy(e);   // 旋风击杀同样掉经验、计数
         }
       }
     }
@@ -285,12 +307,20 @@ function update(dt){
     b.x += Math.cos(b.ang)*b.spd*dt; b.y += Math.sin(b.ang)*b.spd*dt; b.life-=dt;
     if (b.life<=0){ bullets.splice(i,1); continue; }
     for (const e of enemies){
-      if (e.type==='ebullet' || e.hp<=0) continue;
+      if (e.hp<=0) continue;
       if (b.hit.indexOf(e.id) >= 0) continue;
       if (Math.hypot(e.x-b.x,e.y-b.y) < e.r+b.r){
+        // 敌弹可被子弹打掉（不计伤害/击杀）
+        if (e.type==='ebullet'){
+          e.hp = 0; burst(e.x,e.y,'#4fd0c9',6);
+          b.hit.push(e.id);
+          if (b.pierce > 0) b.pierce--; else bullets.splice(i,1);
+          break;
+        }
         let dmg = b.dmg;
         let crit = Math.random() < player.crit;
         if (crit) dmg*=2;
+        stats.bullet += dmg;
         e.hp -= dmg; hurtFlash(e);
         if (player.burn>0){ e.burnT=3; e.burnDmg=player.burn; }
         burst(b.x,b.y, crit?'#ffd76a':'#9fd0ff', 4);
@@ -307,7 +337,7 @@ function update(dt){
     const e = enemies[i];
     if (e.hp<=0){ enemies.splice(i,1); continue; }
     if (e.hurtT>0) e.hurtT-=dt;
-    if (e.burnT>0){ e.burnT-=dt; e.hp-=e.burnDmg*dt; if(Math.random()<dt*8) burst(e.x,e.y,'#ff7a3c',1); if(e.hp<=0){killEnemy(e); continue;} }
+    if (e.burnT>0){ e.burnT-=dt; const bd = Math.min(e.burnDmg*dt, Math.max(0,e.hp)); stats.burn += bd; e.hp-=e.burnDmg*dt; if(Math.random()<dt*8) burst(e.x,e.y,'#ff7a3c',1); if(e.hp<=0){killEnemy(e); continue;} }
     const d = Math.hypot(player.x-e.x, player.y-e.y);
     const ang = Math.atan2(player.y-e.y, player.x-e.x);
     // 敌方子弹：直线飞行，不追踪
@@ -361,9 +391,9 @@ function update(dt){
       if (player.xp >= player.xpNeed){ levelUp(); return; }
     }
   }
-  // 生成
+  // 生成（频率更缓：开局 ~1.2 秒一只，末段 ~0.35 秒一只）
   spawnTimer -= dt;
-  const rate = Math.max(0.12, 0.9 - gameTime/600*0.75);
+  const rate = Math.max(0.35, 1.2 - gameTime/600*0.85);
   if (spawnTimer<=0){ spawnTimer = rate; spawnEnemy(); }
   // 粒子
   for (let i=parts.length-1;i>=0;i--){
@@ -386,7 +416,7 @@ function killEnemy(e){
   if (e.type==='boss') burst(e.x,e.y,'#ffd76a',40);
 }
 function levelUp(){
-  player.level++; player.xp -= player.xpNeed; player.xpNeed = Math.floor(player.xpNeed*1.4+2);
+  player.level++; player.xp -= player.xpNeed; player.xpNeed = Math.floor(player.xpNeed*1.1+2);
   state='levelup';
   joyEnd();
   const pool = [...UPGRADES].sort(()=>Math.random()-0.5).slice(0,3);
@@ -405,8 +435,18 @@ function endGame(win){
   document.getElementById('winTitle').style.display = win?'block':'none';
   document.getElementById('loseTitle').style.display = win?'none':'block';
   const m = Math.floor(gameTime/60), s = Math.floor(gameTime%60);
+  const total = Math.round(stats.bullet + stats.burn + stats.orb);
+  const dps = Math.round(total / Math.max(1, gameTime));
+  const pct = v => total>0 ? Math.round(v/total*100) : 0;
+  const card = (v,k) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`;
+  document.getElementById('endStats').innerHTML =
+      card(kills, '击杀数')
+    + card(total.toLocaleString(), '总伤害')
+    + card(dps, '每秒伤害')
+    + card(player.level, '等级')
+    + card(`${m}:${String(s).padStart(2,'0')}`, '存活时间');
   document.getElementById('endInfo').innerHTML =
-    `存活时间 <b style="color:#ffd76a">${m}:${String(s).padStart(2,'0')}</b> · 等级 ${player.level} · 击杀 ${kills}`;
+    `伤害来源：<b>子弹 ${pct(stats.bullet)}%</b> · <b>灼烧 ${pct(stats.burn)}%</b> · <b>旋风 ${pct(stats.orb)}%</b>`;
   document.getElementById('endscreen').style.display='flex';
 }
 
