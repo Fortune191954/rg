@@ -121,9 +121,10 @@ assert(e1 && e1.type === 'grunt', '成功刷出普通怪用于核对');
 // 注意：经典刷怪公式的 diff = t/GAME_TIME 未封顶，无尽模式 t>600 后基础血量继续线性成长，再叠乘区
 const diffU = 1000/600;                       // 1.667，不封顶
 const stages = 400/300;                       // 1.333
-const expectHp = (20 + diffU*60*0.60) * (1 + stages*0.5);
+const slowGrow = 1000/60;                     // 17 分钟内缓慢成长：血 +1.5%/分钟，伤害 +1%/分钟
+const expectHp = (20 + diffU*60*0.60) * (1 + stages*0.5) * (1 + slowGrow*0.015);
 assert(Math.abs(e1.maxHp - expectHp) < 0.01, `增强乘区：maxHp=${e1.maxHp.toFixed(1)}（期望 ${expectHp.toFixed(1)}）`);
-assert(e1.dmg === Math.round(10*(1+stages*0.2)), `伤害 +20%/5分钟（dmg=${e1.dmg}）`);
+assert(e1.dmg === Math.max(1, Math.round(10*(1+stages*0.2)*(1+slowGrow*0.01))), `伤害 +20%/5分钟 且随时间缓慢成长（dmg=${e1.dmg}）`);
 assert(e1.xp === 1 + Math.floor(stages), `经验 +1/5分钟（xp=${e1.xp}）`);
 assert(e1.spd === Math.round((70+diffU*50) * Math.min(1.6, 1+stages*0.1)), `移速 +10%/5分钟 封顶1.6倍（spd=${e1.spd}）`);
 

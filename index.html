@@ -98,6 +98,33 @@
   #endInfo { font-size:13px; color:#8fa3bd; max-width:92vw; }
   #endInfo b { color:#c9d8ea; }
   .ver { font-size:12px !important; color:#55647c !important; letter-spacing:1px; }
+  /* 商店 */
+  #shopscreen { display:none; }
+  .shop-points { font-size:19px; color:#ffd76a; font-weight:bold; letter-spacing:1px; }
+  .shop-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 240px)); gap:12px;
+    justify-content:center; max-width:94vw; max-height:48vh; overflow-y:auto; padding:4px; }
+  .bcard { background:#141b27; border:2px solid #33415a; border-radius:12px; padding:13px;
+    text-align:left; display:flex; flex-direction:column; gap:8px; }
+  .bcard.equipped { border-color:#7ee787; box-shadow:0 0 18px rgba(126,231,135,.18); }
+  .bcard .btop { display:flex; align-items:center; gap:8px; }
+  .bcard .bicon { font-size:24px; line-height:1; }
+  .bcard .bname { font-size:16px; font-weight:bold; color:#fff; }
+  .bcard .bdesc { font-size:12px; color:#9fb0c8; line-height:1.55; flex:1; min-height:52px; }
+  .bcard button { padding:9px 10px; font-size:13px; letter-spacing:1px; border-radius:8px; border:none;
+    cursor:pointer; font-weight:bold; background:#ffd76a; color:#222; width:100%; }
+  .bcard button:disabled { background:#2c3850; color:#7d8ea6; cursor:not-allowed; }
+  .bcard button.eq { background:#2b6b3a; color:#d8ffe2; }
+  /* 账号 */
+  #loginscreen { display:none; }
+  .login-box { display:flex; flex-direction:column; gap:9px; width:min(340px, 86vw); }
+  .login-box input { padding:12px 14px; border-radius:10px; border:2px solid #33415a; background:#111826;
+    color:#e8e8e8; font-size:15px; outline:none; letter-spacing:0; }
+  .login-box input:focus { border-color:#ffd76a; }
+  .login-box button { padding:11px 10px !important; font-size:14px !important; letter-spacing:1px !important; }
+  .acct-row { display:flex; gap:8px; }
+  .acct-row button { flex:1; }
+  .login-msg { font-size:13px; color:#ff9a9a; min-height:18px; line-height:1.4; }
+  .login-msg.ok { color:#7ee787; }
   /* BOSS 血条 */
   #bossbar { position:absolute; top:52px; left:50%; transform:translateX(-50%);
     width:min(560px, 78vw); display:none; flex-direction:column; align-items:center; gap:4px;
@@ -145,7 +172,7 @@
     <div id="timer">10:00</div>
     <div id="hudRight">
       <button id="pauseBtn" title="暂停 / 继续（P 或 Esc）">⏸</button>
-      <div id="stats">等级 1<br>击杀 0</div>
+      <div id="stats">等级 1<br>积分 0</div>
     </div>
   </div>
   <div id="hearts"></div>
@@ -174,7 +201,7 @@
         <div class="mi">♾</div>
         <div class="body">
           <div class="mn">无尽模式</div>
-          <div class="md">无限变难 · 每 5 分钟随机 BOSS · 冲击最佳纪录</div>
+          <div class="md">无限变难 · 每 3 分钟随机 BOSS · 经验全屏吸取 · 冲击最佳纪录</div>
         </div>
       </button>
       <button class="mode" id="modeBoss">
@@ -185,7 +212,45 @@
         </div>
       </button>
     </div>
-    <p class="ver">v2.6</p>
+    <div class="btnrow">
+      <button id="shopBtn" class="ghost mini">🛒 子弹商店</button>
+      <button id="accountBtn" class="ghost mini">👤 账号</button>
+    </div>
+    <p class="ver">v2.8</p>
+  </div>
+
+  <div class="overlay" id="shopscreen">
+    <h1 style="color:#ffd76a;font-size:34px">🛒 子弹商店</h1>
+    <p class="sub">十分钟模式击杀敌人获得积分 · 解锁后任何模式可用 · 所有子弹命中率 80%</p>
+    <div class="shop-points" id="shopPoints">💰 积分 0</div>
+    <div class="shop-list" id="shopList"></div>
+    <div class="btnrow">
+      <button id="shopAccountBtn" class="ghost mini">👤 账号 / 云存档</button>
+      <button id="shopBackBtn" class="ghost mini">← 返回主页</button>
+    </div>
+    <p class="ver">v2.8</p>
+  </div>
+
+  <div class="overlay" id="loginscreen">
+    <h1 style="color:#8fd6ff;font-size:30px">👤 账号</h1>
+    <p class="sub" id="loginState">未登录 · 进度仅保存在本机</p>
+    <div class="login-box" id="loginForm">
+      <input id="loginEmail" type="email" placeholder="邮箱" autocomplete="username" inputmode="email">
+      <input id="loginPass" type="password" placeholder="密码（至少 6 位）" autocomplete="current-password">
+      <input id="loginCode" type="text" placeholder="邮箱验证码（仅注册时需要）" inputmode="numeric" style="display:none">
+      <div class="acct-row">
+        <button id="sendCodeBtn" class="ghost" style="display:none">获取验证码</button>
+        <button id="loginBtn">登录</button>
+        <button id="registerBtn" class="ghost">注册</button>
+      </div>
+      <div class="login-msg" id="loginMsg"></div>
+    </div>
+    <div class="btnrow" id="cloudActions" style="display:none">
+      <button id="cloudSyncBtn" class="ghost mini">上传本机进度</button>
+      <button id="logoutBtn" class="ghost mini">退出登录</button>
+    </div>
+    <button id="loginBackBtn" class="ghost mini">← 返回</button>
+    <p class="ver">v2.8</p>
   </div>
 
   <div class="overlay" id="bossscreen">
@@ -215,19 +280,19 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini">← 返回模式选择</button>
-    <p class="ver">v2.6</p>
+    <p class="ver">v2.8</p>
   </div>
 
   <div class="overlay" id="endlessScreen">
     <h1 style="color:#8fd6ff">♾ 无尽模式</h1>
     <p>没有胜利，只有活下去。<br>
-    难度<b style="color:#8fd6ff">无限增强</b>：10 分钟后怪物血量每 5 分钟 +50%、伤害 +20%、场上上限持续放宽。<br>
-    每 <b style="color:#8fd6ff">5 分钟</b>随机降临一个 BOSS（血量递增 +50%/个），击杀掉落大量经验水晶并送一次三选一强化。<br>
+    难度<b style="color:#8fd6ff">无限增强</b>：怪物血量与伤害随时间缓慢提升，10 分钟后血量每 5 分钟 +50%、伤害 +20%。<br>经验水晶<b style="color:#8fd6ff">全屏自动吸取</b>（亮度较低，不刺眼）。<br>
+    每 <b style="color:#8fd6ff">3 分钟</b>随机降临一个 BOSS（血量递增 +50%/个），击杀掉落大量经验水晶并送一次三选一强化。<br>
     经验升级三选一，<b style="color:#8fd6ff">无次数上限</b>。看看你能活多久！</p>
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;"></p>
     <button id="endlessStartBtn">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini">← 返回模式选择</button>
-    <p class="ver">v2.6</p>
+    <p class="ver">v2.8</p>
   </div>
 
   <div class="overlay" id="startscreen">
@@ -237,7 +302,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
     <button id="startBackBtn" class="ghost mini">← 返回模式选择</button>
-    <p class="ver">v2.6</p>
+    <p class="ver">v2.8</p>
   </div>
 
   <div class="overlay" id="pausescreen">
@@ -262,6 +327,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
 <script>
 const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
 let W, H, dpr = 1;
@@ -299,8 +365,52 @@ const BH_HP = 2000;         // 黑洞怪初始血量
 const BH_R0 = 58;           // 黑洞怪基础半径
 const HOLE_MAX = 5;         // 小黑洞数量上限
 const BOSS_SLOW = 0.65;     // BOSS 登场后玩家移速倍率（-35%）
-const ENDLESS_BOSS_T = 300; // 无尽模式：每 5 分钟刷一个 BOSS
+const ENDLESS_BOSS_T = 180; // 无尽模式：每 3 分钟刷一个 BOSS
 const BOSS_ARENA_HALF = 650; // BOSS 试炼场地半宽（1300×1300 的封闭竞技场）
+
+// ---------- 子弹系统（商店解锁，任何模式可用） ----------
+// 所有子弹命中率统一 80%（20% 概率穿过敌人不造成伤害与效果）
+const HIT_RATE = 0.8;
+const BULLETS = {
+  normal:  { icon:'•',  name:'普通弹',   cost:0,    desc:'标准弹药，稳定可靠', color:'#bfe6ff' },
+  ice:     { icon:'❄',  name:'寒冰弹',   cost:3000, desc:'命中减速 50%（移速 + 攻速，持续 3 秒），伤害与普通弹相同', color:'#7fd8ff' },
+  thunder: { icon:'⚡',  name:'雷电子弹', cost:4500, desc:'命中后雷电链接附近最多 5 个敌人，各受 50% 伤害', color:'#a8b8ff' },
+  burn:    { icon:'🔥',  name:'灼烧弹',   cost:5000, desc:'点燃 8 秒，每秒掉 1% 最大生命值（不可叠加）', color:'#ff9a5c' },
+  yelve:   { icon:'☄',  name:'耶律弹',   cost:6000, desc:'自动追踪敌人，伤害 1.25 倍，带长绿色拖尾', color:'#6dff9e' },
+};
+const BULLET_ORDER = ['normal','ice','thunder','burn','yelve'];
+// 击杀积分：红1 / 黄2 / 紫5 / 青7 / BOSS 500（仅十分钟模式获取）
+const KILL_POINTS = { grunt:1, fast:2, tank:5, shooter:7, boss:500, bhboss:500 };
+// 玩家进度（跨局持久化：localStorage + 登录后云同步）
+let userPoints = 0;                       // 总积分（余额）
+let unlockedBullets = ['normal'];         // 已解锁子弹
+let equippedBullet = 'normal';            // 当前装备
+let runPoints = 0;                        // 本局获得积分
+let cloudUser = null;                     // 登录用户（null=未登录，走本地存档）
+let chainFx = [];                         // 雷电链特效
+let saveT = 0, progressDirty = false;     // 进度节流存盘
+
+// ---------- 玩家进度存档（本地 + 登录后云同步） ----------
+const LS_KEY = 'rg_profile_v1';
+function loadProgress(){
+  try {
+    const raw = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (raw){
+      userPoints = Math.max(0, raw.points|0);
+      unlockedBullets = Array.isArray(raw.unlocked) ? raw.unlocked.filter(id=>BULLETS[id]) : ['normal'];
+      if (unlockedBullets.indexOf('normal') < 0) unlockedBullets.unshift('normal');
+      equippedBullet = unlockedBullets.indexOf(raw.equipped) >= 0 ? raw.equipped : 'normal';
+    }
+  } catch(_){}
+}
+function saveProgress(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet,
+    }));
+  } catch(_){}
+  if (cloudUser) cloudSave();
+}
 
 // 黑洞怪：体型与吞噬总量呈对数关系（无上限）
 function bhRadius(absorbed){ return BH_R0 * (1 + 0.55*Math.log(1 + absorbed/150)); }
@@ -392,7 +502,6 @@ const UPGRADES = [
   { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌撞击敌人；每 45 秒 +1 颗，可无限增涨',
     note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
     apply:p=>{ p.orbs = 1; p.orbT = 45; } },
-  { icon:'🔥', name:'灼热弹', desc:'命中附加灼烧，持续 3 秒掉血', note:'对高血量敌人收益明显', apply:p=>p.burn+=2 },
   { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
     note:'限选 1 次 · 每击杀 5 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
@@ -409,9 +518,9 @@ function newGame(m='classic', kind='blackhole'){
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
     level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0,
     atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, killHpCount:0, faceAng:0, vampire:false,
-    taken:{} };
-  enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[]; dmgNums=[]; holes=[];
-  spawnTimer=0; gameTime=0; kills=0; shake=0;
+    bullet:equippedBullet, taken:{} };
+  enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[]; dmgNums=[]; holes=[]; chainFx=[];
+  spawnTimer=0; gameTime=0; kills=0; shake=0; runPoints=0;
   stats = { bullet:0, burn:0, orb:0, slash:0 };
   camX=0; camY=0;
   spawnedBoss = false;
@@ -442,6 +551,7 @@ function spawnEnemy(){
   if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70*HP_GROWTH; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
     e.shootT = 1+Math.random()*2; }
   // 无尽模式：10 分钟后无限增强——血量每 5 分钟 +50%、伤害 +20%、移速 +10%（封顶 1.6 倍），经验 +1/5分钟
+  // 另外全场随时间缓慢成长：每 1 分钟血量 +1.5%、伤害 +1%（非常慢，长局也能感觉到压力）
   if (mode === 'endless'){
     const post = Math.max(0, gameTime - GAME_TIME);
     const stages = post/300;
@@ -450,6 +560,9 @@ function spawnEnemy(){
     e.dmg = Math.round(e.dmg * (1 + stages*0.2));
     e.spd = Math.round(e.spd * Math.min(1.6, 1 + stages*0.1));
     e.xp += Math.floor(stages);
+    const slowGrow = gameTime/60;      // 分钟数
+    e.hp *= 1 + slowGrow*0.015; e.maxHp *= 1 + slowGrow*0.015;
+    e.dmg = Math.max(1, Math.round(e.dmg * (1 + slowGrow*0.01)));
   }
   enemies.push(e);
 }
@@ -652,10 +765,16 @@ function update(dt){
     if (best && bd < player.atkRange){
       player.fireT = player.fireDelay;
       const ang = Math.atan2(best.y-player.y, best.x-player.x);
+      const bt = player.bullet || 'normal';
+      const isYelve = bt === 'yelve';
       for (let i=0;i<player.multi;i++){
         const off = (i-(player.multi-1)/2)*0.16;
-        bullets.push({ x:player.x, y:player.y, ang:ang+off, spd:560, dmg:player.dmg,
-          pierce:player.pierce, life:0.9, r:5, hit:[] });
+        const b = { x:player.x, y:player.y, ang:ang+off, spd:isYelve ? 480 : 560,
+          dmg:player.dmg * (isYelve ? 1.25 : 1),
+          pierce:player.pierce, life:isYelve ? 2.6 : 0.9, r:5, hit:[], bt,
+          dud: Math.random() >= HIT_RATE };   // 20% 空弹：整发穿过不造成伤害
+        if (isYelve){ b.trail = []; b.turn = 0; }   // 耶律弹：追踪 + 长绿色拖尾
+        bullets.push(b);
       }
     }
   }
@@ -685,7 +804,27 @@ function update(dt){
   // 子弹
   for (let i=bullets.length-1;i>=0;i--){
     const b = bullets[i];
+    // 耶律弹：朝最近敌人有限转向追踪，并记录长拖尾
+    if (b.bt === 'yelve'){
+      let tg=null, td=1e9;
+      for (const e of enemies){
+        if (e.hp<=0 || e.suck || e.type==='ebullet') continue;
+        const dd = Math.hypot(e.x-b.x, e.y-b.y);
+        if (dd < td){ td = dd; tg = e; }
+      }
+      if (tg){
+        const want = Math.atan2(tg.y-b.y, tg.x-b.x);
+        let diff = want - b.ang;
+        while (diff > Math.PI) diff -= Math.PI*2;
+        while (diff < -Math.PI) diff += Math.PI*2;
+        const maxTurn = 5.5*dt;   // 转向速率：能拐弯但不会瞬移甩尾
+        b.ang += Math.max(-maxTurn, Math.min(maxTurn, diff));
+      }
+      b.trail.push({x:b.x, y:b.y});
+      if (b.trail.length > 26) b.trail.shift();
+    }
     b.x += Math.cos(b.ang)*b.spd*dt; b.y += Math.sin(b.ang)*b.spd*dt; b.life-=dt;
+    if (b.missT > 0) b.missT -= dt;
     if (b.life<=0){ bullets.splice(i,1); continue; }
     // BOSS 试炼：玩家子弹撞场地边界即消失
     if (mode === 'boss' && (b.x < -BOSS_ARENA_HALF || b.x > BOSS_ARENA_HALF
@@ -703,13 +842,20 @@ function update(dt){
           if (b.pierce > 0) b.pierce--; else bullets.splice(i,1);
           break;
         }
+        // 命中率 80%：空弹整发穿过，不造成伤害与任何效果（但记入 hit，避免逐帧重复判定）
+        if (b.dud){
+          b.missT = 0.2;
+          b.hit.push(e.id);
+          continue;
+        }
         let dmg = b.dmg;
         let crit = Math.random() < player.crit;
         if (crit) dmg*=2;
         stats.bullet += dmg;
         e.hp -= dmg; hurtFlash(e);
         addDmg(e.x, e.y-e.r-8, dmg, crit);
-        if (player.burn>0){ e.burnT=3; e.burnDmg=player.burn; }
+        // 子弹特效
+        applyBulletEffect(b, e, dmg);
         burst(b.x,b.y, crit?'#ffd76a':'#9fd0ff', 4);
         if (e.hp<=0) killEnemy(e);
         b.hit.push(e.id);
@@ -725,6 +871,9 @@ function update(dt){
     if (e.hp<=0){ enemies.splice(i,1); continue; }
     if (e.hurtT>0) e.hurtT-=dt;
     if (e.burnT>0){ e.burnT-=dt; const bd = Math.min(e.burnDmg*dt, Math.max(0,e.hp)); stats.burn += bd; e.hp-=e.burnDmg*dt; if(Math.random()<dt*8) burst(e.x,e.y,'#ff7a3c',1); if(e.hp<=0){killEnemy(e); continue;} }
+    // 寒冰减速：移速与攻速各 -50%（持续 3 秒）
+    if (e.slowT > 0) e.slowT -= dt;
+    const sm = e.slowT > 0 ? 0.5 : 1;
     const d = Math.hypot(player.x-e.x, player.y-e.y);
     const ang = Math.atan2(player.y-e.y, player.x-e.x);
     // 被黑洞怪吸走的小怪：直冲黑洞，碰到即被吞噬（不掉经验、不伤害玩家）
@@ -803,8 +952,8 @@ function update(dt){
       continue;
     }
     if (e.type==='shooter'){
-      e.shootT -= dt;
-      if (d>260) { e.x+=Math.cos(ang)*e.spd*dt; e.y+=Math.sin(ang)*e.spd*dt; }
+      e.shootT -= dt*sm;
+      if (d>260) { e.x+=Math.cos(ang)*e.spd*sm*dt; e.y+=Math.sin(ang)*e.spd*sm*dt; }
       if (e.shootT<=0 && d<520){ e.shootT=2.2;
         // 发射瞬间锁定方向，之后不再追踪
         enemies.push({x:e.x,y:e.y,type:'ebullet',id:++eid,ang:ang,r:6,hp:1,maxHp:1,spd:280,dmg:e.dmg,col:'#4fd0c9',xp:0,life:3,hurtT:0,burnT:0,burnDmg:0});
@@ -812,8 +961,8 @@ function update(dt){
     } else if (e.type==='bhboss'){
       // 黑洞怪：缓慢逼近，每 1.47 秒放一个小黑洞（攻击速度 +70%）；血量 50% 时狂暴
       e.vortexA += dt*1.6;
-      if (d > 260){ e.x += Math.cos(ang)*e.spd*dt; e.y += Math.sin(ang)*e.spd*dt; }
-      e.castT -= dt;
+      if (d > 260){ e.x += Math.cos(ang)*e.spd*sm*dt; e.y += Math.sin(ang)*e.spd*sm*dt; }
+      e.castT -= dt*sm;
       if (e.castT <= 0){ e.castT = 1.47; spawnHole(e); }
       if (!e.enraged && e.hp <= e.maxHp*0.5){
         e.enraged = true;
@@ -824,7 +973,7 @@ function update(dt){
         slashFx.push({ x:e.x, y:e.y, ring:true, radius:e.r*2.4, life:0.6, maxLife:0.6, col:'#c9a8ff' });
       }
       if (e.enraged){
-        e.volleyT -= dt;
+        e.volleyT -= dt*sm;
         if (e.volleyT <= 0){
           e.volleyT = 1.0;
           e.volleyA += 0.55;                      // 每轮换个方向
@@ -837,16 +986,16 @@ function update(dt){
         }
       }
     } else if (e.type==='boss'){
-      e.shootT-=dt; e.chargeT-=dt;
+      e.shootT-=dt*sm; e.chargeT-=dt*sm;
       if (e.chargeT<=0){ e.chargeT=6; e.rushT=1.2; e.rushAng=ang; }
-      if (e.rushT>0){ e.rushT-=dt; e.x+=Math.cos(e.rushAng)*e.spd*6*dt; e.y+=Math.sin(e.rushAng)*e.spd*6*dt; }
-      else { e.x+=Math.cos(ang)*e.spd*dt; e.y+=Math.sin(ang)*e.spd*dt; }
+      if (e.rushT>0){ e.rushT-=dt; e.x+=Math.cos(e.rushAng)*e.spd*6*sm*dt; e.y+=Math.sin(e.rushAng)*e.spd*6*sm*dt; }
+      else { e.x+=Math.cos(ang)*e.spd*sm*dt; e.y+=Math.sin(ang)*e.spd*sm*dt; }
       if (e.shootT<=0){ e.shootT=1.6;
         for(let k=0;k<8;k++){ const a2=k/8*Math.PI*2 + gameTime*0.6;
           enemies.push({x:e.x,y:e.y,type:'ebullet',id:++eid,ang:a2,r:7,hp:1,maxHp:1,spd:200,dmg:15,col:'#ff8aa8',xp:0,life:4,hurtT:0,burnT:0,burnDmg:0}); }
       }
     } else {
-      e.x += Math.cos(ang)*e.spd*dt; e.y += Math.sin(ang)*e.spd*dt;
+      e.x += Math.cos(ang)*e.spd*sm*dt; e.y += Math.sin(ang)*e.spd*sm*dt;
     }
     // BOSS 试炼：BOSS 本体与小怪限制在场地内（按各自半径留边）
     if (mode === 'boss'){
@@ -873,7 +1022,9 @@ function update(dt){
       continue;
     }
     const d = Math.hypot(player.x-g.x, player.y-g.y) || 1;
-    if (d < player.magnet){ g.x += (player.x-g.x)/d*300*dt; g.y += (player.y-g.y)/d*300*dt; }
+    // 无尽模式：经验自动全屏吸收
+    const mg = mode === 'endless' ? Infinity : player.magnet;
+    if (d < mg){ const pull = mode === 'endless' ? 620 : 300; g.x += (player.x-g.x)/d*pull*dt; g.y += (player.y-g.y)/d*pull*dt; }
     if (d < player.r+8){
       gems.splice(i,1); player.xp += g.v;
       if (player.xp >= player.xpNeed){ levelUp(); return; }
@@ -954,6 +1105,11 @@ function update(dt){
     const p=parts[i]; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
     if (p.life<=0) parts.splice(i,1);
   }
+  // 雷电链特效计时
+  for (let i=chainFx.length-1;i>=0;i--){
+    chainFx[i].t += dt;
+    if (chainFx[i].t >= chainFx[i].life) chainFx.splice(i,1);
+  }
   // 斩击特效计时
   for (let i=slashFx.length-1;i>=0;i--){
     slashFx[i].life -= dt;
@@ -975,6 +1131,9 @@ function update(dt){
     camY = vh2 >= HF*2 ? -vh2/2 : Math.max(-HF, Math.min(HF - vh2, camY));
   }
   updateHUD();
+  // 进度节流存盘（积分变化后最多 3 秒落一次）
+  saveT -= dt;
+  if (progressDirty && saveT <= 0){ saveT = 3; progressDirty = false; saveProgress(); }
 }
 
 function hurtFlash(e){ e.hurtT = 0.1; }
@@ -1029,6 +1188,11 @@ function burst(x,y,col,n){
 }
 function killEnemy(e){
   kills++;
+  // 积分：只在十分钟模式获取（红1/黄2/紫5/青7/BOSS 500）
+  if (mode === 'classic'){
+    const gp = KILL_POINTS[e.type] || 0;
+    if (gp > 0){ runPoints += gp; userPoints += gp; progressDirty = true; }
+  }
   burst(e.x,e.y,e.col,10);
   // 坦克引擎：每击杀 5 个敌人，生命上限 +1%（基于选择时的血量上限）
   if (player.killHpBase > 0 && e.type !== 'boss'){
@@ -1055,6 +1219,44 @@ function killEnemy(e){
       }
       showUpgradePanel(); return;
     }
+  }
+}
+// ---------- 子弹特效 ----------
+// 寒冰：命中减速 50%（移速 + 攻速）3 秒
+// 雷电：链接附近最多 5 个敌人，各受 50% 伤害
+// 灼烧：点燃 8 秒，每秒 1% 最大生命值，不可叠加
+// 耶律：无附加特效（1.25 倍伤害 + 追踪已在发射时处理）
+function applyBulletEffect(b, e, dmg){
+  const bt = b.bt || 'normal';
+  if (bt === 'ice'){
+    e.slowT = 3;
+    burst(e.x, e.y, '#7fd8ff', 4);
+  } else if (bt === 'thunder'){
+    const cand = [];
+    for (const o of enemies){
+      if (o === e || o.hp <= 0 || o.suck || o.type === 'ebullet') continue;
+      const dd = Math.hypot(o.x-e.x, o.y-e.y);
+      if (dd < 300) cand.push({ o, dd });
+    }
+    cand.sort((a,b2)=>a.dd-b2.dd);
+    const hits = cand.slice(0, 5);
+    let prev = { x:e.x, y:e.y };
+    for (const { o } of hits){
+      const d2 = dmg*0.5;
+      stats.bullet += d2; o.hp -= d2; hurtFlash(o);
+      addDmg(o.x, o.y-o.r-8, d2, false);
+      chainFx.push({ x1:prev.x, y1:prev.y, x2:o.x, y2:o.y, t:0, life:0.2 });
+      prev = { x:o.x, y:o.y };
+      if (o.hp <= 0) killEnemy(o);
+    }
+    if (hits.length) burst(e.x, e.y, '#c9d4ff', 5);
+  } else if (bt === 'burn'){
+    // 不可叠加：已经在燃烧就保持原有点燃强度与时长
+    if (!(e.burnT > 0)){
+      e.burnT = 8;
+      e.burnDmg = Math.max(1, e.maxHp*0.01);
+    }
+    burst(e.x, e.y, '#ff9a5c', 4);
   }
 }
 function levelUp(){
@@ -1110,7 +1312,7 @@ function endGame(win){
   const pct = v => total>0 ? Math.round(v/total*100) : 0;
   const card = (v,k) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`;
   document.getElementById('endStats').innerHTML =
-      card(kills, '击杀数')
+      (mode === 'classic' ? card('+'+runPoints, '本局积分') : card(kills, '击杀数'))
     + card(total.toLocaleString(), '总伤害')
     + card(dps, '每秒伤害')
     + (mode==='boss' ? card(`${upgradesGiven}/${MAX_UPGRADES}`, '强化')
@@ -1123,6 +1325,12 @@ function endGame(win){
   if (stats.burn>0)   src.push(`<b>灼烧 ${pct(stats.burn)}%</b>`);
   if (stats.orb>0)    src.push(`<b>旋风 ${pct(stats.orb)}%</b>`);
   let infoHtml = '伤害来源：' + (src.join(' · ') || '—');
+  // 积分结算：十分钟模式本局积分已存入账户余额
+  if (mode === 'classic'){
+    infoHtml += `<br>💰 本局 +${runPoints} 积分 · 总积分 ${userPoints}（可在商店解锁子弹）`;
+    progressDirty = false;
+    saveProgress();
+  }
   // 无尽模式：本地最佳纪录（按存活时间），破纪录时标记
   if (mode === 'endless'){
     let best = null;
@@ -1166,7 +1374,7 @@ function updateHUD(){
     const m=Math.floor(left/60), s=Math.floor(left%60);
     timerEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
     timerEl.style.color = left<60 ? '#ff6b6b' : '#e8e8e8';
-    document.getElementById('stats').innerHTML = `等级 ${player.level}<br>击杀 ${kills}`;
+    document.getElementById('stats').innerHTML = `等级 ${player.level}<br>积分 ${runPoints}`;
     document.getElementById('xpfill').style.width = (player.xp/player.xpNeed*100)+'%';
     document.getElementById('xpfill').style.background = '#4dd4ff';
   }
@@ -1344,13 +1552,14 @@ function draw(){
     ctx.strokeRect(-HF, -HF, HF*2, HF*2);
     ctx.globalAlpha = 1;
   }
-  // 水晶
+  // 水晶（无尽模式亮度降低，避免全屏吸取时晃眼）
+  const gemDim = mode === 'endless' ? 0.42 : 1;
   for (const g of gems){
     const pop = g.t>0 ? 0.75 + 0.55*(1 - g.t/0.55) : 1;
     ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(gameTime*3);
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = (mode === 'endless' ? 0.12 : 0.3);
     ctx.fillStyle='#4dd4ff'; ctx.beginPath(); ctx.arc(0,0,12*pop,0,Math.PI*2); ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = gemDim;
     ctx.fillStyle='#8be6ff';
     ctx.fillRect(-4.5*pop,-4.5*pop,9*pop,9*pop);
     ctx.restore();
@@ -1417,13 +1626,50 @@ function draw(){
   // 粒子
   for (const p of parts){ ctx.globalAlpha=p.life/0.3; ctx.fillStyle=p.col; ctx.fillRect(p.x-2,p.y-2,4,4); }
   ctx.globalAlpha=1;
-  // 子弹
+  // 子弹（按类型着色；耶律弹带长绿色拖尾；未命中时变淡）
   for (const b of bullets){
+    const info = BULLETS[b.bt || 'normal'] || BULLETS.normal;
+    const missA = b.missT > 0 ? 0.35 : 1;
+    if (b.bt === 'yelve' && b.trail && b.trail.length > 1){
+      ctx.lineCap = 'round';
+      for (let k=1;k<b.trail.length;k++){
+        const a = k/b.trail.length;
+        ctx.globalAlpha = a*0.85*missA;
+        ctx.strokeStyle = '#3ee87a';
+        ctx.lineWidth = Math.max(1, b.r*1.1*a);
+        ctx.beginPath(); ctx.moveTo(b.trail[k-1].x, b.trail[k-1].y);
+        ctx.lineTo(b.trail[k].x, b.trail[k].y); ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    ctx.globalAlpha = missA;
     ctx.beginPath(); ctx.arc(b.x,b.y,b.r*1.9,0,Math.PI*2);
-    ctx.fillStyle='rgba(159,208,255,0.22)'; ctx.fill();
+    ctx.fillStyle = info.color + '38'; ctx.fill();
     ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-    ctx.fillStyle='#bfe2ff'; ctx.fill();
+    ctx.fillStyle = info.color; ctx.fill();
     ctx.lineWidth=1.5; ctx.strokeStyle='rgba(10,25,45,0.6)'; ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+  // 雷电链
+  for (const c of chainFx){
+    const a = 1 - c.t/c.life;
+    ctx.globalAlpha = a;
+    ctx.strokeStyle = '#bcd0ff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    const seg = 4;
+    ctx.moveTo(c.x1, c.y1);
+    for (let k=1;k<seg;k++){
+      const t = k/seg;
+      const jx = (Math.random()-0.5)*14, jy = (Math.random()-0.5)*14;
+      ctx.lineTo(c.x1 + (c.x2-c.x1)*t + jx, c.y1 + (c.y2-c.y1)*t + jy);
+    }
+    ctx.lineTo(c.x2, c.y2);
+    ctx.stroke();
+    ctx.globalAlpha = a*0.5;
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
   }
   // 旋风盾
   if (player.orbs>0){
@@ -1567,6 +1813,10 @@ function hideAll(){
   endlessScreen.style.display='none';
   pauseScreen.style.display='none';
   endscreen.style.display='none';
+  const shop = document.getElementById('shopscreen');
+  const login = document.getElementById('loginscreen');
+  if (shop) shop.style.display='none';
+  if (login) login.style.display='none';
   pauseBtn.textContent='⏸';
 }
 function goHome(){
@@ -1634,6 +1884,252 @@ document.getElementById('retryBtn').onclick = retry;
 document.getElementById('endHomeBtn').onclick = goHome;
 document.getElementById('pauseHomeBtn').onclick = goHome;
 document.getElementById('restartBtn').onclick = retry;
+
+// ================= 商店 =================
+const shopScreen = document.getElementById('shopscreen');
+function enterShop(){
+  hideAll();
+  state = 'menu';
+  renderShop();
+  shopScreen.style.display = 'flex';
+}
+function renderShop(){
+  document.getElementById('shopPoints').textContent =
+    `💰 积分 ${userPoints}` + (cloudUser ? '' : '（未登录 · 仅本机保存）');
+  const list = document.getElementById('shopList');
+  list.innerHTML = '';
+  for (const id of BULLET_ORDER){
+    const info = BULLETS[id];
+    const owned = unlockedBullets.indexOf(id) >= 0;
+    const eq = equippedBullet === id;
+    const div = document.createElement('div');
+    div.className = 'bcard' + (eq ? ' equipped' : '');
+    div.innerHTML = `<div class="btop"><span class="bicon" style="color:${info.color}">${info.icon}</span>`
+      + `<span class="bname">${info.name}</span></div>`
+      + `<div class="bdesc">${info.desc}</div>`;
+    const btn = document.createElement('button');
+    if (eq){
+      btn.textContent = '✓ 已装备'; btn.className = 'eq'; btn.disabled = true;
+    } else if (owned){
+      btn.textContent = '装备';
+      btn.onclick = ()=>{ equippedBullet = id; saveProgress(); renderShop(); };
+    } else {
+      btn.textContent = `解锁 · ${info.cost} 积分`;
+      btn.disabled = userPoints < info.cost;
+      btn.onclick = ()=>{
+        if (userPoints < info.cost) return;
+        userPoints -= info.cost;
+        unlockedBullets.push(id);
+        equippedBullet = id;
+        progressDirty = false;
+        saveProgress();
+        renderShop();
+      };
+    }
+    div.appendChild(btn);
+    list.appendChild(div);
+  }
+}
+document.getElementById('shopBtn').onclick = enterShop;
+document.getElementById('shopBackBtn').onclick = goHome;
+document.getElementById('shopAccountBtn').onclick = ()=> enterLogin();
+
+// ================= 账号（云数据库） =================
+// publicConfig 来自云服务激活结果；endpoint/publishableKey 必须在初始化时传入
+const CLOUD_CFG = {
+  endpoint: 'https://wbapp-i81c7cxlflh4r0jd9jrdb2.app.workbuddy.host',
+  oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
+  publishableKey: 'wbpk_i81C7CxlFLh4R0JD9jrdB2_cwahcLkfKI7U2f5j6drkdc5z2wxLbPtd',
+};
+let cloudClient = null;
+let pendingOtp = null;      // 注册用：{ email, verificationId, isExistingUser }
+let registerMode = false;
+
+function getCloud(){
+  if (cloudClient) return cloudClient;
+  if (typeof WorkBuddyCloud === 'undefined') return null;
+  cloudClient = WorkBuddyCloud.createWorkBuddyCloud({
+    endpoint: CLOUD_CFG.endpoint,
+    oauthRelayBaseUrl: CLOUD_CFG.oauthRelayBaseUrl,
+    publishableKey: CLOUD_CFG.publishableKey,
+  });
+  return cloudClient;
+}
+
+const loginScreen = document.getElementById('loginscreen');
+const loginMsgEl = () => document.getElementById('loginMsg');
+function loginMsg(text, ok){
+  const el = loginMsgEl();
+  el.textContent = text || '';
+  el.className = 'login-msg' + (ok ? ' ok' : '');
+}
+function setLoginState(text){
+  document.getElementById('loginState').textContent = text;
+}
+function enterLogin(){
+  hideAll();
+  state = 'menu';
+  refreshLoginUI();
+  loginScreen.style.display = 'flex';
+}
+function refreshLoginUI(){
+  const loggedIn = !!cloudUser;
+  document.getElementById('loginForm').style.display = loggedIn ? 'none' : 'flex';
+  document.getElementById('cloudActions').style.display = loggedIn ? 'flex' : 'none';
+  setLoginState(loggedIn
+    ? `已登录：${cloudUser.email || cloudUser.name || '玩家'} · 进度已同步到云端`
+    : '未登录 · 进度仅保存在本机（登录后自动同步）');
+}
+
+// 云端读取玩家档案（RLS 只返回自己的行）
+async function cloudLoad(){
+  const c = getCloud();
+  if (!c) return null;
+  const { data, error } = await c.database.from('player_profile').select('*').limit(1);
+  if (error) throw error;
+  return (data && data[0]) ? data[0] : null;
+}
+// 云端保存玩家档案：先 update，没有行则 insert（owner_id 由数据库默认值填入）
+async function cloudSave(){
+  const c = getCloud();
+  if (!c || !cloudUser) return;
+  const row = { points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet };
+  try {
+    const { data, error } = await c.database.from('player_profile')
+      .update(row).eq('owner_id', cloudUser.id).select();
+    if (error) throw error;
+    if (!data || data.length === 0){
+      const ins = await c.database.from('player_profile').insert(row).select();
+      if (ins.error) throw ins.error;
+    }
+  } catch(e){
+    console.warn('[cloud] save failed', e && e.message);
+  }
+}
+// 登录成功后合并进度：云端更完整就采用云端，否则把本机进度推上去
+async function afterLogin(session){
+  cloudUser = session.user;
+  refreshLoginUI();
+  try {
+    const row = await cloudLoad();
+    if (row){
+      const cloudPts = Number(row.points) || 0;
+      const cloudUnlocked = Array.isArray(row.unlocked) ? row.unlocked.filter(id=>BULLETS[id]) : [];
+      if (cloudPts > userPoints || cloudUnlocked.length > unlockedBullets.length){
+        userPoints = cloudPts;
+        unlockedBullets = cloudUnlocked.length ? cloudUnlocked : ['normal'];
+        if (unlockedBullets.indexOf('normal') < 0) unlockedBullets.unshift('normal');
+        equippedBullet = unlockedBullets.indexOf(row.equipped) >= 0 ? row.equipped : 'normal';
+        try {
+          localStorage.setItem(LS_KEY, JSON.stringify({ points:userPoints, unlocked:unlockedBullets, equipped:equippedBullet }));
+        } catch(_){}
+      } else {
+        await cloudSave();
+      }
+    } else {
+      await cloudSave();
+    }
+    loginMsg('登录成功，进度已同步', true);
+    setLoginState(`已登录：${session.user.email || session.user.name || '玩家'} · 总积分 ${userPoints}`);
+  } catch(e){
+    loginMsg('登录成功，但云存档同步失败：' + (e && e.message || '网络错误'), false);
+  }
+}
+
+async function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  if (!email || !password){ loginMsg('请填写邮箱和密码'); return; }
+  const c = getCloud();
+  if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
+  loginMsg('登录中…', true);
+  const { data: session, error } = await c.auth.signInWithPassword({ email, password });
+  if (error){ loginMsg('登录失败：' + (error.message || '邮箱或密码错误')); return; }
+  await afterLogin(session);
+}
+async function sendRegisterCode(){
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email){ loginMsg('请先填写邮箱'); return; }
+  const c = getCloud();
+  if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
+  loginMsg('发送验证码…', true);
+  const sent = await c.auth.sendOtp({ email });
+  if (sent.error){ loginMsg('发送失败：' + (sent.error.message || '请稍后重试')); return; }
+  pendingOtp = { email, verificationId: sent.data.verificationId, isExistingUser: sent.data.isExistingUser };
+  loginMsg('验证码已发送，请查收邮箱（含垃圾箱）', true);
+  // 60 秒重发倒计时
+  const btn = document.getElementById('sendCodeBtn');
+  let left = 60;
+  btn.disabled = true; btn.textContent = `${left}s 后可重发`;
+  const timer = setInterval(()=>{
+    left--;
+    if (left <= 0){ clearInterval(timer); btn.disabled = false; btn.textContent = '获取验证码'; }
+    else btn.textContent = `${left}s 后可重发`;
+  }, 1000);
+}
+async function doRegister(){
+  if (!registerMode){
+    registerMode = true;
+    document.getElementById('loginCode').style.display = 'block';
+    document.getElementById('sendCodeBtn').style.display = 'block';
+    document.getElementById('registerBtn').textContent = '完成注册';
+    document.getElementById('loginBtn').textContent = '登录';
+    loginMsg('注册：先获取邮箱验证码，再填密码完成注册', true);
+    return;
+  }
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  const code = document.getElementById('loginCode').value.trim();
+  if (!email || !password || !code){ loginMsg('请填写邮箱、密码和验证码'); return; }
+  if (password.length < 6){ loginMsg('密码至少 6 位'); return; }
+  if (!pendingOtp || pendingOtp.email !== email){ loginMsg('请先获取当前邮箱的验证码'); return; }
+  const c = getCloud();
+  if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
+  loginMsg('注册中…', true);
+  const done = await c.auth.verifyOtp({
+    email: pendingOtp.email,
+    verificationId: pendingOtp.verificationId,
+    isExistingUser: pendingOtp.isExistingUser,
+    token: code,
+    password: pendingOtp.isExistingUser ? undefined : password,
+  });
+  if (done.error){ loginMsg('注册失败：' + (done.error.message || '验证码错误')); return; }
+  pendingOtp = null;
+  registerMode = false;
+  document.getElementById('loginCode').style.display = 'none';
+  document.getElementById('sendCodeBtn').style.display = 'none';
+  document.getElementById('registerBtn').textContent = '注册';
+  await afterLogin(done.data);
+}
+async function doLogout(){
+  const c = getCloud();
+  if (c) await c.auth.signOut();
+  cloudUser = null;
+  refreshLoginUI();
+  loginMsg('已退出登录，进度保存在本机', true);
+}
+document.getElementById('accountBtn').onclick = ()=> enterLogin();
+document.getElementById('loginBackBtn').onclick = ()=> { hideAll(); homescreen.style.display='flex'; state='menu'; };
+document.getElementById('loginBtn').onclick = doLogin;
+document.getElementById('registerBtn').onclick = doRegister;
+document.getElementById('sendCodeBtn').onclick = sendRegisterCode;
+document.getElementById('logoutBtn').onclick = doLogout;
+document.getElementById('cloudSyncBtn').onclick = async ()=>{
+  await cloudSave();
+  loginMsg('已上传本机进度到云端', true);
+};
+
+// 启动：读取本地进度，并尝试恢复云会话
+loadProgress();
+(async ()=>{
+  const c = getCloud();
+  if (!c) return;
+  try {
+    const { data: session } = await c.auth.getSession();
+    if (session){ cloudUser = session.user; refreshLoginUI(); }
+  } catch(_){}
+})();
+
 </script>
 </body>
 </html>
