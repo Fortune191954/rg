@@ -170,11 +170,11 @@
           <div class="md">撑过 10 分钟即胜利 · 第 8 分钟最终 BOSS</div>
         </div>
       </button>
-      <button class="mode locked" disabled>
+      <button class="mode" id="modeEndless">
         <div class="mi">♾</div>
         <div class="body">
           <div class="mn">无尽模式</div>
-          <div class="md">敬请期待</div>
+          <div class="md">无限变难 · 每 5 分钟随机 BOSS · 冲击最佳纪录</div>
         </div>
       </button>
       <button class="mode" id="modeBoss">
@@ -185,7 +185,7 @@
         </div>
       </button>
     </div>
-    <p class="ver">v2.4</p>
+    <p class="ver">v2.5</p>
   </div>
 
   <div class="overlay" id="bossscreen">
@@ -215,7 +215,19 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini">← 返回模式选择</button>
-    <p class="ver">v2.4</p>
+    <p class="ver">v2.5</p>
+  </div>
+
+  <div class="overlay" id="endlessScreen">
+    <h1 style="color:#8fd6ff">♾ 无尽模式</h1>
+    <p>没有胜利，只有活下去。<br>
+    难度<b style="color:#8fd6ff">无限增强</b>：10 分钟后怪物血量每 5 分钟 +50%、伤害 +20%、场上上限持续放宽。<br>
+    每 <b style="color:#8fd6ff">5 分钟</b>随机降临一个 BOSS（血量递增 +50%/个），击杀掉落大量经验水晶并送一次三选一强化。<br>
+    经验升级三选一，<b style="color:#8fd6ff">无次数上限</b>。看看你能活多久！</p>
+    <p id="endlessBest" style="color:#ffd76a;font-size:15px;"></p>
+    <button id="endlessStartBtn">开始无尽</button>
+    <button id="endlessBackBtn" class="ghost mini">← 返回模式选择</button>
+    <p class="ver">v2.5</p>
   </div>
 
   <div class="overlay" id="startscreen">
@@ -225,7 +237,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
     <button id="startBackBtn" class="ghost mini">← 返回模式选择</button>
-    <p class="ver">v2.4</p>
+    <p class="ver">v2.5</p>
   </div>
 
   <div class="overlay" id="pausescreen">
@@ -287,13 +299,14 @@ const BH_HP = 2000;         // 黑洞怪初始血量
 const BH_R0 = 58;           // 黑洞怪基础半径
 const HOLE_MAX = 5;         // 小黑洞数量上限
 const BOSS_SLOW = 0.65;     // BOSS 登场后玩家移速倍率（-35%）
+const ENDLESS_BOSS_T = 300; // 无尽模式：每 5 分钟刷一个 BOSS
 
 // 黑洞怪：体型与吞噬总量呈对数关系（无上限）
 function bhRadius(absorbed){ return BH_R0 * (1 + 0.55*Math.log(1 + absorbed/150)); }
 
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / paused / end
-let mode = 'classic';        // classic | boss
+let mode = 'classic';        // classic | boss | endless
 let bossKind = 'blackhole';  // blackhole | blade
 let lastMode = 'classic', lastBoss = 'blackhole';   // 重开用
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
@@ -302,6 +315,9 @@ let bossWarn = 0;            // >0：BOSS 即将降临（倒计时）
 let upgradesGiven = 0;       // BOSS 战已获得的强化次数
 let upgradeTimer = 0;        // BOSS 战距离下一次强化
 let bossMobT = 0;            // BOSS 战小怪刷新计时
+let endlessBosses = 0;       // 无尽模式：已登场的 BOSS 数（决定血量递增）
+let endlessBossT = 0;        // 无尽模式：距离下一个 BOSS
+let endlessNewBest = false;  // 无尽模式：本局是否刷新最佳纪录
 let slashFx = [];   // 斩击特效
 let dmgNums = [];   // 伤害飘字
 let stats = { bullet:0, burn:0, orb:0, slash:0 };
@@ -398,6 +414,7 @@ function newGame(m='classic', kind='blackhole'){
   camX=0; camY=0;
   spawnedBoss = false;
   upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5;
+  endlessBosses = 0; endlessBossT = ENDLESS_BOSS_T; endlessNewBest = false;
   bossWarn = (mode==='boss') ? BH_WARN : 0;
   document.getElementById('bossbar').style.display='none';
   joyEnd(); lastHeartKey = '';
@@ -422,6 +439,16 @@ function spawnEnemy(){
   if (type==='tank'){ e.r=26; e.hp=e.maxHp=90+diff*220*HP_GROWTH; e.spd=40+diff*25; e.dmg=20; e.col='#8f5fd0'; e.xp=3; }
   if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70*HP_GROWTH; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
     e.shootT = 1+Math.random()*2; }
+  // 无尽模式：10 分钟后无限增强——血量每 5 分钟 +50%、伤害 +20%、移速 +10%（封顶 1.6 倍），经验 +1/5分钟
+  if (mode === 'endless'){
+    const post = Math.max(0, gameTime - GAME_TIME);
+    const stages = post/300;
+    const hpMul = 1 + stages*0.5;
+    e.hp *= hpMul; e.maxHp *= hpMul;
+    e.dmg = Math.round(e.dmg * (1 + stages*0.2));
+    e.spd = Math.round(e.spd * Math.min(1.6, 1 + stages*0.1));
+    e.xp += Math.floor(stages);
+  }
   enemies.push(e);
 }
 // BOSS：独立计时触发（不再依赖刷怪节拍，避免错过时间点永不出现）
@@ -447,12 +474,15 @@ function spawnMinion(){
   enemies.push(e);
 }
 // 黑洞怪登场：先提示，再出现；场上已有小怪立刻被吸向它
+// 无尽模式：每刷一个 BOSS，血量 +50%（endlessBosses 递增）
 function spawnSelectedBoss(){
   shake = 16;
   const x = player.x + 300, y = player.y - 40;
+  const hpScale = mode==='endless' ? 1 + endlessBosses*0.5 : 1;
   if (bossKind === 'blackhole'){
+    const hp = Math.round(BH_HP*hpScale);
     const b = { x, y, type:'bhboss', id:++eid, r:bhRadius(0), rMul:1, absorbed:0,
-      hp:BH_HP, maxHp:BH_HP, spd:14, dmg:30, col:'#4a2f7a', xp:0,
+      hp, maxHp:hp, spd:14, dmg:30, col:'#4a2f7a', xp:0,
       hurtT:0, burnT:0, burnDmg:0, castT:2.5, volleyT:1, volleyA:0, vortexA:0, enraged:false };
     enemies.push(b);
     for (const e of enemies){
@@ -460,9 +490,11 @@ function spawnSelectedBoss(){
       e.suck = true; e.suckV = Math.max(e.suckV||0, 240);
     }
   } else {
-    enemies.push({ x, y, type:'boss', id:++eid, r:52, hp:2200, maxHp:2200,
+    const hp = Math.round(2200*hpScale);
+    enemies.push({ x, y, type:'boss', id:++eid, r:52, hp, maxHp:hp,
       spd:55, dmg:35, col:'#ff3b6b', xp:0, hurtT:0, burnT:0, burnDmg:0, shootT:2, chargeT:5 });
   }
+  if (mode === 'endless') endlessBosses++;
 }
 // 吞噬：小怪当前有多少血，BOSS 就加多少血（hp 与 maxHp 等额提升），体型按对数增长（无上限）
 function absorbMinion(e, boss){
@@ -497,7 +529,7 @@ function update(dt){
   if (mode === 'classic'){
     if (!spawnedBoss && gameTime >= BOSS_TIME) spawnBoss();
     if (gameTime >= GAME_TIME){ endGame(true); return; }
-  } else {
+  } else if (mode === 'boss'){
     // BOSS 战：不限时间，登场前有提示
     if (bossWarn > 0){
       bossWarn -= dt;
@@ -507,6 +539,12 @@ function update(dt){
     if (upgradesGiven < MAX_UPGRADES){
       upgradeTimer -= dt;
       if (upgradeTimer <= 0){ upgradeTimer = BOSS_UPGRADE_T; bossUpgrade(); return; }
+    }
+  } else {
+    // 无尽模式：不限时、无胜利，BOSS 登场提示在刷怪段处理
+    if (bossWarn > 0){
+      bossWarn -= dt;
+      if (bossWarn <= 0) spawnSelectedBoss();
     }
   }
   // 场上的 BOSS（黑洞怪登场后玩家会被减速）
@@ -521,7 +559,7 @@ function update(dt){
   if (keys['d']||keys['arrowright']) dx++;
   if (joy.active){ dx += joy.dx; dy += joy.dy; }
   const len = Math.hypot(dx,dy)||1;
-  const slow = (mode==='boss' && curBoss) ? BOSS_SLOW : 1;   // BOSS 登场：移速 -35%
+  const slow = (mode!=='classic' && curBoss) ? BOSS_SLOW : 1;   // BOSS 登场：移速 -35%
   player.x += dx/len*player.speed*slow*dt;
   player.y += dy/len*player.speed*slow*dt;
   if (player.invul>0) player.invul-=dt;
@@ -780,6 +818,26 @@ function update(dt){
       for (const e of enemies) if (e.type!=='ebullet') alive++;
       if (alive < MAX_ALIVE) spawnEnemy();
     }
+  } else if (mode === 'endless') {
+    // 无尽模式：曲线继续收紧（末段 0.05 秒/只），10 分钟后场上上限每 2 分钟 +20（封顶 260）
+    spawnTimer -= dt;
+    if (spawnTimer <= 0){
+      const post = Math.max(0, gameTime - GAME_TIME);
+      spawnTimer = Math.max(0.05, 0.75 - Math.min(1.2, gameTime/600)*0.70);
+      const cap = Math.min(260, MAX_ALIVE + Math.floor(post/120)*20);
+      let alive = 0;
+      for (const e of enemies) if (e.type!=='ebullet') alive++;
+      if (alive < cap) spawnEnemy();
+    }
+    // 周期 BOSS：每 5 分钟随机一个（黑洞怪/血刃巨像），血量按已登场次数 +50%/个
+    if (bossWarn <= 0){
+      endlessBossT -= dt;
+      if (endlessBossT <= 0){
+        endlessBossT = ENDLESS_BOSS_T;
+        bossKind = Math.random() < 0.5 ? 'blackhole' : 'blade';
+        bossWarn = BH_WARN;
+      }
+    }
   } else {
     // BOSS 战：小怪刷怪速度与十分钟模式同一难度曲线，仅整体放慢 30%
     bossMobT -= dt;
@@ -883,6 +941,15 @@ function killEnemy(e){
     burst(e.x,e.y,'#ffd76a',40);
     shake = 16;
     if (mode === 'boss'){ holes = []; endGame(true); }   // BOSS 战击杀 BOSS 即胜利
+    else if (mode === 'endless'){
+      // 无尽模式：击杀 BOSS = 大量经验水晶 + 一次额外三选一强化，游戏继续
+      holes = [];
+      for (let k=0;k<25;k++){
+        const a = Math.random()*Math.PI*2, sp = 60+Math.random()*140;
+        gems.push({ x:e.x, y:e.y, v:3, t:0.55, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp });
+      }
+      showUpgradePanel(); return;
+    }
   }
 }
 function levelUp(){
@@ -929,7 +996,7 @@ function endGame(win){
   holes = [];
   const winEl = document.getElementById('winTitle'), loseEl = document.getElementById('loseTitle');
   winEl.textContent = mode==='boss' ? '🏆 BOSS 已被击杀！' : '🏆 你活下来了！';
-  loseEl.textContent = mode==='boss' ? '💀 你被 BOSS 碾碎了…' : '💀 你被吞没了…';
+  loseEl.textContent = mode==='boss' ? '💀 你被 BOSS 碾碎了…' : (mode==='endless' ? '💀 无尽之旅到此为止…' : '💀 你被吞没了…');
   winEl.style.display = win?'block':'none';
   loseEl.style.display = win?'none':'block';
   const m = Math.floor(gameTime/60), s = Math.floor(gameTime%60);
@@ -942,14 +1009,29 @@ function endGame(win){
     + card(total.toLocaleString(), '总伤害')
     + card(dps, '每秒伤害')
     + (mode==='boss' ? card(`${upgradesGiven}/${MAX_UPGRADES}`, '强化')
-                     : card(player.level, '等级'))
+      : mode==='endless' ? card(endlessBosses, '击杀BOSS')
+      : card(player.level, '等级'))
     + card(`${m}:${String(s).padStart(2,'0')}`, '存活时间');
   const src = [];
   if (stats.bullet>0) src.push(`<b>子弹 ${pct(stats.bullet)}%</b>`);
   if (stats.slash>0)  src.push(`<b>斩击 ${pct(stats.slash)}%</b>`);
   if (stats.burn>0)   src.push(`<b>灼烧 ${pct(stats.burn)}%</b>`);
   if (stats.orb>0)    src.push(`<b>旋风 ${pct(stats.orb)}%</b>`);
-  document.getElementById('endInfo').innerHTML = '伤害来源：' + (src.join(' · ') || '—');
+  let infoHtml = '伤害来源：' + (src.join(' · ') || '—');
+  // 无尽模式：本地最佳纪录（按存活时间），破纪录时标记
+  if (mode === 'endless'){
+    let best = null;
+    try { best = JSON.parse(localStorage.getItem('rg_endless_best') || 'null'); } catch(_){}
+    endlessNewBest = !best || gameTime > best.time;
+    if (endlessNewBest){
+      best = { time: Math.floor(gameTime), kills, level: player.level };
+      try { localStorage.setItem('rg_endless_best', JSON.stringify(best)); } catch(_){}
+    }
+    const bm = Math.floor((best?best.time:0)/60), bs = Math.floor((best?best.time:0)%60);
+    infoHtml += `<br>♾ 最佳纪录 ${bm}:${String(bs).padStart(2,'0')} · 击杀 ${best?best.kills:0}`
+      + (endlessNewBest ? '　<b style="color:#ffd76a">🌟 新纪录！</b>' : '');
+  }
+  document.getElementById('endInfo').innerHTML = infoHtml;
   document.getElementById('endscreen').style.display='flex';
 }
 
@@ -965,6 +1047,15 @@ function updateHUD(){
     const p = upgradesGiven >= MAX_UPGRADES ? 1 : 1 - Math.max(0, upgradeTimer)/BOSS_UPGRADE_T;
     document.getElementById('xpfill').style.width = (p*100)+'%';
     document.getElementById('xpfill').style.background = '#c07cff';
+  } else if (mode === 'endless'){
+    // 无尽模式：正计时，经验升级正常进行
+    const m=Math.floor(gameTime/60), s=Math.floor(gameTime%60);
+    timerEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
+    timerEl.style.color = '#8fd6ff';
+    document.getElementById('stats').innerHTML =
+      `等级 ${player.level}<br>击杀 ${kills}<br>BOSS ${endlessBosses}`;
+    document.getElementById('xpfill').style.width = (player.xp/player.xpNeed*100)+'%';
+    document.getElementById('xpfill').style.background = '#4dd4ff';
   } else {
     const left = Math.max(0, GAME_TIME-gameTime);
     const m=Math.floor(left/60), s=Math.floor(left%60);
@@ -984,7 +1075,7 @@ function updateBossBar(){
   const bar = document.getElementById('bossbar');
   let b = null;
   for (const e of enemies){ if (e.type==='bhboss' || e.type==='boss'){ b = e; break; } }
-  if (mode !== 'boss' || !b){ bar.style.display='none'; return; }
+  if ((mode !== 'boss' && mode !== 'endless') || !b){ bar.style.display='none'; return; }
   bar.style.display = 'flex';
   const nm = (b.type==='bhboss' ? '🌀 黑洞怪' : '🔥 血刃巨像')
     + (b.enraged ? ' · 狂暴' : '') + ` · 总血 ${Math.round(b.maxHp)} · 吞噬 ${Math.round(b.absorbed||0)}`;
@@ -1237,7 +1328,7 @@ function draw(){
   ctx.restore();
 
   // BOSS 登场提示（屏幕坐标）
-  if (mode==='boss' && bossWarn>0 && state==='playing'){
+  if ((mode==='boss'||mode==='endless') && bossWarn>0 && state==='playing'){
     const nm = bossKind==='blackhole' ? '黑洞' : '血刃巨像';
     const size = Math.min(38, W*0.052) * (1 + Math.sin(gameTime*9)*0.05);
     ctx.save();
@@ -1308,11 +1399,13 @@ document.addEventListener('visibilitychange', ()=>{ if (document.hidden) setPaus
 const homescreen = document.getElementById('homescreen');
 const startscreen = document.getElementById('startscreen');
 const bossscreen  = document.getElementById('bossscreen');
+const endlessScreen = document.getElementById('endlessScreen');
 const endscreen   = document.getElementById('endscreen');
 function hideAll(){
   homescreen.style.display='none';
   startscreen.style.display='none';
   bossscreen.style.display='none';
+  endlessScreen.style.display='none';
   pauseScreen.style.display='none';
   endscreen.style.display='none';
   pauseBtn.textContent='⏸';
@@ -1333,10 +1426,29 @@ function enterBossPick(){         // 主页 → BOSS 试炼 → 选 boss
   state = 'menu';
   bossscreen.style.display='flex';
 }
+function enterEndless(){          // 主页 → 无尽模式 → 玩法说明（含最佳纪录）
+  hideAll();
+  state = 'menu';
+  let best = null;
+  try { best = JSON.parse(localStorage.getItem('rg_endless_best') || 'null'); } catch(_){}
+  const el = document.getElementById('endlessBest');
+  if (best){
+    const bm = Math.floor(best.time/60), bs = Math.floor(best.time%60);
+    el.textContent = `🏅 最佳纪录 ${bm}:${String(bs).padStart(2,'0')} · 击杀 ${best.kills} · 等级 ${best.level}`;
+  } else {
+    el.textContent = '暂无纪录，来创造第一个吧！';
+  }
+  endlessScreen.style.display='flex';
+}
 function startClassic(){          // 真正开局（十分钟）
   hideAll();
   lastMode='classic';
   newGame('classic'); state='playing';
+}
+function startEndless(){          // 真正开局（无尽）
+  hideAll();
+  lastMode='endless';
+  newGame('endless'); state='playing';
 }
 function startBoss(kind){         // 真正开局（BOSS 战）
   hideAll();
@@ -1344,16 +1456,21 @@ function startBoss(kind){         // 真正开局（BOSS 战）
   newGame('boss', kind); state='playing';
 }
 function retry(){
-  if (lastMode==='boss') startBoss(lastBoss); else startClassic();
+  if (lastMode==='boss') startBoss(lastBoss);
+  else if (lastMode==='endless') startEndless();
+  else startClassic();
 }
 
 document.getElementById('modeClassic').onclick = enterClassic;
+document.getElementById('modeEndless').onclick = enterEndless;
 document.getElementById('modeBoss').onclick = enterBossPick;
 document.getElementById('bossBackBtn').onclick = goHome;
 document.getElementById('bossBlackhole').onclick = ()=> startBoss('blackhole');
 document.getElementById('bossBlade').onclick = ()=> startBoss('blade');
 document.getElementById('startBackBtn').onclick = goHome;
 document.getElementById('startBtn').onclick = startClassic;
+document.getElementById('endlessBackBtn').onclick = goHome;
+document.getElementById('endlessStartBtn').onclick = startEndless;
 document.getElementById('retryBtn').onclick = retry;
 document.getElementById('endHomeBtn').onclick = goHome;
 document.getElementById('pauseHomeBtn').onclick = goHome;
