@@ -18,7 +18,14 @@
   #hud { position:absolute; top:0; left:0; width:100%; padding:10px 16px;
     display:flex; justify-content:space-between; align-items:flex-start; pointer-events:none; color:#e8e8e8; }
   #timer { font-size:34px; font-weight:bold; text-shadow:0 2px 6px #000; letter-spacing:2px; }
+  #hudRight { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
   #stats { font-size:14px; text-align:right; line-height:1.5; text-shadow:0 1px 4px #000; }
+  #pauseBtn { pointer-events:auto; width:40px; height:38px; border-radius:10px; padding:0;
+    background:rgba(24,32,46,.82); border:2px solid #3a4a66; color:#dfe9f6;
+    font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center;
+    justify-content:center; transition:.12s; touch-action:manipulation; }
+  #pauseBtn:hover { border-color:#ffd76a; color:#ffd76a; }
+  #pauseBtn:active { transform:scale(.93); }
   #hearts { position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
     display:flex; flex-wrap:wrap; gap:3px; justify-content:center; max-width:420px; }
   .heart { width:22px; height:22px; position:relative; }
@@ -55,6 +62,10 @@
     color:#222; border:none; border-radius:10px; cursor:pointer; font-weight:bold; }
   .overlay button:hover { background:#ffe89a; }
   #endscreen { display:none; }
+  #pausescreen { display:none; }
+  .btnrow { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+  .overlay button.ghost { background:#2b3b52; color:#dde6f2; }
+  .overlay button.ghost:hover { background:#3a4f6c; }
   #winTitle { color:#7ee787; }
   #loseTitle { color:#ff6b6b; }
 
@@ -93,7 +104,10 @@
   <div id="xpline"><div id="xpfill"></div></div>
   <div id="hud">
     <div id="timer">10:00</div>
-    <div id="stats">等级 1<br>击杀 0</div>
+    <div id="hudRight">
+      <button id="pauseBtn" title="暂停 / 继续（P 或 Esc）">⏸</button>
+      <div id="stats">等级 1<br>击杀 0</div>
+    </div>
   </div>
   <div id="hearts"></div>
 
@@ -108,7 +122,16 @@
     青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v2.0</p>
+    <p class="ver">v2.1</p>
+  </div>
+
+  <div class="overlay" id="pausescreen">
+    <h1 style="color:#8fc6ff">⏸ 已暂停</h1>
+    <p>按 <b style="color:#ffd76a">P</b> / <b style="color:#ffd76a">Esc</b> 或点下方按钮继续</p>
+    <div class="btnrow">
+      <button id="resumeBtn">继续游戏</button>
+      <button id="restartBtn" class="ghost">重新开始</button>
+    </div>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -144,8 +167,12 @@ addEventListener('resize', resize); resize();
 
 const GAME_TIME = 600;      // 整局 10 分钟（秒）
 const BOSS_TIME = 480;      // 第 8 分钟刷最终 BOSS，留 2 分钟 BOSS 战
-const SLASH_ARC = 0.40;     // 斩击初始半角（约 46° 扇面）
-const SLASH_ARC_STEP = 0.17; // 分裂弹每多一发，扇面加宽的半角
+const SLASH_ARC = 0.26;     // 斩击初始半角（约 30° 扇面，收窄以换更远射程）
+const SLASH_ARC_STEP = 0.15; // 分裂弹每多一发，扇面加宽的半角
+const SLASH_RADIUS = 300;   // 斩击射程（原 200，提升 50%）
+const SLASH8_RADIUS = 330;  // 八向斩击半径
+const SLASH_CHARGE = 8;     // 移动充能满 8 秒释放八向斩击
+const HP_GROWTH = 0.60;     // 敌人血量随时间成长的总量下调 40%（原为 1.0）
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / end
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
@@ -226,8 +253,8 @@ const UPGRADES = [
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
     note:'限选 1 次 · 每击杀 1 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
     apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; } },
-  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出扇形斩击（100% 伤害，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
-    note:'限选 1 次 · 斩击角度初始较窄，每次分裂弹都会加宽 · 移动充能 15 秒后八向斩击（400% 伤害）', max:1,
+  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出窄扇形斩击（100% 伤害，射程 300，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
+    note:'限选 1 次 · 斩击角度较窄，每次分裂弹都会加宽 · 移动充能 8 秒后八向斩击（400% 伤害）', max:1,
     apply:p=>{ p.slashMode=true; p.slashEnergy=0; p.speed*=1.15; } },
 ];
 
@@ -254,14 +281,15 @@ function spawnEnemy(){
   const x = player.x + Math.cos(a)*dist, y = player.y + Math.sin(a)*dist;
   let type = 'grunt';
   const roll = Math.random();
+  // 注意：必须用 else if —— 原写法里坦克(>0.85)会被射手(>0.72)覆盖，导致 4 分钟后坦克永不刷新
   if (t>60 && roll<0.25) type='fast';
-  if (t>120 && roll>0.85) type='tank';
-  if (t>240 && roll>0.72) type='shooter';
+  else if (t>120 && roll>0.85) type='tank';
+  else if (t>240 && roll>0.72) type='shooter';
   const e = { x, y, type, id:++eid, hurtT:0, burnT:0, burnDmg:0 };
-  if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60; e.spd=70+diff*50; e.dmg=10; e.col='#c94f4f'; e.xp=1; }
-  if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30; e.spd=150+diff*70; e.dmg=8; e.col='#e6b84f'; e.xp=1; }
-  if (type==='tank'){ e.r=26; e.hp=e.maxHp=90+diff*220; e.spd=40+diff*25; e.dmg=20; e.col='#8f5fd0'; e.xp=3; }
-  if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
+  if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60*HP_GROWTH; e.spd=70+diff*50; e.dmg=10; e.col='#c94f4f'; e.xp=1; }
+  if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30*HP_GROWTH; e.spd=150+diff*70; e.dmg=8; e.col='#e6b84f'; e.xp=1; }
+  if (type==='tank'){ e.r=26; e.hp=e.maxHp=90+diff*220*HP_GROWTH; e.spd=40+diff*25; e.dmg=20; e.col='#8f5fd0'; e.xp=3; }
+  if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70*HP_GROWTH; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
     e.shootT = 1+Math.random()*2; }
   enemies.push(e);
 }
@@ -300,15 +328,15 @@ function update(dt){
   // 攻击：子弹流 / 斩击流
   player.fireT -= dt;
   if (player.slashMode){
-    // 移动充能：满 15 秒释放八向斩击
+    // 移动充能：满 8 秒释放八向斩击
     if (moving) player.slashEnergy += dt;
-    if (player.slashEnergy >= 15){
+    if (player.slashEnergy >= SLASH_CHARGE){
       player.slashEnergy = 0;
       releaseSlash8();
     }
     if (player.fireT <= 0){
       // 与子弹流一致：自动锁定最近敌人，不再跟随移动方向
-      const R = Math.min(200, player.atkRange);
+      const R = Math.min(SLASH_RADIUS, player.atkRange);
       let best=null, bd=1e9;
       for (const e of enemies){
         if (e.type==='ebullet') continue;
@@ -527,7 +555,7 @@ function slashAttack(ang, dmg, radius, halfArc, col){
 }
 function releaseSlash8(){
   shake = 10;
-  const R = Math.min(260, player.atkRange);
+  const R = Math.min(SLASH8_RADIUS, player.atkRange);
   slashFx.push({ x:player.x, y:player.y, ring:true, radius:R, life:0.4, maxLife:0.4, col:'#ffe9a8' });
   for (let k=0;k<8;k++){
     const a = k/8*Math.PI*2 + player.faceAng;
@@ -747,9 +775,9 @@ function draw(){
   ctx.fillStyle = player.invul>0 && Math.floor(gameTime*20)%2 ? '#666' : '#f2f2f2';
   ctx.fill();
   ctx.lineWidth = 2.5; ctx.strokeStyle = '#2b6cff'; ctx.stroke();
-  // 斩击充能环（满 15 秒释放八向斩击）
+  // 斩击充能环（满 8 秒释放八向斩击）
   if (player.slashMode){
-    const t = Math.min(1, player.slashEnergy/15);
+    const t = Math.min(1, player.slashEnergy/SLASH_CHARGE);
     ctx.beginPath();
     ctx.arc(player.x, player.y, player.r+9, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
     ctx.lineWidth = 4; ctx.strokeStyle = t>=0.999 ? '#ffe9a8' : 'rgba(255,233,168,0.75)';
@@ -804,13 +832,48 @@ function loop(now){
 requestAnimationFrame(loop);
 
 // ---------- 按钮 ----------
+const pauseBtn = document.getElementById('pauseBtn');
+const pauseScreen = document.getElementById('pausescreen');
+function setPaused(p){
+  if (p){
+    if (state !== 'playing') return;
+    state = 'paused';
+    joyEnd();                                  // 暂停时松开摇杆，避免恢复后自己乱跑
+    for (const k in keys) keys[k] = false;     // 清掉按住的方向键
+    pauseScreen.style.display = 'flex';
+    pauseBtn.textContent = '▶';
+  } else {
+    if (state !== 'paused') return;
+    state = 'playing';
+    pauseScreen.style.display = 'none';
+    pauseBtn.textContent = '⏸';
+  }
+}
+pauseBtn.onclick = e => { e.stopPropagation(); setPaused(state === 'playing'); };
+document.getElementById('resumeBtn').onclick = ()=> setPaused(false);
+document.getElementById('restartBtn').onclick = ()=>{
+  pauseScreen.style.display = 'none'; pauseBtn.textContent = '⏸';
+  newGame(); spawnedBoss=false; state='playing';
+};
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'p' || k === 'escape'){
+    if (state === 'playing') setPaused(true);
+    else if (state === 'paused') setPaused(false);
+  }
+});
+// 切到后台自动暂停（避免回来时被围杀）
+document.addEventListener('visibilitychange', ()=>{ if (document.hidden) setPaused(true); });
+
 document.getElementById('startBtn').onclick = ()=>{
   document.getElementById('startscreen').style.display='none';
   newGame(); spawnedBoss=false; state='playing';
+  pauseScreen.style.display='none'; pauseBtn.textContent='⏸';
 };
 document.getElementById('retryBtn').onclick = ()=>{
   document.getElementById('endscreen').style.display='none';
   newGame(); spawnedBoss=false; state='playing';
+  pauseScreen.style.display='none'; pauseBtn.textContent='⏸';
 };
 </script>
 </body>
