@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d0f14">
-<title>十分钟·肉鸽求生</title>
+<title>八分钟·肉鸽求生</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { width:100%; height:100%; background:#0d0f14; overflow:hidden;
@@ -100,12 +100,12 @@
   </div>
 
   <div class="overlay" id="startscreen">
-    <h1 style="color:#ffd76a">十分钟 · 肉鸽求生</h1>
+    <h1 style="color:#ffd76a">八分钟 · 肉鸽求生</h1>
     <p>WASD / 方向键 移动 · 手机<b style="color:#ffd76a">任意位置按住拖动</b>即出摇杆 · 攻击全自动 · 捡拾经验水晶升级并三选一强化<br>
-    青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
+    青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">8 分钟</b> 即胜利！第 6 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v1.6</p>
+    <p class="ver">v1.7</p>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -139,7 +139,10 @@ function resize(){
 }
 addEventListener('resize', resize); resize();
 
-const GAME_TIME = 600; // 10 分钟（秒）
+const GAME_TIME = 480;      // 整局 8 分钟（秒）
+const BOSS_TIME = 360;      // 第 6 分钟刷最终 BOSS，留 2 分钟 BOSS 战
+const SLASH_ARC = 0.40;     // 斩击初始半角（约 46° 扇面）
+const SLASH_ARC_STEP = 0.17; // 分裂弹每多一发，扇面加宽的半角
 // ---------- 状态 ----------
 let state = 'menu'; // menu / playing / levelup / end
 let player, enemies, gems, bullets, parts, spawnTimer, gameTime, kills, shake;
@@ -205,7 +208,7 @@ const UPGRADES = [
   { icon:'👟', name:'疾风步', desc:'移动速度 +12%', note:'走位拉扯的本钱', apply:p=>p.speed*=1.12 },
   { icon:'❤️', name:'强健体魄', desc:'生命上限 +25，并立即回满', note:'残血时选它等于一次复活', apply:p=>{p.maxHp+=25;p.hp=p.maxHp;} },
   { icon:'🧲', name:'磁力水晶', desc:'拾取范围 +40%', note:'后期满地水晶时收益极高', apply:p=>p.magnet*=1.4 },
-  { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中', apply:p=>p.multi+=1 },
+  { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中 · 斩击流：每层额外加宽斩击角度', apply:p=>p.multi+=1 },
   { icon:'🎯', name:'穿透弹', desc:'子弹可多穿透 1 个敌人', note:'敌人排成一串时收益翻倍', apply:p=>p.pierce+=1 },
   { icon:'💊', name:'再生', desc:'每秒回复 1 点生命', note:'越早拿越值', apply:p=>p.regen+=1 },
   { icon:'💥', name:'致命一击', desc:'暴击率 +10%（暴击双倍伤害）', note:'初始暴击率 5%', apply:p=>p.crit+=0.10 },
@@ -217,9 +220,9 @@ const UPGRADES = [
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
     note:'限选 1 次 · 每击杀 1 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
     apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; } },
-  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝移动方向挥出扇形斩击（60% 伤害，范围伤害）',
-    note:'限选 1 次 · 移动充能 15 秒后，以自身为中心八向斩击（400% 伤害）', max:1,
-    apply:p=>{ p.slashMode=true; p.slashEnergy=0; } },
+  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出扇形斩击（60% 伤害，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
+    note:'限选 1 次 · 斩击角度初始较窄，每次分裂弹都会加宽 · 移动充能 15 秒后八向斩击（400% 伤害）', max:1,
+    apply:p=>{ p.slashMode=true; p.slashEnergy=0; p.speed*=1.15; } },
 ];
 
 // ---------- 初始化 ----------
@@ -239,15 +242,15 @@ function newGame(){
 // ---------- 敌人生成 ----------
 function spawnEnemy(){
   const t = gameTime;
-  const diff = t/600; // 难度进度 0→1
+  const diff = t/GAME_TIME; // 难度进度 0→1
   const dist = 900 + Math.random()*200;
   const a = Math.random()*Math.PI*2;
   const x = player.x + Math.cos(a)*dist, y = player.y + Math.sin(a)*dist;
   let type = 'grunt';
   const roll = Math.random();
-  if (t>60 && roll<0.25) type='fast';
-  if (t>120 && roll>0.85) type='tank';
-  if (t>240 && roll>0.72) type='shooter';
+  if (t>48 && roll<0.25) type='fast';
+  if (t>96 && roll>0.85) type='tank';
+  if (t>192 && roll>0.72) type='shooter';
   const e = { x, y, type, id:++eid, hurtT:0, burnT:0, burnDmg:0 };
   if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60; e.spd=70+diff*50; e.dmg=10; e.col='#c94f4f'; e.xp=1; }
   if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30; e.spd=150+diff*70; e.dmg=8; e.col='#e6b84f'; e.xp=1; }
@@ -255,12 +258,14 @@ function spawnEnemy(){
   if (type==='shooter'){ e.r=13; e.hp=e.maxHp=30+diff*70; e.spd=55; e.dmg=12; e.col='#4fd0c9'; e.xp=2;
     e.shootT = 1+Math.random()*2; }
   enemies.push(e);
-  // BOSS：第 8 分钟
-  if (Math.abs(t-480) < 0.1 && !spawnedBoss){
-    spawnedBoss = true;
-    enemies.push({ x:player.x+400, y:player.y, type:'boss', id:++eid, r:52, hp:2200, maxHp:2200,
-      spd:55, dmg:35, col:'#ff3b6b', xp:50, hurtT:0, burnT:0, burnDmg:0, shootT:2, chargeT:5 });
-  }
+}
+// BOSS：独立计时触发（不再依赖刷怪节拍，避免错过时间点永不出现）
+function spawnBoss(){
+  if (spawnedBoss) return;
+  spawnedBoss = true;
+  shake = 12;
+  enemies.push({ x:player.x+400, y:player.y, type:'boss', id:++eid, r:52, hp:2200, maxHp:2200,
+    spd:55, dmg:35, col:'#ff3b6b', xp:50, hurtT:0, burnT:0, burnDmg:0, shootT:2, chargeT:5 });
 }
 let spawnedBoss = false;
 let eid = 0;
@@ -268,6 +273,7 @@ let eid = 0;
 // ---------- 输入/更新 ----------
 function update(dt){
   gameTime += dt;
+  if (!spawnedBoss && gameTime >= BOSS_TIME) spawnBoss();
   if (gameTime >= GAME_TIME){ endGame(true); return; }
   // 玩家移动
   let dx=0, dy=0;
@@ -295,9 +301,21 @@ function update(dt){
       releaseSlash8();
     }
     if (player.fireT <= 0){
-      player.fireT = 1.0;
-      // 斩击距离同样受攻击距离限制（坦克引擎会缩短它）
-      slashAttack(player.faceAng, 0.6*player.dmg, Math.min(200, player.atkRange), 0.9, '#dff3ff');
+      // 与子弹流一致：自动锁定最近敌人，不再跟随移动方向
+      const R = Math.min(200, player.atkRange);
+      let best=null, bd=1e9;
+      for (const e of enemies){
+        if (e.type==='ebullet') continue;
+        const d=Math.hypot(e.x-player.x, e.y-player.y); if(d<bd){bd=d;best=e;}
+      }
+      if (best && bd < R + best.r){
+        player.fireT = 1.0;
+        const ang = Math.atan2(best.y-player.y, best.x-player.x);
+        player.faceAng = ang;
+        // 斩击半角：初始较窄，分裂弹每多一发都加宽扇面
+        const halfArc = SLASH_ARC + (player.multi-1)*SLASH_ARC_STEP;
+        slashAttack(ang, 0.6*player.dmg, R, halfArc, '#dff3ff');
+      }
     }
   } else if (player.fireT<=0){
     let best=null, bd=1e9;
@@ -437,7 +455,7 @@ function update(dt){
   }
   // 生成（频率更缓：开局 ~1.2 秒一只，末段 ~0.35 秒一只）
   spawnTimer -= dt;
-  const rate = Math.max(0.35, 1.2 - gameTime/600*0.85);
+  const rate = Math.max(0.35, 1.2 - gameTime/GAME_TIME*0.85);
   if (spawnTimer<=0){ spawnTimer = rate; spawnEnemy(); }
   // 粒子
   for (let i=parts.length-1;i>=0;i--){
@@ -461,13 +479,15 @@ function slashAttack(ang, dmg, radius, halfArc, col){
   slashFx.push({ x:player.x, y:player.y, ang, arc:halfArc, radius, life:0.22, maxLife:0.22, col });
   for (let j=enemies.length-1;j>=0;j--){
     const e = enemies[j];
-    if (e.hp<=0 || e.type==='ebullet') continue;
+    if (e.hp<=0) continue;
     const d = Math.hypot(e.x-player.x, e.y-player.y);
     if (d > radius + e.r) continue;
     let da = Math.atan2(e.y-player.y, e.x-player.x) - ang;
     while (da >  Math.PI) da -= Math.PI*2;
     while (da < -Math.PI) da += Math.PI*2;
-    if (Math.abs(da) > halfArc) continue;
+    if (Math.abs(da) > halfArc + Math.atan2(e.r, Math.max(1,d))) continue;
+    // 青色敌弹可以被斩击打掉（不计伤害、不计击杀）
+    if (e.type==='ebullet'){ e.hp = 0; burst(e.x,e.y,'#4fd0c9',6); continue; }
     let dm = dmg;
     if (Math.random() < player.crit) dm *= 2;
     stats.slash += dm;
@@ -681,11 +701,10 @@ function draw(){
     ctx.lineWidth = 4; ctx.strokeStyle = t>=0.999 ? '#ffe9a8' : 'rgba(255,233,168,0.75)';
     ctx.stroke();
   }
-  ctx.fillStyle='#2b6cff'; // 朝向指示
+  ctx.fillStyle='#2b6cff'; // 朝向指示（指向最近敌人）
   let nearest=null,bd=1e9;
-  for(const e of enemies){const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd){bd=d;nearest=e;}}
-  const fa = player.slashMode ? player.faceAng
-    : (nearest?Math.atan2(nearest.y-player.y,nearest.x-player.x):0);
+  for(const e of enemies){ if(e.type==='ebullet') continue; const d=Math.hypot(e.x-player.x,e.y-player.y);if(d<bd){bd=d;nearest=e;} }
+  const fa = nearest ? Math.atan2(nearest.y-player.y,nearest.x-player.x) : player.faceAng;
   ctx.beginPath(); ctx.arc(player.x+Math.cos(fa)*10, player.y+Math.sin(fa)*10, 5, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 
