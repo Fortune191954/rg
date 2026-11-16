@@ -21,9 +21,12 @@
   #stats { font-size:14px; text-align:right; line-height:1.5; text-shadow:0 1px 4px #000; }
   #hearts { position:absolute; left:50%; bottom:14px; transform:translateX(-50%);
     display:flex; flex-wrap:wrap; gap:3px; justify-content:center; max-width:420px; }
-  .heart { width:22px; height:22px; }
-  .heart svg { width:100%; height:100%; display:block; filter:drop-shadow(0 1px 3px #000); }
+  .heart { width:22px; height:22px; position:relative; }
+  .heart svg { position:absolute; left:0; top:0; width:100%; height:100%; display:block;
+    filter:drop-shadow(0 1px 3px #000); }
   .heart.low svg { animation:hb .55s infinite alternate; }
+  #hearts .mul { position:absolute; left:100%; bottom:0; margin-left:8px; font-size:15px;
+    font-weight:bold; color:#ffd76a; text-shadow:0 1px 4px #000; white-space:nowrap; }
   @keyframes hb { from{transform:scale(1);} to{transform:scale(1.15);} }
   #xpline { position:absolute; top:0; left:0; width:100%; height:5px; background:#111; }
   #xpfill { height:100%; width:0%; background:#4dd4ff; transition:width .1s; }
@@ -105,7 +108,7 @@
     青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v1.8</p>
+    <p class="ver">v1.9</p>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -586,29 +589,53 @@ function updateHUD(){
 }
 
 // ---------- 心形血量 ----------
+// 每颗心固定代表 HP_PER_HEART 点生命：血上限越高，心越多、血条越长。
+// 最多显示 HEART_SLOTS 颗（一行 15、共两行）；再往上不再加长，
+// 而是在每颗心上用不同颜色层层叠加，并在右侧标注「×层数」。
 let lastHeartKey = '';
+const HP_PER_HEART = 10;
+const HEART_SLOTS  = 30;
+const HEART_COLORS = ['#e5484d','#ff8f3c','#ffd24a','#5fe0a8','#4dd4ff','#c07cff'];
+const HEART_PATH = 'M12 21.2C9.2 19 2.2 14.2 2.2 8.9 2.2 5.7 4.7 3.4 7.6 3.4c1.9 0 3.5 1 4.4 2.5.9-1.5 2.5-2.5 4.4-2.5 2.9 0 5.4 2.3 5.4 5.5 0 5.3-7 10.1-9.8 12.3z';
+
 function updateHearts(){
-  // 每颗心代表 per 点生命，心数控制在 16 颗以内
-  const per = Math.max(10, Math.ceil(player.maxHp/16));
-  const total = Math.max(1, Math.ceil(player.maxHp/per));
-  const hp = Math.max(0, player.hp);
-  const key = total+'|'+(Math.round(hp/per*4)/4)+'|'+(hp<=player.maxHp*0.3);
+  const totalHearts = Math.max(1, Math.ceil(player.maxHp/HP_PER_HEART));
+  const layers = Math.max(1, Math.ceil(totalHearts/HEART_SLOTS));  // 叠加层数
+  const slots  = Math.min(totalHearts, HEART_SLOTS);
+  const filled = Math.max(0, player.hp)/HP_PER_HEART;              // 已填充心数（含小数）
+  const low = player.hp <= player.maxHp*0.3;
+  const key = totalHearts+'|'+(Math.round(filled*4)/4)+'|'+(low?1:0);
   if (key === lastHeartKey) return;
   lastHeartKey = key;
-  const P = 'M12 21.2C9.2 19 2.2 14.2 2.2 8.9 2.2 5.7 4.7 3.4 7.6 3.4c1.9 0 3.5 1 4.4 2.5.9-1.5 2.5-2.5 4.4-2.5 2.9 0 5.4 2.3 5.4 5.5 0 5.3-7 10.1-9.8 12.3z';
+
   let html = '';
-  const low = hp <= player.maxHp*0.3;
-  for (let i=0;i<total;i++){
-    const f = Math.min(1, Math.max(0, (hp - i*per)/per)); // 这颗心填充比例
-    const w = (f*26).toFixed(2);
-    const cid = 'hc'+i;
-    const color = low ? '#ff4d4d' : '#e5484d';
-    html += `<div class="heart${low&&f>0?' low':''}"><svg viewBox="0 0 24 24">
-      <defs><clipPath id="${cid}"><rect x="0" y="0" width="${w}" height="24"/></clipPath></defs>
-      <path d="${P}" fill="#2a2f3a" stroke="#4a5464" stroke-width="0.8"/>
-      <path d="${P}" fill="${color}" clip-path="url(#${cid})"/>
-    </svg></div>`;
+  for (let i=0;i<slots;i++){
+    let stack = '';
+    for (let k=0;k<layers;k++){
+      const idx = k*HEART_SLOTS + i;      // 这一层对应的心序号
+      if (idx >= totalHearts) break;      // 该槽位没有这一层
+      const f = Math.min(1, Math.max(0, filled - idx));
+      const col = HEART_COLORS[k % HEART_COLORS.length];
+      const cid = 'hc'+k+'_'+i;
+      if (k === 0){
+        stack += `<svg viewBox="0 0 24 24">
+          <path d="${HEART_PATH}" fill="#2a2f3a" stroke="#4a5464" stroke-width="0.8"/>`
+          + (f>0 ? `<clipPath id="${cid}"><rect x="0" y="0" width="${(f*24).toFixed(2)}" height="24"/></clipPath>
+            <path d="${HEART_PATH}" fill="${col}" clip-path="url(#${cid})"/>` : '')
+          + `</svg>`;
+      } else if (f > 0){
+        const sc = Math.max(0.34, 1 - k*0.2).toFixed(3);
+        stack += `<svg viewBox="0 0 24 24">
+          <clipPath id="${cid}"><rect x="0" y="0" width="${(f*24).toFixed(2)}" height="24"/></clipPath>
+          <g transform="translate(12 12) scale(${sc}) translate(-12 -12)">
+            <path d="${HEART_PATH}" fill="rgba(0,0,0,.35)" stroke="rgba(0,0,0,.55)" stroke-width="1.1"/>
+            <path d="${HEART_PATH}" fill="${col}" clip-path="url(#${cid})"/>
+          </g></svg>`;
+      }
+    }
+    html += `<div class="heart${low&&filled>0?' low':''}">${stack}</div>`;
   }
+  if (layers > 1) html += `<span class="mul">×${layers}</span>`;
   document.getElementById('hearts').innerHTML = html;
 }
 
