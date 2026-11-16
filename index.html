@@ -58,6 +58,7 @@
   .stat .k { font-size:12px; color:#8fa3bd; margin-top:3px; }
   #endInfo { font-size:13px; color:#8fa3bd; max-width:92vw; }
   #endInfo b { color:#c9d8ea; }
+  .ver { font-size:12px !important; color:#55647c !important; letter-spacing:1px; }
 
   /* 手机适配 */
   @media (max-width: 720px){
@@ -94,9 +95,10 @@
   <div class="overlay" id="startscreen">
     <h1 style="color:#ffd76a">十分钟 · 肉鸽求生</h1>
     <p>WASD / 方向键 移动 · 手机<b style="color:#ffd76a">任意位置按住拖动</b>即出摇杆 · 攻击全自动 · 捡拾经验水晶升级并三选一强化<br>
-    敌人越来越强，撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
+    青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
+    <p class="ver">v1.5</p>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -384,7 +386,15 @@ function update(dt){
   // 水晶
   for (let i=gems.length-1;i>=0;i--){
     const g = gems[i];
-    const d = Math.hypot(player.x-g.x, player.y-g.y);
+    // 弹出停留期：先向外飞一小段，之后再被磁力吸附
+    if (g.t > 0){
+      g.t -= dt;
+      g.x += g.vx*dt; g.y += g.vy*dt;
+      const damp = Math.max(0, 1 - 5*dt);
+      g.vx *= damp; g.vy *= damp;
+      continue;
+    }
+    const d = Math.hypot(player.x-g.x, player.y-g.y) || 1;
     if (d < player.magnet){ g.x += (player.x-g.x)/d*300*dt; g.y += (player.y-g.y)/d*300*dt; }
     if (d < player.r+8){
       gems.splice(i,1); player.xp += g.v;
@@ -412,7 +422,11 @@ function burst(x,y,col,n){
 function killEnemy(e){
   kills++;
   burst(e.x,e.y,e.col,10);
-  if (e.xp>0) for(let i=0;i<e.xp;i++) gems.push({x:e.x+(Math.random()-0.5)*20,y:e.y+(Math.random()-0.5)*20,v:1});
+  // 水晶先向外弹出并停留片刻（避免被磁力瞬间吸走、看不到掉落）
+  if (e.xp>0) for(let i=0;i<e.xp;i++){
+    const a = Math.random()*Math.PI*2, sp = 40+Math.random()*40;
+    gems.push({ x:e.x, y:e.y, v:1, t:0.55, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp });
+  }
   if (e.type==='boss') burst(e.x,e.y,'#ffd76a',40);
 }
 function levelUp(){
@@ -505,9 +519,14 @@ function draw(){
   if (state==='menu'){ ctx.restore(); return; }
   // 水晶
   for (const g of gems){
-    ctx.fillStyle='#4dd4ff';
-    ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(gameTime*2);
-    ctx.fillRect(-4,-4,8,8); ctx.restore();
+    const pop = g.t>0 ? 0.75 + 0.55*(1 - g.t/0.55) : 1;
+    ctx.save(); ctx.translate(g.x,g.y); ctx.rotate(gameTime*3);
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle='#4dd4ff'; ctx.beginPath(); ctx.arc(0,0,12*pop,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle='#8be6ff';
+    ctx.fillRect(-4.5*pop,-4.5*pop,9*pop,9*pop);
+    ctx.restore();
   }
   // 敌人
   for (const e of enemies){
