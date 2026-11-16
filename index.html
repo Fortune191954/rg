@@ -13,7 +13,7 @@
     -webkit-user-select:none; -webkit-tap-highlight-color:transparent; touch-action:none;
     overscroll-behavior:none; }
   #wrap { position:relative; width:100vw; height:100vh; }
-  canvas { display:block; background:#0d0f14; }
+  canvas { display:block; background:#0d0f14; position:absolute; top:0; left:0; }
   /* HUD */
   #hud { position:absolute; top:0; left:0; width:100%; padding:10px 16px;
     display:flex; justify-content:space-between; align-items:flex-start; pointer-events:none; color:#e8e8e8; }
@@ -73,6 +73,8 @@
   #endscreen { display:none; }
   #pausescreen { display:none; }
   #startscreen { display:none; }
+  #bossscreen { display:none; }
+  #endlessScreen { display:none; }
   .btnrow { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
   .overlay button.ghost { background:#2b3b52; color:#dde6f2; }
   .overlay button.ghost:hover { background:#3a4f6c; }
@@ -148,6 +150,14 @@
   .idval { font-size:34px; font-weight:bold; color:#8fd6ff; letter-spacing:8px; line-height:1.15;
     text-shadow:0 0 18px rgba(143,214,255,.35); }
   .idnote { font-size:11px; color:#6a7a92; line-height:1.5; text-align:center; }
+  /* 存档 / 恢复码 */
+  .idcard.savecard { gap:6px; }
+  .savestate { font-size:12px; color:#cfe2f7; line-height:1.5; text-align:center; }
+  .ginp { width:min(210px,52vw); background:#0d1420; border:2px solid #33415a; border-radius:10px;
+    color:#dfe9f6; font-size:13px; padding:9px 12px; letter-spacing:1px; outline:none; font-family:inherit; }
+  .ginp:focus { border-color:#8fd6ff; }
+  .savemsg { font-size:11px; color:#8fa3bd; line-height:1.5; max-width:min(420px,90vw); text-align:center;
+    margin:2px 0; min-height:14px; }
   /* 排行榜 */
   #lbscreen { display:none; }
   .lbtabs { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
@@ -269,8 +279,8 @@
       <button id="lbBtn" class="ghost mini">📊 排行榜</button>
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 我的ID</button>
     </div>
-    <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 系统随机生成，不可自定义</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.13</p>
+    <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 💰 <b id="homePoints" style="color:#ffd76a;font-size:15px">0</b> 积分 · 凭恢复码可找回</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.14</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -280,7 +290,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.13</p>
+    <p class="ver">v2.14</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -292,7 +302,7 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 我的ID</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.13</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.14</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -300,14 +310,28 @@
     <div class="idcard">
       <div class="idlabel">我的 ID · 系统随机生成（A-Z / a-z 两位）</div>
       <div class="idval myid">--</div>
-      <div class="idnote">排行榜只显示这个 ID，不可自定义。ID 存在本机，换设备或清理浏览器数据后会重新生成。</div>
+      <div class="idnote">排行榜只显示这个 ID，不可自定义。ID 与积分已绑定恢复码，换设备 / 清缓存也能找回。</div>
     </div>
-    <p class="sub">无需注册、无需登录 · 积分与进度保存在本机</p>
+    <div class="idcard savecard">
+      <div class="idlabel">存档状态</div>
+      <div class="savestate" id="saveState">检测中…</div>
+      <div class="idlabel" style="margin-top:12px">恢复码 · 积分已按它存在云端</div>
+      <div class="idval" id="recoverCode" style="font-size:22px;letter-spacing:1px;color:#ffd76a">----</div>
+    </div>
+    <div class="btnrow">
+      <button id="copyCodeBtn" class="ghost mini">📋 复制恢复码</button>
+      <button id="syncNowBtn" class="ghost mini">🔄 立即同步</button>
+    </div>
+    <div class="btnrow">
+      <input id="recoverInput" class="ginp" placeholder="输入恢复码找回积分" autocomplete="off" spellcheck="false" />
+      <button id="recoverBtn" class="ghost mini">找回</button>
+    </div>
+    <p class="savemsg" id="saveMsg"></p>
     <div class="btnrow">
       <button id="profileLbBtn" class="ghost mini">📊 查看排行榜</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.13</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.14</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
@@ -339,7 +363,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.13</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.14</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -351,7 +375,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.13</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.14</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -361,7 +385,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.13</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.14</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -444,60 +468,190 @@ const BULLETS = {
 const BULLET_ORDER = ['normal','ice','thunder','burn','yelve'];
 // 击杀积分：红1 / 黄2 / 紫5 / 青7 / BOSS 500（仅十分钟模式获取）
 const KILL_POINTS = { grunt:1, fast:2, tank:5, shooter:7, boss:500, bhboss:500 };
-// 玩家进度（跨局持久化：本机 localStorage）
+// 玩家进度（跨局持久化：本机多通道 + 云端按设备密钥同步）
 let userPoints = 0;                       // 总积分（余额）
 let unlockedBullets = ['normal'];         // 已解锁子弹
 let equippedBullet = 'normal';            // 当前装备
 let runPoints = 0;                        // 本局获得积分
 let chainFx = [];                         // 雷电链特效
 let saveT = 0, progressDirty = false;     // 进度节流存盘
+let profileRev = 0;                       // 存档版本号（云端比较新旧用）
+var cloudDirty = false;                   // 有未推送的改动
+let cloudBusy = false, cloudSyncState = 'idle', cloudLastPush = 0, cloudSaveT = 0;
 
-// ---------- 玩家进度存档（本机） ----------
-const LS_KEY = 'rg_profile_v1';
+// ---------- 多通道存储（本机存档可能被浏览器禁用，逐级降级） ----------
+// 关键：隐私模式 / 受限 iframe 里 localStorage 会抛异常，直接读写会静默失败，
+// 导致「一刷新 ID 和积分全丢」。这里按 localStorage → sessionStorage → cookie → 内存
+// 逐级兜底，并且真机探测可用性（写入后读回）。
+const Store = (()=>{
+  const mem = Object.create(null);
+  let ls = null, ss = null;
+  function probe(s){
+    try {
+      const k = '__rg_probe__';
+      s.setItem(k, '1');
+      const ok = s.getItem(k) === '1';
+      s.removeItem(k);
+      return ok;
+    } catch(_){ return false; }
+  }
+  try { if (typeof localStorage !== 'undefined' && probe(localStorage)) ls = localStorage; } catch(_){}
+  try { if (typeof sessionStorage !== 'undefined' && probe(sessionStorage)) ss = sessionStorage; } catch(_){}
+  const CK = '__rg_ck__';
+  const cookieOK = (()=>{
+    try {
+      document.cookie = CK + '=1;path=/;max-age=120;SameSite=Lax';
+      const ok = document.cookie.indexOf(CK + '=1') >= 0;
+      document.cookie = CK + '=;path=/;max-age=0;SameSite=Lax';
+      return ok;
+    } catch(_){ return false; }
+  })();
+  function ckGet(k){
+    try {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + k + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    } catch(_){ return null; }
+  }
+  function ckSet(k, v){
+    try { document.cookie = k + '=' + encodeURIComponent(v) + ';path=/;max-age=31536000;SameSite=Lax'; } catch(_){}
+  }
+  function ckDel(k){ try { document.cookie = k + '=;path=/;max-age=0;SameSite=Lax'; } catch(_){} }
+  return {
+    get(k){
+      if (ls){ try { const v = ls.getItem(k); if (v !== null) return v; } catch(_){} }
+      if (ss){ try { const v = ss.getItem(k); if (v !== null) return v; } catch(_){} }
+      const c = ckGet(k);
+      if (c !== null) return c;
+      // 内存副本只在本机通道全都不可用时兜底，避免主通道清空后读到陈旧值
+      if (!ls && !ss && !cookieOK) return k in mem ? mem[k] : null;
+      return null;
+    },
+    set(k, v){
+      mem[k] = v;
+      if (ls){ try { ls.setItem(k, v); } catch(_){} }
+      if (ss){ try { ss.setItem(k, v); } catch(_){} }
+      // cookie 单条约 4KB，小数据才走 cookie
+      if (cookieOK && v.length < 600) ckSet(k, v);
+    },
+    remove(k){
+      delete mem[k];
+      if (ls){ try { ls.removeItem(k); } catch(_){} }
+      if (ss){ try { ss.removeItem(k); } catch(_){} }
+      ckDel(k);
+    },
+    info(){ return { ls: !!ls, ss: !!ss, cookie: cookieOK, mem: true }; },
+    mode(){
+      if (ls) return 'local';
+      if (ss) return 'session';
+      if (cookieOK) return 'cookie';
+      return 'memory';
+    },
+  };
+})();
+
+// ---------- 玩家进度存档 ----------
+const LS_KEY = 'rg_profile_v2';
+const LS_KEY_OLD = 'rg_profile_v1';
 function loadProgress(){
-  try {
-    const raw = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (raw){
-      userPoints = Math.max(0, raw.points|0);
-      unlockedBullets = Array.isArray(raw.unlocked) ? raw.unlocked.filter(id=>BULLETS[id]) : ['normal'];
-      if (unlockedBullets.indexOf('normal') < 0) unlockedBullets.unshift('normal');
-      equippedBullet = unlockedBullets.indexOf(raw.equipped) >= 0 ? raw.equipped : 'normal';
-    }
-  } catch(_){}
+  let raw = null;
+  try { raw = JSON.parse(Store.get(LS_KEY) || 'null'); } catch(_){}
+  if (!raw){                                  // 老存档（v1）自动迁移
+    try { raw = JSON.parse(Store.get(LS_KEY_OLD) || 'null'); } catch(_){}
+    if (raw) profileRev = 1;
+  }
+  if (raw){
+    userPoints = Math.max(0, raw.points|0);
+    unlockedBullets = Array.isArray(raw.unlocked) ? raw.unlocked.filter(id=>BULLETS[id]) : ['normal'];
+    if (unlockedBullets.indexOf('normal') < 0) unlockedBullets.unshift('normal');
+    equippedBullet = unlockedBullets.indexOf(raw.equipped) >= 0 ? raw.equipped : 'normal';
+    if (raw.rev) profileRev = Math.max(profileRev, raw.rev|0);
+  }
 }
-function saveProgress(){
-  try {
-    localStorage.setItem(LS_KEY, JSON.stringify({
-      points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet,
-    }));
-  } catch(_){}
+function progressSnapshot(){
+  return JSON.stringify({
+    v: 2, key: deviceKey, pid: playerId,
+    points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet, rev: profileRev,
+  });
+}
+function saveProgressLocal(){                 // 只写本机，不递增 rev
+  try { Store.set(LS_KEY, progressSnapshot()); return true; } catch(_){ return false; }
+}
+function saveProgress(){                      // 任何积分 / 解锁变化都走这里
+  profileRev++;
+  const ok = saveProgressLocal();
+  cloudDirty = true;
+  return ok;
 }
 
-// ---------- 玩家 ID：注册即随机生成两位（A-Z / a-z），不可自定义 ----------
+// ---------- 玩家身份：随机两位 ID（A-Z / a-z）+ 设备密钥（找回积分用） ----------
 const PID_KEY = 'rg_player_id_v1';
+const KEY_KEY = 'rg_device_key_v1';
 const PID_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const KEY_CHARS = 'abcdefghijklmnopqrstuvwxyz0123456789';
 let playerId = '';
-function genPlayerId(){
-  const buf = new Uint8Array(2);
-  if (typeof crypto !== 'undefined' && crypto.getRandomValues) crypto.getRandomValues(buf);
-  else { buf[0] = Math.floor(Math.random()*52); buf[1] = Math.floor(Math.random()*52); }
-  return PID_CHARS[buf[0] % 52] + PID_CHARS[buf[1] % 52];
+let deviceKey = '';
+
+function randChars(chars, n){
+  const out = [];
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues){
+    const buf = new Uint8Array(n);
+    crypto.getRandomValues(buf);
+    for (let i=0;i<n;i++) out.push(chars[buf[i] % chars.length]);
+  } else {
+    for (let i=0;i<n;i++) out.push(chars[Math.floor(Math.random()*chars.length)]);
+  }
+  return out.join('');
 }
-function ensurePlayerId(){
-  if (playerId) return playerId;
-  let saved = '';
-  try { saved = localStorage.getItem(PID_KEY) || ''; } catch(_){}
-  playerId = /^[A-Za-z]{2}$/.test(saved) ? saved : genPlayerId();
-  try { localStorage.setItem(PID_KEY, playerId); } catch(_){}
+function genPlayerId(){ return randChars(PID_CHARS, 2); }
+function genDeviceKey(){ return randChars(KEY_CHARS, 12); }
+
+// 身份同时写进 URL 锚点：本机存储被禁用时，刷新 / 收藏 / 从历史记录进入都能还原
+function readUrlIdentity(){
+  const out = { key:'', pid:'' };
   try {
-    if (document.querySelectorAll){
-      for (const el of document.querySelectorAll('.myid')){
-        if (el.textContent !== playerId) el.textContent = playerId;
-      }
+    const s = String(location.hash || '') + '&' + String(location.search || '');
+    const mk = s.match(/rgk=([a-z0-9]{8,32})/i);
+    const mp = s.match(/rgpid=([A-Za-z]{2})(?![A-Za-z0-9])/);
+    if (mk) out.key = mk[1].toLowerCase();
+    if (mp) out.pid = mp[1];
+  } catch(_){}
+  return out;
+}
+function writeUrlIdentity(){
+  try {
+    const hash = '#rgk=' + deviceKey + '&rgpid=' + playerId;
+    if (location.hash === hash) return;
+    history.replaceState(null, '', location.pathname + (location.search || '') + hash);
+  } catch(_){}
+}
+function paintMyId(){
+  try {
+    if (!document.querySelectorAll) return;
+    for (const el of document.querySelectorAll('.myid')){
+      if (el.textContent !== playerId) el.textContent = playerId;
     }
   } catch(_){}
+}
+function ensureIdentity(){
+  const url = readUrlIdentity();
+  if (!deviceKey){
+    let k = url.key;
+    if (!/^[a-z0-9]{8,32}$/.test(k)) k = String(Store.get(KEY_KEY) || '');
+    if (!/^[a-z0-9]{8,32}$/.test(k)) k = genDeviceKey();
+    deviceKey = k;
+    Store.set(KEY_KEY, k);
+  }
+  if (!playerId){
+    let pid = /^[A-Za-z]{2}$/.test(url.pid) ? url.pid : String(Store.get(PID_KEY) || '');
+    if (!/^[A-Za-z]{2}$/.test(pid)) pid = genPlayerId();
+    playerId = pid;
+    Store.set(PID_KEY, pid);
+  }
+  writeUrlIdentity();
+  paintMyId();
   return playerId;
 }
+function ensurePlayerId(){ return ensureIdentity(); }   // 兼容旧调用点
 
 // ---------- 排行榜（云端公开榜；云端不可用时回退本机榜） ----------
 const LB_BOARDS = {
@@ -511,15 +665,16 @@ let lbCache = {};              // board -> 行数组
 let lbStatus = {};             // board -> 'cloud' | 'local' | 'error'
 
 function loadLocalLB(){
-  try { const a = JSON.parse(localStorage.getItem(LS_LB) || '[]'); return Array.isArray(a) ? a : []; } catch(_){ return []; }
+  try { const a = JSON.parse(Store.get(LS_LB) || '[]'); return Array.isArray(a) ? a : []; } catch(_){ return []; }
 }
 function saveLocalLB(rows){
-  try { localStorage.setItem(LS_LB, JSON.stringify(rows.slice(0, 300))); } catch(_){}
+  try { Store.set(LS_LB, JSON.stringify(rows.slice(0, 300))); } catch(_){}
 }
 // 记录一次成绩：先写本机，再尝试写云端
 function submitScore(mode, boss, points, duration, kills, level){
+  ensureIdentity();
   const rec = {
-    player_id: ensurePlayerId(), mode, boss: boss || null,
+    player_id: playerId, device_key: deviceKey, mode, boss: boss || null,
     points: Math.max(0, Math.round(points)), duration: Math.max(0, Math.round(duration)),
     kills: Math.max(0, Math.round(kills)), level: Math.max(1, Math.round(level)),
     created_at: new Date().toISOString(),
@@ -535,7 +690,7 @@ async function cloudSubmitScore(rec){
   if (!c) return false;
   try {
     const { error } = await c.database.from('leaderboard').insert({
-      player_id: rec.player_id, mode: rec.mode, boss: rec.boss,
+      player_id: rec.player_id, device_key: rec.device_key, mode: rec.mode, boss: rec.boss,
       points: rec.points, duration: rec.duration, kills: rec.kills, level: rec.level,
     });
     if (error) throw error;
@@ -553,7 +708,7 @@ async function lbFetch(key){
   if (c){
     try {
       const { data, error } = await c.database.from('leaderboard')
-        .select('player_id,mode,boss,points,duration,kills,level,created_at')
+        .select('player_id,device_key,mode,boss,points,duration,kills,level,created_at')
         .eq('mode', board.mode)
         .order(col, { ascending: false })
         .limit(200);
@@ -574,7 +729,8 @@ async function lbFetch(key){
 function dedupeLB(rows){
   const seen = new Set(), out = [];
   for (const r of rows){
-    const id = r.player_id || '??';
+    // 两位 ID 会撞名，优先用设备密钥区分，老记录回退到 ID
+    const id = r.device_key ? 'k:' + r.device_key : 'p:' + (r.player_id || '??');
     if (seen.has(id)) continue;
     seen.add(id); out.push(r);
     if (out.length >= 20) break;
@@ -1334,9 +1490,9 @@ function update(dt){
     camY = vh2 >= HF*2 ? -vh2/2 : Math.max(-HF, Math.min(HF - vh2, camY));
   }
   updateHUD();
-  // 进度节流存盘（积分变化后最多 3 秒落一次）
+  // 进度节流存盘（积分变化后最多 1 秒落一次，刷新也不会丢）
   saveT -= dt;
-  if (progressDirty && saveT <= 0){ saveT = 3; progressDirty = false; saveProgress(); }
+  if (progressDirty && saveT <= 0){ saveT = 1; progressDirty = false; saveProgress(); }
 }
 
 function hurtFlash(e){ e.hurtT = 0.1; }
@@ -1554,11 +1710,11 @@ function endGame(win){
   // 无尽模式：本地最佳纪录（按存活时间），破纪录时标记
   if (mode === 'endless'){
     let best = null;
-    try { best = JSON.parse(localStorage.getItem('rg_endless_best') || 'null'); } catch(_){}
+    try { best = JSON.parse(Store.get('rg_endless_best') || 'null'); } catch(_){}
     endlessNewBest = !best || gameTime > best.time;
     if (endlessNewBest){
       best = { time: Math.floor(gameTime), kills, level: player.level };
-      try { localStorage.setItem('rg_endless_best', JSON.stringify(best)); } catch(_){}
+      try { Store.set('rg_endless_best', JSON.stringify(best)); } catch(_){}
     }
     const bm = Math.floor((best?best.time:0)/60), bs = Math.floor((best?best.time:0)%60);
     infoHtml += `<br>♾ 最佳纪录 ${bm}:${String(bs).padStart(2,'0')} · 击杀 ${best?best.kills:0}`
@@ -2081,11 +2237,17 @@ function draw(){
 
 // ---------- 主循环 ----------
 let last = performance.now();
+let uiPointsSeen = -1;
 function loop(now){
   const dt = Math.min(0.05, (now-last)/1000); last = now;
   document.body.classList.toggle('ingame', state !== 'menu');
   if (state==='playing') update(dt);
   else if (state==='levelup'||state==='end') updateHUD();
+  // 主页积分 / 存档面板跟随余额刷新
+  if (uiPointsSeen !== userPoints){ uiPointsSeen = userPoints; paintPointsUI(); }
+  // 云端推送心跳（菜单里也生效；后台标签页由 visibilitychange / pagehide 兜底）
+  cloudSaveT += dt;
+  if (cloudDirty && !cloudBusy && cloudSaveT >= 3){ cloudSaveT = 0; cloudPushProgress(true); }
   draw();
   requestAnimationFrame(loop);
 }
@@ -2177,7 +2339,7 @@ function enterEndless(){          // 主页 → 无尽模式 → 玩法说明（
   hideAll();
   state = 'menu';
   let best = null;
-  try { best = JSON.parse(localStorage.getItem('rg_endless_best') || 'null'); } catch(_){}
+  try { best = JSON.parse(Store.get('rg_endless_best') || 'null'); } catch(_){}
   const el = document.getElementById('endlessBest');
   if (best){
     const bm = Math.floor(best.time/60), bs = Math.floor(best.time%60);
@@ -2243,7 +2405,7 @@ function enterShop(){
 }
 function renderShop(){
   document.getElementById('shopPoints').textContent =
-    `💰 积分 ${userPoints}（本机保存 · 无需注册）`;
+    `💰 积分 ${userPoints.toLocaleString()}（云端同步 · 无需注册）`;
   const list = document.getElementById('shopList');
   list.innerHTML = '';
   for (const id of BULLET_ORDER){
@@ -2329,7 +2491,7 @@ function renderLB(rows, key){
     return;
   }
   list.innerHTML = rows.map((r, i)=>{
-    const mine = r.player_id === playerId;
+    const mine = r.device_key ? r.device_key === deviceKey : r.player_id === playerId;
     const sub = board.metric === 'points'
       ? `击杀 ${r.kills|0} · 时长 ${fmtDur(r.duration)}`
       : `积分 ${r.points|0} · 击杀 ${r.kills|0}`;
@@ -2369,20 +2531,206 @@ function getCloud(){
 }
 
 const loginScreen = document.getElementById('loginscreen');
+
+// ---------- 云端进度同步（设备密钥 → player_progress 表） ----------
+let saveMsgTxt = '', saveMsgOK = true;
+function cloudCode(k){ return String(k || '').replace(/(.{4})(?=.)/g, '$1-'); }
+function normCode(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''); }
+
+function refreshSaveUI(){
+  const st = document.getElementById('saveState');
+  if (!st) return;
+  const mode = Store.mode();
+  const modeTxt = mode === 'local' ? '浏览器本机存储'
+    : mode === 'session' ? '会话存储（关标签页后靠恢复码）'
+    : mode === 'cookie' ? 'Cookie 备用通道（本机存储被禁用）'
+    : '仅内存（请立刻抄下恢复码）';
+  const syncTxt = cloudSyncState === 'ok' ? '<b style="color:#7ee787">☁ 云端已同步</b>'
+    : cloudSyncState === 'fail' ? '<b style="color:#ff9a9a">☁ 同步失败，稍后自动重试</b>'
+    : cloudSyncState === 'off' ? '<b style="color:#ffd76a">☁ 云端未连接</b>'
+    : '<b style="color:#9aa4b2">☁ 同步中…</b>';
+  st.innerHTML = `💾 ${modeTxt}<br>${syncTxt} · 积分 <b style="color:#ffd76a">${userPoints.toLocaleString()}</b>`;
+  const codeEl = document.getElementById('recoverCode');
+  if (codeEl) codeEl.textContent = cloudCode(deviceKey);
+  const msg = document.getElementById('saveMsg');
+  if (msg){
+    msg.textContent = saveMsgTxt || '恢复码相当于账号：换设备、清缓存、换浏览器都能靠它把积分拿回来';
+    msg.style.color = saveMsgTxt ? (saveMsgOK ? '#7ee787' : '#ff9a9a') : '#8fa3bd';
+  }
+}
+function setSaveMsg(t, ok){ saveMsgTxt = t; saveMsgOK = !!ok; refreshSaveUI(); }
+
+function paintPointsUI(){                    // 主页余额 + 打开着的存档面板
+  const el = document.getElementById('homePoints');
+  if (el) el.textContent = userPoints.toLocaleString();
+  try { if (loginScreen.style.display === 'flex') refreshSaveUI(); } catch(_){}
+}
+
+function waitCloud(ms){
+  return new Promise(resolve=>{
+    const t0 = Date.now();
+    (function poll(){
+      if (getCloud()) return resolve(true);
+      if (Date.now() - t0 > (ms || 12000)) return resolve(false);
+      setTimeout(poll, 250);
+    })();
+  });
+}
+
+function applyCloudProgress(row){
+  userPoints = Math.max(0, row.points|0);
+  const arr = String(row.unlocked || 'normal').split(',').map(s=>s.trim()).filter(id=>BULLETS[id]);
+  if (arr.indexOf('normal') < 0) arr.unshift('normal');
+  unlockedBullets = arr;
+  equippedBullet = arr.indexOf(row.equipped) >= 0 ? row.equipped : 'normal';
+  profileRev = Math.max(profileRev, row.rev|0);
+  if (/^[A-Za-z]{2}$/.test(row.player_id || '')) playerId = row.player_id;
+  Store.set(PID_KEY, playerId);
+  saveProgressLocal();
+  paintMyId();
+  refreshSaveUI();
+}
+
+async function cloudPullProgress(force){
+  const c = getCloud();
+  if (!c || !deviceKey) return null;
+  try {
+    const { data, error } = await c.database.from('player_progress')
+      .select('device_key,player_id,points,unlocked,equipped,rev')
+      .eq('device_key', deviceKey).limit(1);
+    if (error) throw error;
+    const row = data && data[0];
+    cloudSyncState = 'ok';
+    if (!row) return null;
+    if (force || (row.rev|0) > profileRev){ applyCloudProgress(row); return row; }
+    return row;
+  } catch(e){
+    cloudSyncState = 'fail';
+    console.warn('[progress] 云端读取失败（本机存档不受影响）', e && e.message);
+    return null;
+  }
+}
+
+async function cloudPushProgress(silent){
+  const c = getCloud();
+  if (!c || !deviceKey || cloudBusy) return false;
+  cloudBusy = true;
+  try {
+    const { error } = await c.database.from('player_progress').upsert({
+      device_key: deviceKey,
+      player_id: playerId,
+      points: Math.max(0, Math.round(userPoints)),
+      unlocked: unlockedBullets.join(','),
+      equipped: equippedBullet,
+      rev: profileRev,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'device_key' });
+    if (error) throw error;
+    cloudDirty = false; cloudSyncState = 'ok'; cloudLastPush = Date.now();
+    refreshSaveUI();
+    return true;
+  } catch(e){
+    cloudSyncState = 'fail';
+    if (!silent) console.warn('[progress] 云端保存失败', e && e.message);
+    refreshSaveUI();
+    return false;
+  } finally { cloudBusy = false; }
+}
+
+function flushProgress(){                    // 切后台 / 关页面 / 刷新：立刻落盘
+  try { saveProgressLocal(); } catch(_){}
+  if (cloudDirty) cloudPushProgress(true);
+}
+
+async function doRecover(){
+  const input = document.getElementById('recoverInput');
+  const code = normCode(input ? input.value : '');
+  if (!/^[a-z0-9]{8,32}$/.test(code)){
+    setSaveMsg('恢复码格式不对：应该是 12 位字母数字（可带 - 分隔）', false);
+    return false;
+  }
+  setSaveMsg('正在云端查询…', true);
+  const ok = await waitCloud(9000);
+  if (!ok){ setSaveMsg('云端暂时连不上，稍后再试（当前进度没受影响）', false); return false; }
+  const oldKey = deviceKey, oldPid = playerId, oldRev = profileRev;
+  deviceKey = code; profileRev = 0;
+  const row = await cloudPullProgress(true);
+  if (!row){
+    deviceKey = oldKey; playerId = oldPid; profileRev = oldRev;
+    writeUrlIdentity(); refreshSaveUI();
+    setSaveMsg('云端没有这个恢复码的记录，检查一下是否抄错', false);
+    return false;
+  }
+  Store.set(KEY_KEY, deviceKey);
+  writeUrlIdentity();
+  refreshBossWallet();
+  if (shopScreen.style.display === 'flex') renderShop();
+  setSaveMsg(`✅ 找回成功：积分 ${userPoints.toLocaleString()} · 已解锁 ${unlockedBullets.length - 1} 种子弹`, true);
+  return true;
+}
+
+function copyRecoverCode(){
+  const txt = cloudCode(deviceKey);
+  const done = ()=> setSaveMsg('已复制恢复码：' + txt, true);
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done, ()=> setSaveMsg('复制失败，请手动抄下：' + txt, false));
+      return;
+    }
+  } catch(_){}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = txt; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    done();
+  } catch(_){ setSaveMsg('复制失败，请手动抄下：' + txt, false); }
+}
+
 function enterProfile(){
   hideAll();
   state = 'menu';
-  ensurePlayerId();
+  ensureIdentity();
+  refreshSaveUI();
   loginScreen.style.display = 'flex';
 }
 
-// 启动：读取本地进度，生成/恢复随机 ID（无注册流程）
+// 启动：先读本机进度 → 还原身份 → 用云端校准（云端更新则覆盖本机）
 loadProgress();
-ensurePlayerId();
+ensureIdentity();
 document.getElementById('accountBtn').onclick = ()=> enterProfile();
 document.getElementById('shopAccountBtn').onclick = ()=> enterProfile();
 document.getElementById('loginBackBtn').onclick = goHome;
 document.getElementById('profileLbBtn').onclick = ()=> enterLeaderboard(lbBoard);
+document.getElementById('copyCodeBtn').onclick = copyRecoverCode;
+document.getElementById('recoverBtn').onclick = doRecover;
+document.getElementById('syncNowBtn').onclick = async ()=>{
+  setSaveMsg('正在同步…', true);
+  const ok = await waitCloud(6000);
+  if (!ok) return setSaveMsg('云端未连接，稍后再试（本机进度正常）', false);
+  const row = await cloudPullProgress(false);
+  if (!row || profileRev > (row.rev|0)) await cloudPushProgress(false);
+  refreshSaveUI();
+  setSaveMsg(row ? '已同步：云端与本机自动取较新的一份' : '云端暂无记录，已上传本机进度', true);
+};
+const recInput = document.getElementById('recoverInput');
+if (recInput) recInput.addEventListener('keydown', e=>{ if (e.key === 'Enter') doRecover(); });
+
+refreshSaveUI();
+paintPointsUI();
+goHome();                                    // 启动时只显示主菜单（兜底，防止面板叠加）
+addEventListener('pagehide', flushProgress);
+addEventListener('beforeunload', flushProgress);
+document.addEventListener('visibilitychange', ()=>{ if (document.visibilityState === 'hidden') flushProgress(); });
+
+(async function bootCloud(){
+  const ok = await waitCloud(10000);
+  if (!ok){ cloudSyncState = 'off'; refreshSaveUI(); return; }
+  const row = await cloudPullProgress(false);
+  if (!row || profileRev > (row.rev|0)) cloudPushProgress(true);
+  refreshSaveUI();
+})();
 
 </script>
 </body>
