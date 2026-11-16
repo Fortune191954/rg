@@ -159,13 +159,17 @@
   .lbhint { font-size:11px; color:#6a7a92; }
   /* BOSS 血条 */
   #bossbar { position:absolute; top:52px; left:50%; transform:translateX(-50%);
-    width:min(560px, 78vw); display:none; flex-direction:column; align-items:center; gap:4px;
+    width:min(560px, 78vw); display:none; flex-direction:column; align-items:stretch; gap:6px;
     pointer-events:none; }
-  #bossname { font-size:13px; letter-spacing:2px; color:#ffb0c8; text-shadow:0 1px 5px #000; }
-  #bosstrack { width:100%; height:12px; background:#170f1c; border:1px solid #5a3a4a;
+  /* 多 BOSS：每个 BOSS 一条血条，最多显示 4 条 */
+  .bossrow { display:flex; flex-direction:column; gap:2px; }
+  .bossnm { font-size:13px; letter-spacing:2px; color:#ffb0c8; text-shadow:0 1px 5px #000; }
+  .bosstrack { width:100%; height:12px; background:#170f1c; border:1px solid #5a3a4a;
     border-radius:7px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.6); }
-  #bossfill { height:100%; width:100%; background:linear-gradient(90deg,#ff3b6b,#ff8aa8);
+  .bossfill { height:100%; width:100%; background:linear-gradient(90deg,#ff3b6b,#ff8aa8);
     transition:width .12s; }
+  .bossmore { font-size:11px; color:#9aa8bd; text-align:center; letter-spacing:1px;
+    text-shadow:0 1px 4px #000; }
   /* 主页等非对局界面隐藏 HUD */
   body:not(.ingame) #hud, body:not(.ingame) #hearts, body:not(.ingame) #xpline { visibility:hidden; }
   /* 手机适配 */
@@ -208,10 +212,7 @@
     </div>
   </div>
   <div id="hearts" data-page-node-id="r4WN9oVs7nsEmu8eDiELbm"></div>
-  <div id="bossbar" data-page-node-id="sNDErzt0nVAoLG0GLk9YN9">
-    <span id="bossname" data-page-node-id="QTOBtBJz7begIZLumuLyU7">黑洞怪</span>
-    <div id="bosstrack" data-page-node-id="i0SDERqA3VjhvnCvFDmRKW"><div id="bossfill" data-page-node-id="DO5znKqpIlLqHR6XO1wMGg"></div></div>
-  </div>
+  <div id="bossbar" data-page-node-id="sNDErzt0nVAoLG0GLk9YN9"></div>
 
   <div id="levelup" data-page-node-id="tk19zXAiYEteEx0fpzq9mn">
     <h2 id="levelupTitle" data-page-node-id="TYZ9wakdVOP9O1s4FlqFHo">⬆ 升级！选择强化</h2>
@@ -250,7 +251,7 @@
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 我的ID</button>
     </div>
     <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 系统随机生成，不可自定义</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.11</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.12</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -260,7 +261,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.11</p>
+    <p class="ver">v2.12</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -272,7 +273,7 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 我的ID</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.11</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.12</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -287,7 +288,7 @@
       <button id="profileLbBtn" class="ghost mini">📊 查看排行榜</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.11</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.12</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
@@ -317,7 +318,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.11</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.12</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -329,7 +330,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.11</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.12</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -339,7 +340,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.11</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.12</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -648,8 +649,9 @@ const UPGRADES = [
     note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
     apply:p=>{ p.orbs = 1; p.orbT = 45; } },
   { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
+  // 🛞 坦克引擎：暂时下架（所有模式均不再出现）。要恢复：把 off 改成 false 即可。
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
-    note:'限选 1 次 · 每击杀 5 个敌人，生命上限 +1%（按选择时的血量上限）', max:1,
+    note:'限选 1 次 · 每击杀 5 个敌人，生命上限 +1%（按选择时的血量上限）', max:1, off:true,
     apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; p.killHpCount=0; } },
   { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出窄扇形斩击（100% 伤害，射程 300，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
     note:'限选 1 次 · 斩击角度较窄，每层分裂弹额外多一道斩击（前、后、360° 均匀分布）· 移动充能 8 秒后八向斩击（400% 伤害）', max:1,
@@ -672,7 +674,7 @@ function newGame(m='classic', kind='blackhole'){
   upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5; matterT = 4;
   endlessBosses = 0; endlessBossT = ENDLESS_BOSS_T; endlessNewBest = false;
   bossWarn = (mode==='boss') ? BH_WARN : 0;
-  document.getElementById('bossbar').style.display='none';
+  resetBossBar();
   joyEnd(); lastHeartKey = '';
 }
 
@@ -1416,8 +1418,8 @@ function bossUpgrade(){
   showUpgradePanel();
 }
 function showUpgradePanel(){
-  // 限选次数的强化（如护体旋风、坦克引擎、爽煎滑蛋）选过后不再出现
-  const avail = UPGRADES.filter(u => !u.max || (player.taken[u.name]||0) < u.max);
+  // 限选次数的强化（如护体旋风、爽煎滑蛋）选过后不再出现；off:true 的强化（坦克引擎）暂时下架不出现
+  const avail = UPGRADES.filter(u => !u.off && (!u.max || (player.taken[u.name]||0) < u.max));
   if (!avail.length) return;
   state='levelup';
   joyEnd();
@@ -1538,20 +1540,66 @@ function updateHUD(){
   updateHearts();
 }
 
-// BOSS 血条（仅 BOSS 战显示）
-let lastBossName = '';
+// BOSS 血条（仅 BOSS 战 / 无尽模式显示）
+// 场上同时存在多个 BOSS 时，每个 BOSS 一条血条；最多显示 4 条，超出部分不展示。
+const MAX_BOSS_BARS = 4;
+let bossBars = [];        // [{ root, name, fill, key }]
+let bossBarsSig = '';     // 血条结构签名（BOSS 数量/类型变化才重建 DOM）
+function resetBossBar(){
+  const bar = document.getElementById('bossbar');
+  if (bar){ bar.style.display='none'; bar.innerHTML=''; }
+  bossBars = []; bossBarsSig = '';
+}
 function updateBossBar(){
   const bar = document.getElementById('bossbar');
-  let b = null;
-  for (const e of enemies){ if (e.type==='bhboss' || e.type==='boss'){ b = e; break; } }
-  if ((mode !== 'boss' && mode !== 'endless') || !b){ bar.style.display='none'; return; }
+  if (!bar) return;
+  const list = [];
+  for (const e of enemies){ if (e.type==='bhboss' || e.type==='boss') list.push(e); }
+  if ((mode !== 'boss' && mode !== 'endless') || !list.length){
+    if (bar.style.display !== 'none') resetBossBar();
+    return;
+  }
   bar.style.display = 'flex';
-  const nm = (b.type==='bhboss' ? '🌀 黑洞怪' : '🔥 血刃巨像')
-    + (b.enraged ? ' · 狂暴' : '') + ` · 总血 ${Math.round(b.maxHp)} · 吞噬 ${Math.round(b.absorbed||0)}`;
-  if (nm !== lastBossName){ document.getElementById('bossname').textContent = nm; lastBossName = nm; }
-  document.getElementById('bossfill').style.width = Math.max(0, b.hp/b.maxHp*100)+'%';
-  document.getElementById('bossfill').style.background = b.enraged
-    ? 'linear-gradient(90deg,#7a3bd6,#d9b8ff)' : 'linear-gradient(90deg,#ff3b6b,#ff8aa8)';
+  const shown = list.slice(0, MAX_BOSS_BARS);
+
+  // 结构变化（BOSS 数量/类型/顺序）才重建，避免每帧重建 DOM
+  const sig = shown.map(e => e.type + '#' + e.id).join(',');
+  if (sig !== bossBarsSig){
+    bossBarsSig = sig;
+    bar.innerHTML = '';
+    bossBars = [];
+    for (let i=0;i<shown.length;i++){
+      const root  = document.createElement('div'); root.className = 'bossrow';
+      const name  = document.createElement('div'); name.className = 'bossnm';
+      const track = document.createElement('div'); track.className = 'bosstrack';
+      const fill  = document.createElement('div'); fill.className = 'bossfill';
+      track.appendChild(fill); root.appendChild(name); root.appendChild(track);
+      bar.appendChild(root);
+      bossBars.push({ name, fill, key:'', lastW:null, lastBg:null });
+    }
+    if (list.length > MAX_BOSS_BARS){
+      const more = document.createElement('div'); more.className = 'bossmore';
+      more.textContent = `还有 ${list.length - MAX_BOSS_BARS} 个 BOSS 未显示`;
+      bar.appendChild(more);
+    }
+  }
+
+  for (let i=0;i<shown.length;i++){
+    const b = shown[i], row = bossBars[i];
+    if (!row) break;
+    const nm = (shown.length > 1 ? `#${i+1} ` : '')
+      + (b.type==='bhboss' ? '🌀 黑洞怪' : '🔥 血刃巨像')
+      + (b.enraged ? ' · 狂暴' : '')
+      + (b.type==='bhboss'
+          ? ` · 总血 ${Math.round(b.maxHp)} · 吞噬 ${Math.round(b.absorbed||0)}`
+          : ` · ${Math.max(0,Math.round(b.hp))}/${Math.round(b.maxHp)}`);
+    if (row.key !== nm){ row.name.textContent = nm; row.key = nm; }
+    const pct = Math.max(0, Math.min(100, b.hp / b.maxHp * 100));
+    if (row.lastW !== pct){ row.fill.style.width = pct + '%'; row.lastW = pct; }
+    const bg = b.enraged
+      ? 'linear-gradient(90deg,#7a3bd6,#d9b8ff)' : 'linear-gradient(90deg,#ff3b6b,#ff8aa8)';
+    if (row.lastBg !== bg){ row.fill.style.background = bg; row.lastBg = bg; }
+  }
 }
 
 // ---------- 心形血量 ----------
