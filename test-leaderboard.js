@@ -140,7 +140,7 @@ const mkEnemy = (type, xp) => ({ x:0, y:0, type, id:1, r:12, hp:1, maxHp:1, spd:
   assert(bossRec.duration === 154 && bossRec.boss === 'blackhole', `BOSS 榜记下时长与 BOSS 类型（${bossRec.duration}s / ${bossRec.boss}）`);
 
   const bp = await G.lbFetch('boss_points');
-  assert(bp.length === 1 && bp[0].points === 45, 'BOSS 积分榜可读');
+  assert(bp.length === 1 && bp[0].points === 45 + 2000, `BOSS 积分榜可读（击杀 45 + 通关奖励 2000 = ${bp[0] && bp[0].points}）`);
 
   console.log('\n全部通过：随机ID + 排行榜 + 各模式积分');
 })();

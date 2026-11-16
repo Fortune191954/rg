@@ -20,6 +20,15 @@
   #timer { font-size:34px; font-weight:bold; text-shadow:0 2px 6px #000; letter-spacing:2px; }
   #hudRight { display:flex; flex-direction:column; align-items:flex-end; gap:6px; }
   #stats { font-size:14px; text-align:right; line-height:1.5; text-shadow:0 1px 4px #000; }
+  /* 状态栏：实时显示当前属性（对局中显示） */
+  #statbar { position:absolute; left:16px; top:58px; display:flex; flex-direction:column; gap:1px;
+    font-size:12px; line-height:1.6; letter-spacing:.3px; pointer-events:none;
+    background:rgba(10,16,26,.42); border:1px solid rgba(120,160,210,.18); border-radius:9px;
+    padding:6px 9px; backdrop-filter:blur(2px); max-width:46vw; }
+  #statbar .sr { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+  #statbar .sk { color:#8fa3bd; min-width:52px; }
+  #statbar .sv { color:#e8f2ff; font-weight:bold; text-shadow:0 1px 3px #000; }
+  #statbar .sv.up { color:#7ee787; }
   #pauseBtn { pointer-events:auto; width:40px; height:38px; border-radius:10px; padding:0;
     background:rgba(24,32,46,.82); border:2px solid #3a4a66; color:#dfe9f6;
     font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center;
@@ -127,6 +136,11 @@
   .login-tip { font-size:11px; color:#6a7a92; line-height:1.5; }
   .login-msg { font-size:13px; color:#ff9a9a; min-height:18px; line-height:1.4; }
   .login-msg.ok { color:#7ee787; }
+  /* BOSS 试炼：积分钱包与提示 */
+  .bossWallet { font-size:13px; color:#cfe2f7; letter-spacing:.5px; margin-top:2px; }
+  .bossWallet b { color:#ffd76a; }
+  .bossmsg { font-size:12px; color:#ff9a9a; min-height:16px; line-height:1.45; max-width:78vw; text-align:center; }
+  .bossmsg.ok { color:#7ee787; }
   /* 我的 ID 卡片 */
   .idcard { background:#111826; border:2px solid #33415a; border-radius:12px; padding:12px 18px;
     display:flex; flex-direction:column; gap:4px; align-items:center; width:min(360px,88vw); }
@@ -171,7 +185,8 @@
   .bossmore { font-size:11px; color:#9aa8bd; text-align:center; letter-spacing:1px;
     text-shadow:0 1px 4px #000; }
   /* 主页等非对局界面隐藏 HUD */
-  body:not(.ingame) #hud, body:not(.ingame) #hearts, body:not(.ingame) #xpline { visibility:hidden; }
+  body:not(.ingame) #hud, body:not(.ingame) #hearts, body:not(.ingame) #xpline,
+  body:not(.ingame) #statbar { visibility:hidden; }
   /* 手机适配 */
   @media (max-width: 720px){
     #levelup h2 { font-size:22px; }
@@ -193,6 +208,9 @@
     .mode .md { font-size:11px; }
     #timer { font-size:26px; }
     #stats { font-size:12px; }
+    #statbar { left:8px; top:44px; font-size:10px; padding:4px 7px; gap:0; max-width:58vw; }
+    #statbar .sk { min-width:44px; }
+    #statbar .opt { display:none; }
     .heart { width:19px; height:19px; }
     #hearts { max-width:86vw; bottom:10px; }
     #bossbar { top:42px; width:88vw; }
@@ -211,6 +229,7 @@
       <div id="stats" data-page-node-id="PHss6zplBx9XgNFcuOOVJ4">等级 1<br data-page-node-id="JeCcc4pU3zNS2RIux947e8">积分 0</div>
     </div>
   </div>
+  <div id="statbar" data-page-node-id="st4tBar0001"></div>
   <div id="hearts" data-page-node-id="r4WN9oVs7nsEmu8eDiELbm"></div>
   <div id="bossbar" data-page-node-id="sNDErzt0nVAoLG0GLk9YN9"></div>
 
@@ -251,7 +270,7 @@
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 我的ID</button>
     </div>
     <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 系统随机生成，不可自定义</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.12</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.13</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -261,7 +280,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.12</p>
+    <p class="ver">v2.13</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -273,7 +292,7 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 我的ID</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.12</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.13</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -288,12 +307,14 @@
       <button id="profileLbBtn" class="ghost mini">📊 查看排行榜</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.12</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.13</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
     <h1 style="color:#c07cff" data-page-node-id="x3h0g760l9HW2DPdEHm30n">选择 BOSS</h1>
     <p class="sub" data-page-node-id="MGx6Fim6o7Yam6JDFJ0Ts2">封闭竞技场 · 不限时间 · 无经验水晶 · 每 30 秒三选一强化（最多 10 次）</p>
+    <div class="bossWallet" id="bossWallet" data-page-node-id="bossWallet01"></div>
+    <div class="bossmsg" id="bossMsg" data-page-node-id="bossMsg01"></div>
     <div class="modes" data-page-node-id="lWFyb1pmPW6mmSovqneb5x">
       <button class="mode" id="bossBlackhole" data-page-node-id="wvWpHZKPAMxM2MsWuEZT2I">
         <div class="mi" data-page-node-id="PLDI3BobAVAD2wfLxObPZh">🌀</div>
@@ -318,7 +339,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.12</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.13</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -330,7 +351,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.12</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.13</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -340,7 +361,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.12</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.13</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -399,6 +420,9 @@ const HP_GROWTH = 0.60;     // 敌人血量随时间成长的总量下调 40%（
 const MAX_ALIVE = 160;      // 场上存活敌人上限（防止刷太快导致卡顿）
 const BOSS_UPGRADE_T = 30;  // BOSS 战：每 30 秒给一次强化
 const MAX_UPGRADES = 10;    // BOSS 战：强化次数上限
+const ORB_GUARD = 2;        // 护体旋风球：每颗可为玩家抵挡 2 次伤害，挡满即碎
+const BOSS_ENTRY_COST = 500;   // BOSS 试炼：每次挑战消耗积分
+const BOSS_WIN_REWARD = 2000;  // BOSS 试炼：挑战成功奖励积分
 const BH_WARN = 3.2;        // BOSS 登场前提示时长
 const BH_HP = 2000;         // 黑洞怪初始血量
 const BH_R0 = 58;           // 黑洞怪基础半径
@@ -645,9 +669,9 @@ const UPGRADES = [
   { icon:'🧛', name:'吸血鬼', desc:'每击杀 1 个敌人，回复 1% 生命上限', note:'限选 1 次 · 与斩击、旋风、分裂弹等高频击杀流派配合收益最高', max:1,
     apply:p=>{ p.vampire = true; } },
   { icon:'💥', name:'致命一击', desc:'暴击率 +10%（暴击双倍伤害）', note:'初始暴击率 5%', apply:p=>p.crit+=0.10 },
-  { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌撞击敌人；每 45 秒 +1 颗，可无限增涨',
+  { icon:'🌀', name:'护体旋风', desc:'获得环绕护盾球：可撞击敌人，也能替你挡伤害——每颗球可挡 2 次，挡满即碎；每 45 秒 +1 颗（无上限）',
     note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
-    apply:p=>{ p.orbs = 1; p.orbT = 45; } },
+    apply:p=>{ p.orbs = 1; p.orbT = 45; p.orbHp = [ORB_GUARD]; } },
   { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
   // 🛞 坦克引擎：暂时下架（所有模式均不再出现）。要恢复：把 off 改成 false 即可。
   { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
@@ -663,7 +687,7 @@ function newGame(m='classic', kind='blackhole'){
   mode = m; bossKind = kind;
   player = { x:0, y:0, r:14, hp:100, maxHp:100, speed:200, dmg:10, fireDelay:0.45,
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
-    level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0,
+    level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0, orbHp:[],
     atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, killHpCount:0, faceAng:0, vampire:false,
     bullet:equippedBullet, taken:{} };
   enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[]; dmgNums=[]; holes=[]; chainFx=[];
@@ -674,7 +698,7 @@ function newGame(m='classic', kind='blackhole'){
   upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5; matterT = 4;
   endlessBosses = 0; endlessBossT = ENDLESS_BOSS_T; endlessNewBest = false;
   bossWarn = (mode==='boss') ? BH_WARN : 0;
-  resetBossBar();
+  resetBossBar(); resetStatusBar();
   joyEnd(); lastHeartKey = '';
 }
 
@@ -823,6 +847,41 @@ function spawnHole(boss){
 }
 
 // ---------- 输入/更新 ----------
+// ---------- 玩家受伤：护体旋风球优先抵挡 ----------
+// 每颗球可替玩家挡 ORB_GUARD 次伤害（完全免伤），挡满即碎消失。
+function orbGuardHit(){
+  if (!player.orbs || !player.orbHp || !player.orbHp.length) return false;
+  let i = -1;
+  for (let k=0;k<player.orbHp.length;k++){ if (player.orbHp[k] > 0){ i = k; break; } }
+  if (i < 0) return false;
+  const cnt = Math.max(1, player.orbs);
+  const ang = player.orbAngle + i*Math.PI*2/cnt;
+  const ox = player.x + Math.cos(ang)*55, oy = player.y + Math.sin(ang)*55;
+  player.orbHp[i]--;
+  burst(ox, oy, '#7ee7d8', 7);
+  slashFx.push({ x:ox, y:oy, ring:true, radius:26, life:0.24, maxLife:0.24, col:'#7ee7d8' });
+  if (player.orbHp[i] <= 0){
+    // 挡满两次 → 碎裂消失
+    player.orbHp.splice(i, 1);
+    player.orbs = Math.max(0, player.orbs - 1);
+    burst(ox, oy, '#c8fff5', 14);
+  }
+  return true;
+}
+// 统一受伤入口：返回 true 表示这一下把玩家打死了（调用方应 return）
+function hurtPlayer(dmg, invulT, shakeAmt){
+  if (orbGuardHit()){
+    player.invul = Math.max(player.invul, invulT*0.55);
+    shake = Math.max(shake, shakeAmt*0.5);
+    return false;
+  }
+  player.hp -= dmg;
+  player.invul = invulT;
+  shake = shakeAmt;
+  if (player.hp <= 0){ endGame(false); return true; }
+  return false;
+}
+
 function update(dt){
   gameTime += dt;
   if (mode === 'classic'){
@@ -925,10 +984,11 @@ function update(dt){
       }
     }
   }
-  // 护体旋风：每 45 秒 +1 颗（仅可选 1 次，无限增涨）
+  // 护体旋风：每 45 秒 +1 颗（仅可选 1 次，无限增涨）；每颗球可为玩家挡 2 次伤害
   if (player.orbs>0){
+    while (player.orbHp.length < player.orbs) player.orbHp.push(ORB_GUARD);
     player.orbT -= dt;
-    if (player.orbT<=0){ player.orbT = 45; player.orbs += 1; }
+    if (player.orbT<=0){ player.orbT = 45; player.orbs += 1; player.orbHp.push(ORB_GUARD); }
     player.orbAngle += dt*2.2;
     for (let i=0;i<player.orbs;i++){
       const ox = player.x + Math.cos(player.orbAngle + i*Math.PI*2/player.orbs)*55;
@@ -1077,9 +1137,8 @@ function update(dt){
       }
       const dd = Math.hypot(player.x-e.x, player.y-e.y);
       if (dd < e.r+player.r && player.invul<=0){
-        player.hp -= e.dmg*player.armor;
-        player.invul = 0.5; shake = 8;
-        if (player.hp<=0){ endGame(false); return; }
+        const dead = hurtPlayer(e.dmg*player.armor, 0.5, 8);
+        if (dead) return;
         enemies.splice(i,1); continue;
       }
       // BOSS 试炼场地边界：黑洞怪狂暴弹幕最多反弹 3 次，其余敌弹撞墙即碎
@@ -1152,9 +1211,7 @@ function update(dt){
     }
     // 碰撞玩家
     if (d < e.r+player.r && player.invul<=0){
-      player.hp -= e.dmg*player.armor;
-      player.invul = 0.5; shake = 8;
-      if (player.hp<=0){ endGame(false); return; }
+      if (hurtPlayer(e.dmg*player.armor, 0.5, 8)) return;
     }
   }
   // 水晶
@@ -1192,11 +1249,10 @@ function update(dt){
       if (h.trail.length > 16) h.trail.shift();
     }
     if (hd < h.r + player.r && player.invul <= 0){
-      player.hp -= player.maxHp*h.pct*player.armor;
-      player.invul = 0.6; shake = 12;
+      const dead = hurtPlayer(player.maxHp*h.pct*player.armor, 0.6, 12);
       burst(h.x, h.y, '#9a7cff', 12);
       holes.splice(i,1);
-      if (player.hp<=0){ endGame(false); return; }
+      if (dead) return;
     }
   }
   // 生成
@@ -1481,6 +1537,20 @@ function endGame(win){
     progressDirty = false;
     saveProgress();
   }
+  // BOSS 试炼：挑战成功奖励 2000 积分（进入时已扣 500）
+  if (mode === 'boss'){
+    if (win){
+      userPoints += BOSS_WIN_REWARD;
+      runPoints += BOSS_WIN_REWARD;
+      progressDirty = false;
+      saveProgress();
+      infoHtml += `<br>🏆 挑战成功！<b style="color:#7ee787">+${BOSS_WIN_REWARD} 积分</b>`
+        + `（消耗 ${BOSS_ENTRY_COST}）· 总积分 ${userPoints.toLocaleString()}`
+        + `<br><b style="color:#ffd76a">净赚 ${BOSS_WIN_REWARD - BOSS_ENTRY_COST} 积分</b>`;
+    } else {
+      infoHtml += `<br>💀 挑战失败 · 已消耗 ${BOSS_ENTRY_COST} 积分 · 总积分 ${userPoints.toLocaleString()}`;
+    }
+  }
   // 无尽模式：本地最佳纪录（按存活时间），破纪录时标记
   if (mode === 'endless'){
     let best = null;
@@ -1538,7 +1608,42 @@ function updateHUD(){
   }
   updateBossBar();
   updateHearts();
+  updateStatusBar();
 }
+
+// ---------- 状态栏：实时显示当前属性 ----------
+let lastStatSig = '';
+function updateStatusBar(){
+  const el = document.getElementById('statbar');
+  if (!el || state === 'menu') return;
+  const rate = player.fireDelay > 0 ? 1/player.fireDelay : 0;
+  const bt = BULLETS[player.bullet] || BULLETS.normal;
+  const rows = [];
+  rows.push(['⚔ 攻击', player.dmg.toFixed(1), false]);
+  rows.push(['⚡ 攻速', rate.toFixed(2)+'/s', true]);
+  rows.push(['🔱 多重', String(player.multi), true]);
+  rows.push(['🎯 穿透', String(player.pierce), true]);
+  rows.push(['💥 暴击', Math.round(player.crit*100)+'%', true]);
+  rows.push(['👟 移速', String(Math.round(player.speed)), false]);
+  rows.push(['🛡 减伤', Math.round(player.armor*100)+'%', true]);
+  if (player.regen > 0) rows.push(['💊 再生', player.regen+'/s', true]);
+  if (player.orbs > 0){
+    const charges = (player.orbHp||[]).reduce((a,b)=>a+Math.max(0,b), 0);
+    rows.push(['🌀 旋风', `${player.orbs} 颗 · 挡 ${charges} 次`, false]);
+  }
+  rows.push(['🔮 子弹', bt.icon + bt.name, false]);
+  if (player.slashMode){
+    const ready = player.slashEnergy >= SLASH_CHARGE;
+    rows.push(['🍳 普攻', ready ? '斩击 · 八向就绪' : '斩击', true]);
+  }
+  const sig = rows.map(r => r[0]+r[1]).join('|');
+  if (sig === lastStatSig) return;
+  lastStatSig = sig;
+  el.innerHTML = rows.map(([k,v,opt]) =>
+    `<div class="sr${opt?' opt':''}"><span class="sk">${k}</span><span class="sv">${v}</span></div>`
+  ).join('');
+}
+function resetStatusBar(){ lastStatSig = ''; const el = document.getElementById('statbar'); if (el) el.innerHTML = ''; }
 
 // BOSS 血条（仅 BOSS 战 / 无尽模式显示）
 // 场上同时存在多个 BOSS 时，每个 BOSS 一条血条；最多显示 4 条，超出部分不展示。
@@ -1880,9 +1985,21 @@ function draw(){
     for (let i=0;i<player.orbs;i++){
       const ox2 = player.x + Math.cos(player.orbAngle + i*Math.PI*2/player.orbs)*55;
       const oy2 = player.y + Math.sin(player.orbAngle + i*Math.PI*2/player.orbs)*55;
+      const left = player.orbHp && player.orbHp[i] != null ? player.orbHp[i] : ORB_GUARD;
       ctx.beginPath(); ctx.arc(ox2,oy2,9,0,Math.PI*2);
-      ctx.fillStyle='#7ee7d8'; ctx.fill();
+      ctx.fillStyle = left > 1 ? '#7ee7d8' : '#3f8f88';   // 只剩 1 次格挡时变暗
+      ctx.fill();
       ctx.lineWidth=1.5; ctx.strokeStyle='rgba(0,40,40,0.55)'; ctx.stroke();
+      if (left > 1){
+        // 满格挡：外圈光晕
+        ctx.beginPath(); ctx.arc(ox2,oy2,12.5,0,Math.PI*2);
+        ctx.strokeStyle='rgba(126,231,216,0.35)'; ctx.lineWidth=1.5; ctx.stroke();
+      } else {
+        // 剩 1 次：虚线外圈提示即将碎裂
+        ctx.beginPath(); ctx.arc(ox2,oy2,12.5,0,Math.PI*2);
+        ctx.setLineDash([3,4]); ctx.strokeStyle='rgba(126,231,216,0.55)'; ctx.lineWidth=1.2;
+        ctx.stroke(); ctx.setLineDash([]);
+      }
     }
   }
   // 斩击特效
@@ -2036,10 +2153,25 @@ function enterClassic(){          // 主页 → 十分钟模式 → 玩法说明
   state = 'menu';
   startscreen.style.display='flex';
 }
-function enterBossPick(){         // 主页 → BOSS 试炼 → 选 boss
+function bossMsg(text, ok){
+  const el = document.getElementById('bossMsg');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'bossmsg' + (ok ? ' ok' : '');
+}
+function refreshBossWallet(){
+  const el = document.getElementById('bossWallet');
+  if (!el) return;
+  el.innerHTML = `💰 我的积分 <b>${userPoints.toLocaleString()}</b>`
+    + `　·　挑战消耗 <b style="color:#ff9a9a">${BOSS_ENTRY_COST}</b>`
+    + `　·　挑战成功 <b style="color:#7ee787">+${BOSS_WIN_REWARD}</b>`;
+}
+function enterBossPick(keepMsg){  // 主页 → BOSS 试炼 → 选 boss
   hideAll();
   state = 'menu';
   bossscreen.style.display='flex';
+  refreshBossWallet();
+  if (!keepMsg) bossMsg('');
 }
 function enterEndless(){          // 主页 → 无尽模式 → 玩法说明（含最佳纪录）
   hideAll();
@@ -2065,13 +2197,23 @@ function startEndless(){          // 真正开局（无尽）
   lastMode='endless';
   newGame('endless'); state='playing';
 }
-function startBoss(kind){         // 真正开局（BOSS 战）
+function startBoss(kind){         // 真正开局（BOSS 战）：每次挑战消耗 500 积分
+  if (userPoints < BOSS_ENTRY_COST){
+    const lack = BOSS_ENTRY_COST - userPoints;
+    bossMsg(`积分不足：挑战 BOSS 需要 ${BOSS_ENTRY_COST} 积分，当前 ${userPoints}，还差 ${lack} 分（十分钟模式可赚积分）`, false);
+    refreshBossWallet();
+    return false;
+  }
+  userPoints -= BOSS_ENTRY_COST;
+  progressDirty = false;
+  saveProgress();
   hideAll();
   lastMode='boss'; lastBoss=kind;
   newGame('boss', kind); state='playing';
+  return true;
 }
 function retry(){
-  if (lastMode==='boss') startBoss(lastBoss);
+  if (lastMode==='boss'){ if (!startBoss(lastBoss)){ enterBossPick(true); } }
   else if (lastMode==='endless') startEndless();
   else startClassic();
 }
