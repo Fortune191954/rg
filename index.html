@@ -280,7 +280,7 @@
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 我的ID</button>
     </div>
     <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 💰 <b id="homePoints" style="color:#ffd76a;font-size:15px">0</b> 积分 · 凭恢复码可找回</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.14</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.15</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -290,7 +290,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.14</p>
+    <p class="ver">v2.15</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -302,7 +302,7 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 我的ID</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.14</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.15</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -331,7 +331,7 @@
       <button id="profileLbBtn" class="ghost mini">📊 查看排行榜</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.14</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.15</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
@@ -363,7 +363,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.14</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.15</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -375,7 +375,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.14</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.15</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -385,7 +385,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.14</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.15</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -462,7 +462,7 @@ const BULLETS = {
   normal:  { icon:'•',  name:'普通弹',   cost:0,    desc:'标准弹药，稳定可靠', color:'#bfe6ff' },
   ice:     { icon:'❄',  name:'寒冰弹',   cost:3000, desc:'命中减速 50%（移速 + 攻速，持续 3 秒），伤害与普通弹相同', color:'#7fd8ff' },
   thunder: { icon:'⚡',  name:'雷电子弹', cost:4500, desc:'命中后雷电链接附近最多 5 个敌人，各受 50% 伤害', color:'#a8b8ff' },
-  burn:    { icon:'🔥',  name:'灼烧弹',   cost:5000, desc:'点燃 8 秒，每秒掉 1% 最大生命值（不可叠加）', color:'#ff9a5c' },
+  burn:    { icon:'🔥',  name:'灼烧弹',   cost:5000, desc:'点燃 8 秒，每秒掉 0.5% 最大生命值（不可叠加）', color:'#ff9a5c' },
   yelve:   { icon:'☄',  name:'耶律弹',   cost:6000, desc:'自动追踪敌人，伤害 1.25 倍，带长绿色拖尾', color:'#6dff9e' },
 };
 const BULLET_ORDER = ['normal','ice','thunder','burn','yelve'];
@@ -654,11 +654,14 @@ function ensureIdentity(){
 function ensurePlayerId(){ return ensureIdentity(); }   // 兼容旧调用点
 
 // ---------- 排行榜（云端公开榜；云端不可用时回退本机榜） ----------
+// 时长榜按 BOSS 分开，只统计"击杀成功"的局，用时越短越靠前
 const LB_BOARDS = {
-  endless_points: { mode:'endless', metric:'points',   title:'♾ 无尽 · 积分', emoji:'♾' },
-  boss_points:    { mode:'boss',    metric:'points',   title:'🔥 BOSS · 积分', emoji:'🔥' },
-  boss_time:      { mode:'boss',    metric:'duration', title:'⏱ BOSS · 时长', emoji:'⏱' },
+  endless_points:  { mode:'endless', metric:'points',   title:'♾ 无尽 · 积分' },
+  boss_points:     { mode:'boss',    metric:'points',   title:'🔥 BOSS · 积分' },
+  boss_time_bh:    { mode:'boss', boss:'blackhole', metric:'duration', asc:true, winOnly:true, title:'⏱ 黑洞 · 最快击杀' },
+  boss_time_blade: { mode:'boss', boss:'blade',     metric:'duration', asc:true, winOnly:true, title:'⏱ 血刃 · 最快击杀' },
 };
+const BOSS_TIME_BOARD = { blackhole:'boss_time_bh', blade:'boss_time_blade' };
 const LS_LB = 'rg_lb_local_v1';
 let lbBoard = 'endless_points';
 let lbCache = {};              // board -> 行数组
@@ -670,13 +673,14 @@ function loadLocalLB(){
 function saveLocalLB(rows){
   try { Store.set(LS_LB, JSON.stringify(rows.slice(0, 300))); } catch(_){}
 }
-// 记录一次成绩：先写本机，再尝试写云端
-function submitScore(mode, boss, points, duration, kills, level){
+// 记录一次成绩：先写本机，再尝试写云端（win 仅 BOSS 模式有意义：是否击杀成功）
+function submitScore(mode, boss, points, duration, kills, level, win){
   ensureIdentity();
   const rec = {
     player_id: playerId, device_key: deviceKey, mode, boss: boss || null,
     points: Math.max(0, Math.round(points)), duration: Math.max(0, Math.round(duration)),
     kills: Math.max(0, Math.round(kills)), level: Math.max(1, Math.round(level)),
+    win: win === undefined ? true : !!win,
     created_at: new Date().toISOString(),
   };
   const local = loadLocalLB();
@@ -691,7 +695,7 @@ async function cloudSubmitScore(rec){
   try {
     const { error } = await c.database.from('leaderboard').insert({
       player_id: rec.player_id, device_key: rec.device_key, mode: rec.mode, boss: rec.boss,
-      points: rec.points, duration: rec.duration, kills: rec.kills, level: rec.level,
+      points: rec.points, duration: rec.duration, kills: rec.kills, level: rec.level, win: rec.win,
     });
     if (error) throw error;
     return true;
@@ -704,27 +708,30 @@ async function cloudSubmitScore(rec){
 async function lbFetch(key){
   const board = LB_BOARDS[key];
   const col = board.metric === 'points' ? 'points' : 'duration';
+  const asc = !!board.asc;
   const c = getCloud();
   if (c){
     try {
-      const { data, error } = await c.database.from('leaderboard')
-        .select('player_id,device_key,mode,boss,points,duration,kills,level,created_at')
-        .eq('mode', board.mode)
-        .order(col, { ascending: false })
-        .limit(200);
+      let q = c.database.from('leaderboard')
+        .select('player_id,device_key,mode,boss,points,duration,kills,level,created_at,win')
+        .eq('mode', board.mode);
+      if (board.boss) q = q.eq('boss', board.boss);
+      if (board.winOnly) q = q.eq('win', true);
+      const { data, error } = await q.order(col, { ascending: asc }).limit(200);
       if (error) throw error;
       lbStatus[key] = 'cloud';
-      return dedupeLB((data || []).filter(r => LB_BOARDS[key].mode === 'boss' ? (board.metric === 'points' || r.duration > 0) : true));
+      return dedupeLB((data || []).filter(r => board.winOnly ? r.win === true : true));
     } catch(e){
       console.warn('[leaderboard] 读取失败，使用本机榜', e && e.message);
     }
   }
   lbStatus[key] = 'local';
-  const mine = loadLocalLB()
+  const rows = loadLocalLB()
     .filter(r => r.mode === board.mode)
-    .filter(r => board.metric === 'points' || r.duration > 0)
-    .sort((a,b)=> (b[board.metric]||0) - (a[board.metric]||0));
-  return dedupeLB(mine);
+    .filter(r => !board.boss || r.boss === board.boss)
+    .filter(r => !board.winOnly || r.win === true)
+    .sort((a,b)=> asc ? (a[board.metric]||0) - (b[board.metric]||0) : (b[board.metric]||0) - (a[board.metric]||0));
+  return dedupeLB(rows);
 }
 function dedupeLB(rows){
   const seen = new Set(), out = [];
@@ -1614,7 +1621,7 @@ function applyBulletEffect(b, e, dmg){
     // 不可叠加：已经在燃烧就保持原有点燃强度与时长
     if (!(e.burnT > 0)){
       e.burnT = 8;
-      e.burnDmg = Math.max(1, e.maxHp*0.01);
+      e.burnDmg = Math.max(0.5, e.maxHp*0.005);   // 每秒 0.5% 最大生命（不可叠加）
     }
     burst(e.x, e.y, '#ff9a5c', 4);
   }
@@ -1720,11 +1727,17 @@ function endGame(win){
     infoHtml += `<br>♾ 最佳纪录 ${bm}:${String(bs).padStart(2,'0')} · 击杀 ${best?best.kills:0}`
       + (endlessNewBest ? '　<b style="color:#ffd76a">🌟 新纪录！</b>' : '');
   }
-  // 排行榜：无尽模式提交积分榜；BOSS 挑战提交积分榜 + 时长榜
+  // 排行榜：无尽提交积分榜；BOSS 提交积分榜 + 该 BOSS 的最快击杀榜（仅击杀成功计入）
   if (mode === 'endless' || mode === 'boss'){
-    const rec = submitScore(mode, mode==='boss' ? bossKind : null, runPoints, Math.floor(gameTime), kills, player.level);
-    lastLbBoard = mode === 'endless' ? 'endless_points' : 'boss_points';
-    infoHtml += `<br>📊 已提交排行榜（${mode==='endless' ? '无尽 · 积分' : 'BOSS · 积分 + 时长'}）`
+    const rec = submitScore(mode, mode==='boss' ? bossKind : null, runPoints, Math.floor(gameTime),
+      kills, player.level, mode === 'boss' ? !!win : true);
+    if (mode === 'endless') lastLbBoard = 'endless_points';
+    else lastLbBoard = (win && BOSS_TIME_BOARD[bossKind]) ? BOSS_TIME_BOARD[bossKind] : 'boss_points';
+    const bossName = bossKind === 'blade' ? '血刃巨像' : '黑洞怪';
+    const boardTxt = mode === 'endless' ? '无尽 · 积分'
+      : win ? `BOSS 积分 + ${bossName} 最快击杀（${fmtDur(gameTime)}）`
+      : 'BOSS 积分（未击杀，不计入最快击杀榜）';
+    infoHtml += `<br>📊 已提交排行榜（${boardTxt}）`
       + ` · 我的ID <b style="color:#8fd6ff">${rec.player_id}</b>`;
   }
   document.getElementById('endInfo').innerHTML = infoHtml;
@@ -1768,12 +1781,15 @@ function updateHUD(){
 }
 
 // ---------- 状态栏：实时显示当前属性 ----------
-let lastStatSig = '';
+let lastStatSig = '', statBurnAt = 0, statBurnVal = 0;
 function updateStatusBar(){
   const el = document.getElementById('statbar');
   if (!el || state === 'menu') return;
   const rate = player.fireDelay > 0 ? 1/player.fireDelay : 0;
   const bt = BULLETS[player.bullet] || BULLETS.normal;
+  // 灼烧累计伤害每帧都在涨，按 0.4 秒节流取值，避免频繁重写 DOM
+  const clock = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+  if (clock - statBurnAt > 400 || (statBurnVal === 0 && stats.burn > 0)){ statBurnAt = clock; statBurnVal = Math.round(stats.burn); }
   const rows = [];
   rows.push(['⚔ 攻击', player.dmg.toFixed(1), false]);
   rows.push(['⚡ 攻速', rate.toFixed(2)+'/s', true]);
@@ -1787,6 +1803,7 @@ function updateStatusBar(){
     const charges = (player.orbHp||[]).reduce((a,b)=>a+Math.max(0,b), 0);
     rows.push(['🌀 旋风', `${player.orbs} 颗 · 挡 ${charges} 次`, false]);
   }
+  if (stats.burn > 0) rows.push(['🔥 灼烧', statBurnVal.toLocaleString()+' 总伤害', false]);
   rows.push(['🔮 子弹', bt.icon + bt.name, false]);
   if (player.slashMode){
     const ready = player.slashEnergy >= SLASH_CHARGE;
@@ -2486,7 +2503,7 @@ function renderLB(rows, key){
   const list = document.getElementById('lbList');
   const hint = document.getElementById('lbHint');
   if (!rows || !rows.length){
-    list.innerHTML = '<div class="lbempty">还没有人上榜，快去打一局</div>';
+    list.innerHTML = `<div class="lbempty">${board.winOnly ? '还没有人击杀成功，去抢首个纪录' : '还没有人上榜，快去打一局'}</div>`;
     hint.textContent = lbStatus[key] === 'local' ? '本机榜（云端暂时不可用，成绩已存本机）' : '';
     return;
   }
@@ -2504,7 +2521,7 @@ function renderLB(rows, key){
   }).join('');
   hint.textContent = lbStatus[key] === 'local'
     ? '本机榜（云端暂时不可用，成绩已存本机）'
-    : '云端榜 · 每人只显示最佳成绩';
+    : (board.winOnly ? '云端榜 · 只统计击杀成功，用时越短越靠前' : '云端榜 · 每人只显示最佳成绩');
 }
 document.getElementById('lbBtn').onclick = ()=> enterLeaderboard(lbBoard);
 document.getElementById('lbBackBtn').onclick = goHome;

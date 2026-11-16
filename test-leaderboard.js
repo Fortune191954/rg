@@ -49,6 +49,7 @@ const G = vm.runInContext(`({
   get playerId(){ return playerId; },
   ensurePlayerId, genPlayerId, submitScore, lbFetch, dedupeLB, loadLocalLB, saveLocalLB,
   endGame, newGame, killEnemy, LB_BOARDS,
+  get lastLbBoard(){ return lastLbBoard; },
   get player(){ return player; },
   get mode(){ return mode; }, set mode(v){ mode = v; },
   get gameTime(){ return gameTime; }, set gameTime(v){ gameTime = v; },
@@ -119,8 +120,9 @@ const mkEnemy = (type, xp) => ({ x:0, y:0, type, id:1, r:12, hp:1, maxHp:1, spd:
   assert(rows.length === 1, `本机榜按玩家去重后 1 条（${rows.length}）`);
   assert(rows[0].points === 300, `无尽积分榜取最高分（${rows[0].points}）`);
 
-  const trows = await G.lbFetch('boss_time');
-  assert(trows.length === 1 && trows[0].duration === 95, `BOSS 时长榜取最长记录（${trows[0] && trows[0].duration}）`);
+  const trows = await G.lbFetch('boss_time_bh');
+  assert(trows.length === 1 && trows[0].duration === 95, `黑洞最快击杀榜（${trows[0] && trows[0].duration}s）`);
+  assert((await G.lbFetch('boss_time_blade')).length === 0, '血刃榜与黑洞榜分开统计（血刃暂无记录）');
 
   // --- 4. 结算自动提交 ---
   sandbox.localStorage.removeItem('rg_lb_local_v1');
@@ -141,6 +143,30 @@ const mkEnemy = (type, xp) => ({ x:0, y:0, type, id:1, r:12, hp:1, maxHp:1, spd:
 
   const bp = await G.lbFetch('boss_points');
   assert(bp.length === 1 && bp[0].points === 45 + 2000, `BOSS 积分榜可读（击杀 45 + 通关奖励 2000 = ${bp[0] && bp[0].points}）`);
+  assert(bossRec.win === true, '通关记录 win=true');
+  assert(G.lastLbBoard === 'boss_time_bh', `通关后默认跳到该 BOSS 的最快击杀榜（${G.lastLbBoard}）`);
+
+  // --- 4.5 最快击杀榜：只算击杀成功，取最短用时 ---
+  G.submitScore('boss', 'blackhole', 12, 30, 2, 1, false);      // 30 秒被打死 → 不算
+  let bh = await G.lbFetch('boss_time_bh');
+  assert(bh.length === 1 && bh[0].duration === 154, `失败局不进最快击杀榜（仍 ${bh[0] && bh[0].duration}s）`);
+  G.submitScore('boss', 'blackhole', 2060, 88, 15, 6, true);    // 88 秒击杀成功
+  bh = await G.lbFetch('boss_time_bh');
+  assert(bh.length === 1 && bh[0].duration === 88, `同一玩家只保留最快成绩（${bh[0] && bh[0].duration}s）`);
+  G.submitScore('boss', 'blade', 2010, 120, 11, 5, true);
+  assert((await G.lbFetch('boss_time_blade'))[0].duration === 120, '血刃榜独立记录（120s）');
+  assert((await G.lbFetch('boss_time_bh'))[0].duration === 88, '血刃成绩不会串到黑洞榜');
+
+  // --- 5. 失败局：不计入最快击杀榜 ---
+  G.newGame('boss', 'blade');
+  G.gameTime = 40; G.kills = 3; G.runPoints = 5;
+  G.endGame(false);
+  after = G.loadLocalLB();
+  const failRec = after.find(r => r.mode === 'boss' && r.boss === 'blade');
+  assert(!!failRec && failRec.win === false, 'BOSS 失败记录标记 win=false');
+  assert(G.lastLbBoard === 'boss_points', '失败后跳到 BOSS 积分榜（不进时长榜）');
+  const bladeRows = await G.lbFetch('boss_time_blade');
+  assert(bladeRows.length === 1 && bladeRows[0].duration === 120, `失败局未污染血刃榜（${bladeRows[0] && bladeRows[0].duration}s）`);
 
   console.log('\n全部通过：随机ID + 排行榜 + 各模式积分');
 })();

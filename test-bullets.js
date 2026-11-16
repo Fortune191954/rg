@@ -58,7 +58,8 @@ const G = vm.runInContext(`({
   get runPoints(){ return runPoints; },
   get chainFx(){ return chainFx; },
   BULLETS, BULLET_ORDER, KILL_POINTS, UPGRADES, HIT_RATE,
-  newGame, update, killEnemy, applyBulletEffect,
+  newGame, update, killEnemy, applyBulletEffect, updateStatusBar,
+  get stats(){ return stats; },
 })`, sandbox);
 
 const assert = (cond, msg) => { if (!cond){ console.error('FAIL: ' + msg); process.exit(1); } console.log('PASS: ' + msg); };
@@ -123,21 +124,29 @@ assert(damaged.length === 5, `雷电链接命中 5 个敌人（实际 ${damaged.
 assert(damaged.every(e => Math.abs(e.hp - 950) < 0.01), '被链接的敌人各受 50% 伤害（-50）');
 assert(G.chainFx.length === 5, `生成 5 段闪电特效（实际 ${G.chainFx.length}）`);
 
-// --- 7. 灼烧弹：8 秒、每秒 1% 最大生命、不可叠加 ---
+// --- 7. 灼烧弹：8 秒、每秒 0.5% 最大生命、不可叠加 ---
 G.newGame('classic'); G.state='playing'; G.player.atkRange=0;
 const eBurn = { x:300, y:0, type:'grunt', id:90020, r:14, hp:1000, maxHp:1000,
   spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 };
 G.enemies = [eBurn];
 G.applyBulletEffect({ bt:'burn' }, eBurn, 10);
 assert(eBurn.burnT === 8, '点燃 8 秒');
-assert(Math.abs(eBurn.burnDmg - eBurn.maxHp*0.01) < 0.001, '每秒掉 1% 最大生命（10/秒）');
+assert(Math.abs(eBurn.burnDmg - eBurn.maxHp*0.005) < 0.001, '每秒掉 0.5% 最大生命（5/秒）');
 // 再命中一次不应叠加
 G.applyBulletEffect({ bt:'burn' }, eBurn, 10);
-assert(Math.abs(eBurn.burnDmg - 10) < 0.001, '再次命中不叠加（伤害仍为 10/秒）');
+assert(Math.abs(eBurn.burnDmg - 5) < 0.001, '再次命中不叠加（伤害仍为 5/秒）');
 // 烧伤掉血
 const hpB = eBurn.hp;
 G.update(1/60);
-assert(Math.abs((hpB - eBurn.hp) - 10/60) < 0.05, '灼烧按秒结算掉血');
+assert(Math.abs((hpB - eBurn.hp) - 5/60) < 0.05, '灼烧按秒结算掉血');
+
+// 状态栏：灼烧只显示累计总伤害
+G.stats.burn = 1234.4;
+G.state = 'playing';
+G.updateStatusBar();
+const barHtml = els['statbar'].innerHTML;
+assert(barHtml.indexOf('🔥 灼烧') >= 0, '状态栏新增灼烧行');
+assert(barHtml.indexOf('1,234 总伤害') >= 0 || barHtml.indexOf('1234 总伤害') >= 0, `灼烧只显示总伤害（${(barHtml.match(/灼烧[\s\S]{0,60}/)||[''])[0]}`);
 
 // --- 8. 耶律弹：1.25 倍伤害 + 追踪 + 拖尾 ---
 G.newGame('classic'); G.state='playing';
