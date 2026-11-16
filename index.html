@@ -464,15 +464,19 @@ function spawnSelectedBoss(){
       spd:55, dmg:35, col:'#ff3b6b', xp:0, hurtT:0, burnT:0, burnDmg:0, shootT:2, chargeT:5 });
   }
 }
-// 吞噬：小怪有多少血就加多少血，体型按对数增长（无上限）
+// 吞噬：小怪当前有多少血，BOSS 就加多少血（hp 与 maxHp 等额提升），体型按对数增长（无上限）
 function absorbMinion(e, boss){
   if (e.type==='bhboss' || e.type==='boss') return;   // BOSS 之间不互相吞噬
-  const add = e.maxHp || 0;
+  const add = Math.max(0, e.hp || 0);
   boss.absorbed += add;
   boss.hp += add; boss.maxHp += add;
   boss.r = bhRadius(boss.absorbed) * (boss.rMul||1);
   burst(e.x, e.y, '#9a7cff', 5);
   burst(boss.x, boss.y, '#c9a8ff', 3);
+  // 吞噬回血飘字：紫色 +N，加了多少一眼可见
+  dmgNums.push({ x: boss.x, y: boss.y - boss.r - 14, val: '+' + Math.round(add),
+    crit: false, col: '#c9a8ff', t: 0, life: 0.8,
+    vx: (Math.random()-0.5)*30, vy: -60 });
 }
 // 小黑洞：极慢追踪，上限 5 个，按体型扣 15%/20%/25% 生命上限，移动带细长紫色拖尾
 function spawnHole(boss){
@@ -983,7 +987,7 @@ function updateBossBar(){
   if (mode !== 'boss' || !b){ bar.style.display='none'; return; }
   bar.style.display = 'flex';
   const nm = (b.type==='bhboss' ? '🌀 黑洞怪' : '🔥 血刃巨像')
-    + (b.enraged ? ' · 狂暴' : '') + ` · 吞噬 ${Math.round(b.absorbed||0)}`;
+    + (b.enraged ? ' · 狂暴' : '') + ` · 总血 ${Math.round(b.maxHp)} · 吞噬 ${Math.round(b.absorbed||0)}`;
   if (nm !== lastBossName){ document.getElementById('bossname').textContent = nm; lastBossName = nm; }
   document.getElementById('bossfill').style.width = Math.max(0, b.hp/b.maxHp*100)+'%';
   document.getElementById('bossfill').style.background = b.enraged
@@ -1225,7 +1229,7 @@ function draw(){
     ctx.strokeStyle = d.crit ? 'rgba(90,45,0,0.95)' : 'rgba(0,0,0,0.8)';
     ctx.strokeText(d.val, d.x, d.y);
     if (d.crit){ ctx.shadowColor = '#ffb020'; ctx.shadowBlur = 12; }
-    ctx.fillStyle = d.crit ? '#ffd24a' : '#ffe9cf';
+    ctx.fillStyle = d.col || (d.crit ? '#ffd24a' : '#ffe9cf');
     ctx.fillText(d.val, d.x, d.y);
     ctx.shadowBlur = 0;
   }
