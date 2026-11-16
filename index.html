@@ -121,8 +121,10 @@
     color:#e8e8e8; font-size:15px; outline:none; letter-spacing:0; }
   .login-box input:focus { border-color:#ffd76a; }
   .login-box button { padding:11px 10px !important; font-size:14px !important; letter-spacing:1px !important; }
-  .acct-row { display:flex; gap:8px; }
-  .acct-row button { flex:1; }
+  .acct-row { display:flex; gap:8px; align-items:stretch; }
+  .acct-row button { flex:0 0 auto; white-space:nowrap; }
+  .acct-row input { flex:1; min-width:0; }
+  .login-tip { font-size:11px; color:#6a7a92; line-height:1.5; }
   .login-msg { font-size:13px; color:#ff9a9a; min-height:18px; line-height:1.4; }
   .login-msg.ok { color:#7ee787; }
   /* 我的 ID 卡片 */
@@ -248,7 +250,7 @@
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 账号</button>
     </div>
     <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 系统随机生成，不可自定义</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.9</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.10</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -258,7 +260,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.9</p>
+    <p class="ver">v2.10</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -270,7 +272,7 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 账号 / 云存档</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.9</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.10</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -282,22 +284,21 @@
     </div>
     <p class="sub" id="loginState" data-page-node-id="8aKa6msqAUrX6I9qIdWJow">未登录 · 进度仅保存在本机</p>
     <div class="login-box" id="loginForm" data-page-node-id="LlFoPS2mLyHgP6MCzarKVN">
-      <input id="loginEmail" type="email" placeholder="邮箱" autocomplete="username" inputmode="email" data-page-node-id="it5d4hVLCGN3We6YzmtIrz">
-      <input id="loginPass" type="password" placeholder="密码（至少 6 位）" autocomplete="current-password" data-page-node-id="l3EExiHoKoOoVPjrkF1ewN">
-      <input id="loginCode" type="text" placeholder="邮箱验证码（仅注册时需要）" inputmode="numeric" style="display:none" data-page-node-id="wgRWOb9hbSTTj51WiABlAF">
-      <div class="acct-row" data-page-node-id="6ssamCEQE0yjzu4BnP5kNX">
-        <button id="sendCodeBtn" class="ghost" style="display:none" data-page-node-id="bHHaLhBhFg41znMdQQgg4b">获取验证码</button>
-        <button id="loginBtn" data-page-node-id="gJS2ZK8zTG8ZBBXZzxczEO">登录</button>
-        <button id="registerBtn" class="ghost" data-page-node-id="HufrEvRCaRgfNW238vkPDQ">注册</button>
+      <input id="loginPhone" type="tel" placeholder="手机号（11 位）" autocomplete="tel" inputmode="numeric" maxlength="11">
+      <div class="acct-row">
+        <input id="loginCode" type="text" placeholder="短信验证码" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-page-node-id="wgRWOb9hbSTTj51WiABlAF">
+        <button id="sendCodeBtn" class="ghost" type="button" data-page-node-id="bHHaLhBhFg41znMdQQgg4b">获取验证码</button>
       </div>
+      <button id="loginBtn" type="button" data-page-node-id="gJS2ZK8zTG8ZBBXZzxczEO">登录 / 注册</button>
       <div class="login-msg" id="loginMsg" data-page-node-id="khdIxAxpllpBvL14DDhSS4"></div>
+      <div class="login-tip">手机号未注册时，验证通过即自动注册并同步进度</div>
     </div>
     <div class="btnrow" id="cloudActions" style="display:none" data-page-node-id="wIP9SOd2MByTjPQO4aH7b2">
       <button id="cloudSyncBtn" class="ghost mini" data-page-node-id="YcuTj9kRwAvT4DABFlAGYL">上传本机进度</button>
       <button id="logoutBtn" class="ghost mini" data-page-node-id="Ck38Um7GSLI1wBuMQ8WOnW">退出登录</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.9</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.10</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
@@ -327,7 +328,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.9</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.10</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -339,7 +340,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.9</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.10</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -349,7 +350,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.9</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.10</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -2178,8 +2179,7 @@ const CLOUD_CFG = {
   publishableKey: 'wbpk_i81C7CxlFLh4R0JD9jrdB2_cwahcLkfKI7U2f5j6drkdc5z2wxLbPtd',
 };
 let cloudClient = null;
-let pendingOtp = null;      // 注册用：{ email, verificationId, isExistingUser }
-let registerMode = false;
+let pendingOtp = null;      // 手机验证码：{ phone, verificationId, isExistingUser }
 
 function getCloud(){
   if (cloudClient) return cloudClient;
@@ -2213,8 +2213,8 @@ function refreshLoginUI(){
   document.getElementById('loginForm').style.display = loggedIn ? 'none' : 'flex';
   document.getElementById('cloudActions').style.display = loggedIn ? 'flex' : 'none';
   setLoginState(loggedIn
-    ? `已登录：${cloudUser.email || cloudUser.name || '玩家'} · 进度已同步到云端`
-    : '可选：绑定邮箱让进度跨设备同步（不绑定也能玩，排行榜照常上榜）');
+    ? `已登录：${maskPhone(cloudUser.phone)} · 进度已同步到云端`
+    : '可选：手机号登录后进度跨设备同步（不登录也能玩，排行榜照常上榜）');
 }
 
 // 云端读取玩家档案（RLS 只返回自己的行）
@@ -2266,75 +2266,67 @@ async function afterLogin(session){
       await cloudSave();
     }
     loginMsg('登录成功，进度已同步', true);
-    setLoginState(`已登录：${session.user.email || session.user.name || '玩家'} · 总积分 ${userPoints}`);
+    setLoginState(`已登录：${maskPhone(session.user.phone)} · 总积分 ${userPoints}`);
   } catch(e){
     loginMsg('登录成功，但云存档同步失败：' + (e && e.message || '网络错误'), false);
   }
 }
 
-async function doLogin(){
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPass').value;
-  if (!email || !password){ loginMsg('请填写邮箱和密码'); return; }
-  const c = getCloud();
-  if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
-  loginMsg('登录中…', true);
-  const { data: session, error } = await c.auth.signInWithPassword({ email, password });
-  if (error){ loginMsg('登录失败：' + (error.message || '邮箱或密码错误')); return; }
-  await afterLogin(session);
+function maskPhone(p){
+  let v = String(p || '').replace(/\D/g, '');
+  if (v.length > 11 && v.indexOf('86') === 0) v = v.slice(2);   // 去掉 +86 前缀
+  return v.length >= 7 ? v.slice(0,3) + '****' + v.slice(-4) : (v || '玩家');
 }
-async function sendRegisterCode(){
-  const email = document.getElementById('loginEmail').value.trim();
-  if (!email){ loginMsg('请先填写邮箱'); return; }
+
+// 短信/验证码常见错误转成中文提示
+function otpErr(e){
+  const m = (e && e.message) || '';
+  if (/LimitExceeded|daily limit|upper limit/i.test(m)) return '该手机号今日验证码次数已达上限，请明天再试';
+  if (/TooMany|too many|frequent/i.test(m)) return '操作太频繁，请稍后再试';
+  if (/Expired|expired/i.test(m)) return '验证码已过期，请重新获取';
+  if (/invalid|incorrect|wrong/i.test(m)) return '验证码错误，请检查后重试';
+  return m || '请稍后重试';
+}
+
+// 获取短信验证码（仅支持中国大陆 11 位手机号）
+async function sendPhoneCode(){
+  const phone = (document.getElementById('loginPhone').value || '').trim();
+  if (!/^1\d{10}$/.test(phone)){ loginMsg('请输入正确的 11 位手机号'); return; }
   const c = getCloud();
   if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
-  loginMsg('发送验证码…', true);
-  const sent = await c.auth.sendOtp({ email });
-  if (sent.error){ loginMsg('发送失败：' + (sent.error.message || '请稍后重试')); return; }
-  pendingOtp = { email, verificationId: sent.data.verificationId, isExistingUser: sent.data.isExistingUser };
-  loginMsg('验证码已发送，请查收邮箱（含垃圾箱）', true);
-  // 60 秒重发倒计时
+  loginMsg('发送中…', true);
+  const sent = await c.auth.sendOtp({ phone });
+  if (sent.error){ loginMsg('发送失败：' + otpErr(sent.error)); return; }
+  pendingOtp = { phone, verificationId: sent.data.verificationId, isExistingUser: sent.data.isExistingUser };
+  loginMsg('验证码已发送，请查收短信', true);
   const btn = document.getElementById('sendCodeBtn');
   let left = 60;
   btn.disabled = true; btn.textContent = `${left}s 后可重发`;
   const timer = setInterval(()=>{
     left--;
-    if (left <= 0){ clearInterval(timer); btn.disabled = false; btn.textContent = '获取验证码'; }
+    if (left <= 0){ clearInterval(timer); btn.disabled = false; btn.textContent = '重新发送'; }
     else btn.textContent = `${left}s 后可重发`;
   }, 1000);
 }
-async function doRegister(){
-  if (!registerMode){
-    registerMode = true;
-    document.getElementById('loginCode').style.display = 'block';
-    document.getElementById('sendCodeBtn').style.display = 'block';
-    document.getElementById('registerBtn').textContent = '完成注册';
-    document.getElementById('loginBtn').textContent = '登录';
-    loginMsg('注册：先获取邮箱验证码，再填密码完成注册', true);
-    return;
-  }
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPass').value;
-  const code = document.getElementById('loginCode').value.trim();
-  if (!email || !password || !code){ loginMsg('请填写邮箱、密码和验证码'); return; }
-  if (password.length < 6){ loginMsg('密码至少 6 位'); return; }
-  if (!pendingOtp || pendingOtp.email !== email){ loginMsg('请先获取当前邮箱的验证码'); return; }
+
+// 手机号验证码登录 / 注册（同一个入口：未注册的手机号验证后自动注册）
+async function doPhoneAuth(){
+  const phone = (document.getElementById('loginPhone').value || '').trim();
+  const code = (document.getElementById('loginCode').value || '').trim();
+  if (!/^1\d{10}$/.test(phone)){ loginMsg('请输入正确的 11 位手机号'); return; }
+  if (!code){ loginMsg('请填写短信验证码'); return; }
+  if (!pendingOtp || pendingOtp.phone !== phone){ loginMsg('请先获取当前手机号的验证码'); return; }
   const c = getCloud();
   if (!c){ loginMsg('云服务脚本未加载，请检查网络后刷新'); return; }
-  loginMsg('注册中…', true);
+  loginMsg('验证中…', true);
   const done = await c.auth.verifyOtp({
-    email: pendingOtp.email,
+    phone: pendingOtp.phone,
     verificationId: pendingOtp.verificationId,
     isExistingUser: pendingOtp.isExistingUser,
     token: code,
-    password: pendingOtp.isExistingUser ? undefined : password,
   });
-  if (done.error){ loginMsg('注册失败：' + (done.error.message || '验证码错误')); return; }
+  if (done.error){ loginMsg('验证失败：' + otpErr(done.error)); return; }
   pendingOtp = null;
-  registerMode = false;
-  document.getElementById('loginCode').style.display = 'none';
-  document.getElementById('sendCodeBtn').style.display = 'none';
-  document.getElementById('registerBtn').textContent = '注册';
   await afterLogin(done.data);
 }
 async function doLogout(){
@@ -2346,9 +2338,9 @@ async function doLogout(){
 }
 document.getElementById('accountBtn').onclick = ()=> enterLogin();
 document.getElementById('loginBackBtn').onclick = ()=> { hideAll(); homescreen.style.display='flex'; state='menu'; };
-document.getElementById('loginBtn').onclick = doLogin;
-document.getElementById('registerBtn').onclick = doRegister;
-document.getElementById('sendCodeBtn').onclick = sendRegisterCode;
+document.getElementById('loginBtn').onclick = doPhoneAuth;
+document.getElementById('sendCodeBtn').onclick = sendPhoneCode;
+document.getElementById('loginPhone').oninput = ()=> loginMsg('');
 document.getElementById('logoutBtn').onclick = doLogout;
 document.getElementById('cloudSyncBtn').onclick = async ()=>{
   await cloudSave();
