@@ -196,7 +196,7 @@
         <div class="mi">🌀</div>
         <div class="body">
           <div class="mn">黑洞怪</div>
-          <div class="md">初始 2000 血 · 吞噬小怪无限成长 · 小黑洞提速+攻速+70% · 狂暴弹幕可反弹 3 次</div>
+          <div class="md">初始 2000 血 · 吞噬小怪与宇宙物质无限成长 · 小黑洞提速+攻速+70% · 狂暴弹幕可反弹 3 次</div>
         </div>
       </button>
       <button class="mode" id="bossBlade">
@@ -316,6 +316,7 @@ let bossWarn = 0;            // >0：BOSS 即将降临（倒计时）
 let upgradesGiven = 0;       // BOSS 战已获得的强化次数
 let upgradeTimer = 0;        // BOSS 战距离下一次强化
 let bossMobT = 0;            // BOSS 战小怪刷新计时
+let matterT = 0;             // 宇宙物质刷新计时（黑洞怪 BOSS 战专用）
 let endlessBosses = 0;       // 无尽模式：已登场的 BOSS 数（决定血量递增）
 let endlessBossT = 0;        // 无尽模式：距离下一个 BOSS
 let endlessNewBest = false;  // 无尽模式：本局是否刷新最佳纪录
@@ -414,7 +415,7 @@ function newGame(m='classic', kind='blackhole'){
   stats = { bullet:0, burn:0, orb:0, slash:0 };
   camX=0; camY=0;
   spawnedBoss = false;
-  upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5;
+  upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5; matterT = 4;
   endlessBosses = 0; endlessBossT = ENDLESS_BOSS_T; endlessNewBest = false;
   bossWarn = (mode==='boss') ? BH_WARN : 0;
   document.getElementById('bossbar').style.display='none';
@@ -479,6 +480,28 @@ function spawnMinion(){
     hurtT:0, burnT:0, burnDmg:0, suck:true, suckV:90 };
   e.hp = e.maxHp = 18 + diff*30*HP_GROWTH;
   enemies.push(e);
+}
+// 宇宙物质：黑色方形 + 灰色重影，漂浮在场中
+// 黑洞怪可以额外吞噬它们养血：血量 20/50/100/1000，概率 70%/20%/9%/1%
+// 玩家也可以打碎它们（BOSS 战不掉经验），1000 血的巨型物质要不要留给黑洞怪是个抉择
+function spawnMatter(){
+  let alive = 0;
+  for (const e of enemies) if (e.type==='matter') alive++;
+  if (alive >= 6) return;
+  const roll = Math.random();
+  let hp, r;
+  if (roll < 0.70){ hp = 20;   r = 10; }
+  else if (roll < 0.90){ hp = 50;   r = 13; }
+  else if (roll < 0.99){ hp = 100;  r = 17; }
+  else { hp = 1000; r = 30; }
+  const a = Math.random()*Math.PI*2, dist = 450 + Math.random()*350;
+  let mx = player.x+Math.cos(a)*dist, my = player.y+Math.sin(a)*dist;
+  mx = Math.max(-BOSS_ARENA_HALF+r+10, Math.min(BOSS_ARENA_HALF-r-10, mx));
+  my = Math.max(-BOSS_ARENA_HALF+r+10, Math.min(BOSS_ARENA_HALF-r-10, my));
+  const da = Math.random()*Math.PI*2;
+  enemies.push({ x:mx, y:my, type:'matter', id:++eid, r, hp, maxHp:hp,
+    spd:0, dmg:0, col:'#0a0a10', xp:0, hurtT:0, burnT:0, burnDmg:0,
+    dx:Math.cos(da)*14, dy:Math.sin(da)*14, rot:Math.random()*Math.PI, rotV:(Math.random()<0.5?-1:1)*(0.3+Math.random()*0.5) });
 }
 // 黑洞怪登场：先提示，再出现；场上已有小怪立刻被吸向它
 // 无尽模式：每刷一个 BOSS，血量 +50%（endlessBosses 递增）
@@ -727,6 +750,25 @@ function update(dt){
       }
       continue;
     }
+    // 宇宙物质：缓慢漂移 + 自旋，不追玩家不攻击；撞场地边界反弹（BOSS 试炼）
+    // 靠近黑洞怪时被引力捕获，直冲黑洞被额外吞噬
+    if (e.type==='matter'){
+      let bh = null;
+      for (const o of enemies){ if (o.type==='bhboss'){ bh = o; break; } }
+      if (bh && Math.hypot(bh.x-e.x, bh.y-e.y) < bh.r*1.5 + 320){
+        e.suck = true; e.suckV = 60;
+        continue;
+      }
+      e.x += e.dx*dt; e.y += e.dy*dt; e.rot += e.rotV*dt;
+      if (mode === 'boss'){
+        const mlim = BOSS_ARENA_HALF - e.r;
+        if (e.x < -mlim){ e.x = -mlim; e.dx = Math.abs(e.dx); }
+        if (e.x >  mlim){ e.x =  mlim; e.dx = -Math.abs(e.dx); }
+        if (e.y < -mlim){ e.y = -mlim; e.dy = Math.abs(e.dy); }
+        if (e.y >  mlim){ e.y =  mlim; e.dy = -Math.abs(e.dy); }
+      }
+      continue;
+    }
     // 敌方子弹：直线飞行，不追踪
     if (e.type==='ebullet'){
       e.x += Math.cos(e.ang)*e.spd*dt;
@@ -900,6 +942,11 @@ function update(dt){
       let alive = 0;
       for (const e of enemies) if (e.type!=='ebullet') alive++;
       if (alive < 40) spawnMinion();
+    }
+    // 宇宙物质：黑洞怪 BOSS 战专用，每 2.5 秒尝试生成一个（黑洞怪可吞噬它们养血）
+    if (bossKind === 'blackhole'){
+      matterT -= dt;
+      if (matterT <= 0){ matterT = 2.5; spawnMatter(); }
     }
   }
   // 粒子
@@ -1228,6 +1275,45 @@ function drawBlackHole(e){
   ctx.fillStyle='#fff'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
   ctx.fillText(e.enraged ? '黑洞怪 · 狂暴' : '黑洞怪', e.x, e.y-R-24);
 }
+// 宇宙物质：黑色方形本体 + 双层灰色重影（向运动方向偏移），缓慢自旋
+function drawMatter(e){
+  const s = e.r;
+  const va = Math.hypot(e.dx||0, e.dy||0) || 1;
+  const ox = (e.dx||0)/va*s*0.55, oy = (e.dy||0)/va*s*0.55;
+  // 重影 1：远层，更大更淡
+  ctx.save();
+  ctx.translate(e.x+ox*1.8, e.y+oy*1.8);
+  ctx.rotate(e.rot);
+  ctx.globalAlpha = 0.16;
+  ctx.fillStyle = '#9a9aa6';
+  ctx.fillRect(-s*1.15, -s*1.15, s*2.3, s*2.3);
+  ctx.restore();
+  // 重影 2：近层，偏移一半
+  ctx.save();
+  ctx.translate(e.x+ox, e.y+oy);
+  ctx.rotate(e.rot);
+  ctx.globalAlpha = 0.32;
+  ctx.fillStyle = '#8a8a94';
+  ctx.fillRect(-s*0.95, -s*0.95, s*1.9, s*1.9);
+  ctx.restore();
+  ctx.globalAlpha = 1;
+  // 黑色本体
+  ctx.save();
+  ctx.translate(e.x, e.y);
+  ctx.rotate(e.rot);
+  ctx.fillStyle = e.hurtT>0 ? '#e8e8f0' : e.col;
+  ctx.fillRect(-s, -s, s*2, s*2);
+  ctx.lineWidth = Math.max(1.5, s*0.14);
+  ctx.strokeStyle = '#6a6a76';
+  ctx.strokeRect(-s, -s, s*2, s*2);
+  ctx.restore();
+  // 血条
+  if (e.hp < e.maxHp){
+    const w = s*2;
+    ctx.fillStyle='rgba(0,0,0,.6)'; ctx.fillRect(e.x-w/2, e.y-s-8, w, 4);
+    ctx.fillStyle='#e5484d'; ctx.fillRect(e.x-w/2, e.y-s-8, w*Math.max(0,e.hp/e.maxHp), 4);
+  }
+}
 
 function draw(){
   ctx.fillStyle='#0d0f14'; ctx.fillRect(0,0,W,H);
@@ -1272,6 +1358,7 @@ function draw(){
   // 敌人
   for (const e of enemies){
     if (e.type==='bhboss'){ drawBlackHole(e); continue; }
+    if (e.type==='matter'){ drawMatter(e); continue; }
     // 拖尾（黑洞怪弹幕）
     if (e.trail && e.trail.length > 1){
       for (let k=1;k<e.trail.length;k++){
