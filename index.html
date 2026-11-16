@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0d0f14">
-<title>八分钟·肉鸽求生</title>
+<title>十分钟·肉鸽求生</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { width:100%; height:100%; background:#0d0f14; overflow:hidden;
@@ -100,12 +100,12 @@
   </div>
 
   <div class="overlay" id="startscreen">
-    <h1 style="color:#ffd76a">八分钟 · 肉鸽求生</h1>
+    <h1 style="color:#ffd76a">十分钟 · 肉鸽求生</h1>
     <p>WASD / 方向键 移动 · 手机<b style="color:#ffd76a">任意位置按住拖动</b>即出摇杆 · 攻击全自动 · 捡拾经验水晶升级并三选一强化<br>
-    青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">8 分钟</b> 即胜利！第 6 分钟会出现最终 BOSS。<br>
+    青色弹幕可以被打掉 · 撑过 <b style="color:#ffd76a">10 分钟</b> 即胜利！第 8 分钟会出现最终 BOSS。<br>
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn">开始挑战</button>
-    <p class="ver">v1.7</p>
+    <p class="ver">v1.8</p>
   </div>
 
   <div class="overlay" id="endscreen">
@@ -139,8 +139,8 @@ function resize(){
 }
 addEventListener('resize', resize); resize();
 
-const GAME_TIME = 480;      // 整局 8 分钟（秒）
-const BOSS_TIME = 360;      // 第 6 分钟刷最终 BOSS，留 2 分钟 BOSS 战
+const GAME_TIME = 600;      // 整局 10 分钟（秒）
+const BOSS_TIME = 480;      // 第 8 分钟刷最终 BOSS，留 2 分钟 BOSS 战
 const SLASH_ARC = 0.40;     // 斩击初始半角（约 46° 扇面）
 const SLASH_ARC_STEP = 0.17; // 分裂弹每多一发，扇面加宽的半角
 // ---------- 状态 ----------
@@ -211,6 +211,8 @@ const UPGRADES = [
   { icon:'🔱', name:'分裂弹', desc:'每次攻击多发射 1 发子弹', note:'扇形散射，近身可全中 · 斩击流：每层额外加宽斩击角度', apply:p=>p.multi+=1 },
   { icon:'🎯', name:'穿透弹', desc:'子弹可多穿透 1 个敌人', note:'敌人排成一串时收益翻倍', apply:p=>p.pierce+=1 },
   { icon:'💊', name:'再生', desc:'每秒回复 1 点生命', note:'越早拿越值', apply:p=>p.regen+=1 },
+  { icon:'🧛', name:'吸血鬼', desc:'每击杀 1 个敌人，回复 1% 生命上限', note:'限选 1 次 · 与斩击、旋风、分裂弹等高频击杀流派配合收益最高', max:1,
+    apply:p=>{ p.vampire = true; } },
   { icon:'💥', name:'致命一击', desc:'暴击率 +10%（暴击双倍伤害）', note:'初始暴击率 5%', apply:p=>p.crit+=0.10 },
   { icon:'🌀', name:'护体旋风', desc:'获得环绕盾牌撞击敌人；每 45 秒 +1 颗，可无限增涨',
     note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
@@ -230,7 +232,7 @@ function newGame(){
   player = { x:0, y:0, r:14, hp:100, maxHp:100, speed:200, dmg:10, fireDelay:0.45,
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
     level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0,
-    atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, faceAng:0,
+    atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, faceAng:0, vampire:false,
     taken:{} };
   enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[];
   spawnTimer=0; gameTime=0; kills=0; shake=0;
@@ -248,9 +250,9 @@ function spawnEnemy(){
   const x = player.x + Math.cos(a)*dist, y = player.y + Math.sin(a)*dist;
   let type = 'grunt';
   const roll = Math.random();
-  if (t>48 && roll<0.25) type='fast';
-  if (t>96 && roll>0.85) type='tank';
-  if (t>192 && roll>0.72) type='shooter';
+  if (t>60 && roll<0.25) type='fast';
+  if (t>120 && roll>0.85) type='tank';
+  if (t>240 && roll>0.72) type='shooter';
   const e = { x, y, type, id:++eid, hurtT:0, burnT:0, burnDmg:0 };
   if (type==='grunt'){ e.r=14; e.hp=e.maxHp=20+diff*60; e.spd=70+diff*50; e.dmg=10; e.col='#c94f4f'; e.xp=1; }
   if (type==='fast'){ e.r=10; e.hp=e.maxHp=12+diff*30; e.spd=150+diff*70; e.dmg=8; e.col='#e6b84f'; e.xp=1; }
@@ -514,6 +516,8 @@ function killEnemy(e){
   burst(e.x,e.y,e.col,10);
   // 坦克引擎：每击杀 1 个敌人，生命上限 +1%（基于选择时的血量上限）
   if (player.killHpBase > 0) player.maxHp += player.killHpBase * 0.01;
+  // 吸血鬼：每击杀 1 个敌人，回复 1% 生命上限
+  if (player.vampire) player.hp = Math.min(player.maxHp, player.hp + player.maxHp*0.01);
   // 水晶先向外弹出并停留片刻（避免被磁力瞬间吸走、看不到掉落）
   if (e.xp>0) for(let i=0;i<e.xp;i++){
     const a = Math.random()*Math.PI*2, sp = 40+Math.random()*40;
