@@ -57,6 +57,7 @@ const G = vm.runInContext(`({
   get bossWarn(){ return bossWarn; }, set bossWarn(v){ bossWarn = v; },
   get endlessBossT(){ return endlessBossT; }, set endlessBossT(v){ endlessBossT = v; },
   get endlessBosses(){ return endlessBosses; },
+  get spawnTimer(){ return spawnTimer; }, set spawnTimer(v){ spawnTimer = v; },
   get endlessNewBest(){ return endlessNewBest; },
   get bossKind(){ return bossKind; },
   get runPoints(){ return runPoints; },
@@ -134,12 +135,20 @@ assert(e1.xp === 1 + Math.floor(stages), `经验 +1/5分钟（xp=${e1.xp}）`);
 assert(e1.spd === Math.round((70+diffU*50) * Math.min(1.6, 1+stages*0.12)), `移速 +12%/5分钟 封顶1.6倍（spd=${e1.spd}）`);
 
 // --- 无尽积分：按存活时间结算，每分钟 300 分 ---
-G.newGame('endless'); G.state = 'playing';
-assert(G.runPoints === 0, '开局积分为 0');
+G.newGame('endless'); G.state = 'playing';assert(G.runPoints === 0, '开局积分为 0');
 G.gameTime = 59.9; G.update(0.2);
 assert(G.runPoints === 300, `存活 1 分钟 = 300 积分（${G.runPoints}）`);
 G.gameTime = 119.9; G.update(0.2);
 assert(G.runPoints === 600, `存活 2 分钟 = 600 积分（${G.runPoints}）`);
+
+// --- 后期刷怪提速：10 分钟后间隔继续压缩，并一次多刷 ---
+G.newGame('endless'); G.state = 'playing'; G.enemies = [];
+G.gameTime = 100; G.spawnTimer = 0; G.update(1/60);
+assert(G.enemies.length === 1, `10 分钟前每次刷 1 只（${G.enemies.length}）`);
+G.newGame('endless'); G.state = 'playing'; G.enemies = [];
+G.gameTime = 900; G.spawnTimer = 0; G.update(1/60);
+assert(G.enemies.length === 2, `15 分钟后一次刷 2 只（${G.enemies.length}）`);
+assert(G.spawnTimer <= 0.031, `刷怪间隔压缩到 ${G.spawnTimer.toFixed(3)} 秒`);
 
 // --- BOSS 成长封顶：血量 500%、伤害 250% ---
 G.newGame('endless'); G.state = 'playing';

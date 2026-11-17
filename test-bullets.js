@@ -124,18 +124,24 @@ assert(damaged.length === 5, `雷电链接命中 5 个敌人（实际 ${damaged.
 assert(damaged.every(e => Math.abs(e.hp - 950) < 0.01), '被链接的敌人各受 50% 伤害（-50）');
 assert(G.chainFx.length === 5, `生成 5 段闪电特效（实际 ${G.chainFx.length}）`);
 
-// --- 7. 灼烧弹：持续 3 秒、每秒 = 基础伤害的 50%、可叠加 ---
+// --- 7. 灼烧弹：持续 1.5 秒、每秒 = 基础伤害的 50%、可叠加 ---
 G.newGame('classic'); G.state='playing'; G.player.atkRange=0;
 const eBurn = { x:300, y:0, type:'grunt', id:90020, r:14, hp:1000, maxHp:1000,
   spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 };
 G.enemies = [eBurn];
 G.applyBulletEffect({ bt:'burn', dmg:10 }, eBurn, 10);
-assert(eBurn.burnT === 3, '点燃 3 秒');
+assert(eBurn.burnT === 1.5, '点燃 1.5 秒');
 assert(Math.abs(eBurn.burnDmg - 5) < 0.001, `每秒基础伤害的 50%（10 基础 → 5/秒，实际 ${eBurn.burnDmg}）`);
 // 再命中一次应当叠加，并刷新持续时间
 G.applyBulletEffect({ bt:'burn', dmg:20 }, eBurn, 20);
 assert(Math.abs(eBurn.burnDmg - 15) < 0.001, `可叠加（5 + 20×50% = 15/秒，实际 ${eBurn.burnDmg}）`);
-assert(eBurn.burnT === 3, '再次命中刷新持续时间为 3 秒');
+assert(eBurn.burnT === 1.5, '再次命中刷新持续时间为 1.5 秒');
+// BOSS 免疫燃烧（本体 / 触手）
+for (const bt of ['bhboss','boss','eyeboss','eyeArm']){
+  const bossE = { x:0, y:0, type:bt, r:60, hp:9999, maxHp:9999, burnT:0, burnDmg:0 };
+  G.applyBulletEffect({ bt:'burn', dmg:10 }, bossE, 10);
+  assert(bossE.burnT === 0 && bossE.burnDmg === 0, `${bt} 免疫燃烧`);
+}
 // 烧伤掉血
 const hpB = eBurn.hp;
 G.update(1/60);

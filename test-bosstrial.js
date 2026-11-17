@@ -64,7 +64,7 @@ const G = vm.runInContext(`({
   get kills(){ return kills; }, set kills(v){ kills = v; },
   newGame, update, endGame, updateStatusBar, resetStatusBar,
   hurtPlayer, orbGuardHit, startBoss, enterBossPick, retry,
-  ORB_GUARD, BOSS_ENTRY_COST, BOSS_WIN_REWARD, UPGRADES,
+  ORB_GUARD, BOSS_ENTRY_COST, BOSS_WIN_REWARD, UPGRADES, ARTIFACTS,
 })`, sandbox);
 const assert = (cond, msg) => { if (!cond){ console.error('FAIL: ' + msg); process.exit(1); } console.log('PASS: ' + msg); };
 const S = () => els['statbar'];
@@ -163,12 +163,14 @@ while (t < 1){ G.update(1/60); t += 1/60; }
 assert(G.player.orbs === 2, `45 秒到点后多 1 颗球（当前 ${G.player.orbs} 颗）`);
 assert(G.player.orbHp.join() === '2,2', `新球自带 2 次格挡（${G.player.orbHp.join()}）`);
 
-// 强化说明同步更新
+// 护体旋风已移入神器「呼呼符」：普通强化不再出现，能力由神器提供
 const orbUp = G.UPGRADES.find(u => u.name === '护体旋风');
-assert(!!orbUp && orbUp.desc.includes('挡 2 次'), '护体旋风强化说明已写明格挡机制');
+assert(!orbUp, '普通强化池已移除护体旋风');
+const charm = G.ARTIFACTS.charm;
+assert(!!charm && charm.desc.includes('挡 2 次'), '神器「呼呼符」说明已写明格挡机制');
 G.newGame('classic');
-orbUp.apply(G.player);
-assert(G.player.orbs === 1 && G.player.orbHp.join() === '2', '选择护体旋风后获得 1 颗 2 次格挡的球');
+charm.apply(G.player);
+assert(G.player.orbs === 1 && G.player.orbHp.join() === '2', '装备呼呼符后获得 1 颗 2 次格挡的球');
 
 // ============ 三、BOSS 试炼：500 积分挑战 / 2000 奖励 ============
 assert(G.BOSS_ENTRY_COST === 500, '挑战消耗常量 = 500');

@@ -61,7 +61,7 @@ const G = vm.runInContext(`({
   get state(){ return state; }, set state(v){ state = v; },
   get bossWarn(){ return bossWarn; }, set bossWarn(v){ bossWarn = v; },
   newGame, update, updateBossBar, resetBossBar, showUpgradePanel,
-  UPGRADES, MAX_BOSS_BARS, MAX_UPGRADES,
+  UPGRADES, ARTIFACTS, MAX_BOSS_BARS, MAX_UPGRADES,
 })`, sandbox);
 const assert = (cond, msg) => { if (!cond){ console.error('FAIL: ' + msg); process.exit(1); } console.log('PASS: ' + msg); };
 
@@ -75,22 +75,24 @@ const fillW  = (row) => {
   return track.children[0].style.width;
 };
 
-// ============ 一、坦克引擎下架 ============
+// ============ 一、普通强化池清理（能力移入神器） ============
 const tank = G.UPGRADES.find(u => u.name === '坦克引擎');
-assert(!!tank, '坦克引擎仍在配置里（便于日后恢复）');
-assert(tank.off === true, '坦克引擎标记为 off:true（已下架）');
+assert(!tank, '普通强化池已移除坦克引擎（能力移入神器「心之钢」）');
+assert(!G.UPGRADES.find(u => u.name === '爽煎滑蛋'), '普通强化池已移除爽煎滑蛋（能力移入神器「水思面具」）');
+assert(!G.UPGRADES.find(u => u.name === '护体旋风'), '普通强化池已移除护体旋风（能力移入神器「呼呼符」）');
+assert(G.ARTIFACTS.steel.desc.includes('生命上限翻倍'), '神器「心之钢」继承坦克引擎能力');
 
-// 反复开强化面板，确认永远抽不到坦克引擎
+// 反复开强化面板，确认永远抽不到已移出的三项
 G.newGame('classic');
 G.state = 'playing';
 let tankSeen = 0, rolls = 0;
 for (let i=0; i<400; i++){
   G.showUpgradePanel();
   const names = els['cards'].children.map(c => (c.innerHTML || '').toString());
-  if (names.some(s => s.includes('坦克引擎'))) tankSeen++;
+  if (names.some(s => s.includes('坦克引擎') || s.includes('爽煎滑蛋') || s.includes('护体旋风'))) tankSeen++;
   rolls++;
 }
-assert(tankSeen === 0, `400 次强化面板均未出现坦克引擎（出现 ${tankSeen} 次）`);
+assert(tankSeen === 0, `400 次强化面板均未出现已移入神器的三项（出现 ${tankSeen} 次）`);
 assert(rolls === 400, '强化面板共抽取 400 次');
 
 // 其它强化仍正常出现（确认过滤没把整个池子清空）

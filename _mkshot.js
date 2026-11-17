@@ -16,6 +16,12 @@ const drivers = {
   lbblade: `enterLeaderboard('boss_time_eye');`,
   bosspick: `enterBossPick(); refreshBossWallet();`,
   pause: `hideAll(); newGame('endless'); state='playing'; gameTime=125; setPaused(true);`,
+  art: `userPoints = 16500; ownedArtifacts = ['mask','steel','gourd']; equippedArtifact = 'gourd'; enterArtifacts();`,
+  sword: `hideAll(); equippedArtifact='gourd'; newGame('endless'); state='playing';
+    player.swords = 5; player.swordAngle = 0.4; player.invul = 999;
+    for (let i=0;i<4;i++) update(0.05); state='paused';`,
+  boom: `hideAll(); equippedArtifact='boom'; newGame('endless'); state='playing';
+    player.invul = 999; for (let i=0;i<3;i++) update(0.05); state='paused';`,
   quitend: `hideAll(); newGame('endless'); state='playing'; gameTime=185;
     for (let i=0;i<3;i++) update(0.02);
     quitRun();`,

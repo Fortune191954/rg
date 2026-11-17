@@ -125,6 +125,15 @@
     cursor:pointer; font-weight:bold; background:#ffd76a; color:#222; width:100%; }
   .bcard button:disabled { background:#2c3850; color:#7d8ea6; cursor:not-allowed; }
   .bcard button.eq { background:#2b6b3a; color:#d8ffe2; }
+  /* 神器抽奖 */
+  #artifactscreen { display:none; }
+  .artmsg { font-size:14px; min-height:20px; color:#ffd76a; text-align:center; letter-spacing:.5px; }
+  .bcard.locked { border-style:dashed; opacity:.62; }
+  .bcard.locked .bdesc { color:#6f7f96; }
+  .artnote { font-size:11px; color:#6a7a92; line-height:1.5; }
+  .drawbtn { padding:12px 26px; font-size:16px; font-weight:bold; letter-spacing:1px; border-radius:12px;
+    border:none; cursor:pointer; background:#ffd76a; color:#222; }
+  .drawbtn:disabled { background:#2c3850; color:#7d8ea6; cursor:not-allowed; }
   /* 账号 */
   #loginscreen { display:none; }
   .login-box { display:flex; flex-direction:column; gap:9px; width:min(340px, 86vw); }
@@ -276,11 +285,12 @@
     </div>
     <div class="btnrow" data-page-node-id="FnssuUwCklmhN7KOoKKPBV">
       <button id="shopBtn" class="ghost mini" data-page-node-id="ioiqKPfRAe0UsK06xhvBpc">🛒 子弹商店</button>
+      <button id="artifactBtn" class="ghost mini">🏺 神器</button>
       <button id="lbBtn" class="ghost mini">📊 排行榜</button>
       <button id="accountBtn" class="ghost mini" data-page-node-id="W9O1FA5z1Yi5WdDfJy6r52">👤 我的ID</button>
     </div>
     <p class="ver">我的ID <b class="myid" style="color:#8fd6ff;font-size:15px">--</b> · 💰 <b id="homePoints" style="color:#ffd76a;font-size:15px">0</b> 积分 · 凭恢复码可找回</p>
-    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.17</p>
+    <p class="ver" data-page-node-id="K2aXE3Hbi92nRhZVGtQuYh">v2.18</p>
   </div>
 
   <div class="overlay" id="lbscreen">
@@ -290,7 +300,7 @@
     <div class="lblist" id="lbList"></div>
     <p class="lbhint" id="lbHint"></p>
     <button id="lbBackBtn" class="ghost mini">← 返回主页</button>
-    <p class="ver">v2.17</p>
+    <p class="ver">v2.18</p>
   </div>
 
   <div class="overlay" id="shopscreen" data-page-node-id="6Cbq7b0aKBQJFUWlFeRw3d">
@@ -302,7 +312,18 @@
       <button id="shopAccountBtn" class="ghost mini" data-page-node-id="quZPek5HxmZyT32QtNJuEF">👤 我的ID</button>
       <button id="shopBackBtn" class="ghost mini" data-page-node-id="xBQPWqNRVfQvkowtH02AiC">← 返回主页</button>
     </div>
-    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.17</p>
+    <p class="ver" data-page-node-id="NWhdwZP8V334NkDio08WqS">v2.18</p>
+  </div>
+
+  <div class="overlay" id="artifactscreen">
+    <h1 style="color:#c08bff;font-size:32px">🏺 神器抽奖</h1>
+    <p class="sub">5000 积分一抽 · 只会抽到还没拥有的神器 · 每局最多装备 1 件</p>
+    <div class="shop-points" id="artPoints">💰 积分 0</div>
+    <button id="drawBtn" class="drawbtn">🎲 抽一次 · 5000 积分</button>
+    <p class="artmsg" id="artMsg"></p>
+    <div class="shop-list" id="artList"></div>
+    <button id="artBackBtn" class="ghost mini">← 返回主页</button>
+    <p class="ver">v2.18</p>
   </div>
 
   <div class="overlay" id="loginscreen" data-page-node-id="DwZ7uKDIyZ6gvqCIb3uPLR">
@@ -331,7 +352,7 @@
       <button id="profileLbBtn" class="ghost mini">📊 查看排行榜</button>
     </div>
     <button id="loginBackBtn" class="ghost mini" data-page-node-id="KtJpYejYBRH7j2vWbJlIdr">← 返回</button>
-    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.17</p>
+    <p class="ver" data-page-node-id="CYHLE5VroGfsbaHNSQXwaa">v2.18</p>
   </div>
 
   <div class="overlay" id="bossscreen" data-page-node-id="ElLGtYGr1sS9MnE5DNtmk2">
@@ -363,7 +384,7 @@
       </button>
     </div>
     <button id="bossBackBtn" class="ghost mini" data-page-node-id="tIfr0MNlz6oBViNkpYZwZx">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.17</p>
+    <p class="ver" data-page-node-id="Nvi0EHmQ1DUGs4FbsphN3f">v2.18</p>
   </div>
 
   <div class="overlay" id="endlessScreen" data-page-node-id="LFbnwbBzZewkw8qyT9LyDa">
@@ -375,7 +396,7 @@
     <p id="endlessBest" style="color:#ffd76a;font-size:15px;" data-page-node-id="rV9uQHbsXiEE9JEThvdiEC"></p>
     <button id="endlessStartBtn" data-page-node-id="MUFG0gAjn9KrFGccYLT9rv">开始无尽</button>
     <button id="endlessBackBtn" class="ghost mini" data-page-node-id="AqF3HD2zmaALAW57EkMnBW">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.17</p>
+    <p class="ver" data-page-node-id="gp0uDq1FcOtzlZ7pLntSig">v2.18</p>
   </div>
 
   <div class="overlay" id="startscreen" data-page-node-id="O7q2COuP0dyIYZnGiVtirT">
@@ -385,7 +406,7 @@
     提示：单刷是下策，走位拉扯才是王道。</p>
     <button id="startBtn" data-page-node-id="CJJQFBv314cW76fkFYVBEP">开始挑战</button>
     <button id="startBackBtn" class="ghost mini" data-page-node-id="MgBGbCSdE0xSuG2DFQSftO">← 返回模式选择</button>
-    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.17</p>
+    <p class="ver" data-page-node-id="NEDyWeLxNl9moYSGYpk04h">v2.18</p>
   </div>
 
   <div class="overlay" id="pausescreen" data-page-node-id="2akAixpArfZJCf8iEEzvsO">
@@ -456,7 +477,7 @@ const EYE_P3_HP = 1500;     // 深空之眼：三阶段血量
 const EYE_ARM_HP = 320;     // 深空之眼：三阶段每只触手血量
 const EYE_ARM_DIST = 104;   // 触手离眼睛中心的距离
 const EYE_LASER_SWEEP = Math.PI*150/180;  // 眼睛激光旋转 150°
-const BURN_TIME = 3;        // 灼烧持续 3 秒
+const BURN_TIME = 1.5;      // 灼烧持续 1.5 秒
 const BURN_RATE = 0.5;      // 灼烧每秒 = 本次命中基础伤害的 50%（可叠加）
 const BLADE_SLASH_DMG = 100;   // 血刃巨像：剑气伤害
 const BLADE_SLASH_CHARGE = 1.25; // 血刃巨像：斩击蓄力时长（秒）
@@ -482,11 +503,39 @@ const BULLETS = {
 };
 const BULLET_ORDER = ['normal','ice','thunder','burn','yelve'];
 // 击杀积分：红1 / 黄2 / 紫5 / 青7 / BOSS 500（仅十分钟模式获取）
+// ---------- 神器（抽奖获得，同时只能装备 1 件；能力在本局开始时生效） ----------
+const ARTIFACT_COST = 5000;          // 抽一次 5000 积分
+const ARTIFACTS = {
+  mask: { icon:'🎭', name:'水思面具', color:'#9be0ff',
+    desc:'普攻变为斩击：每秒朝最近敌人挥出窄扇形斩击（100% 伤害，射程 300，范围伤害，可斩掉青色弹幕）',
+    note:'移动速度 +15% · 移动充能 8 秒后八向斩击（400% 伤害）· 原「爽煎滑蛋」能力',
+    apply:p=>{ p.slashMode = true; p.slashEnergy = 0; p.speed *= 1.15; } },
+  steel: { icon:'🛡', name:'心之钢', color:'#c8d4e6',
+    desc:'生命上限翻倍并立即回满，但攻击距离大幅缩短（约 3 个紫球）',
+    note:'每击杀 5 个敌人，生命上限 +1%（按装备时的血量上限）· 原「坦克引擎」能力',
+    apply:p=>{ p.maxHp *= 2; p.hp = p.maxHp; p.atkRange = 156; p.killHpBase = p.maxHp; p.killHpCount = 0; } },
+  gourd: { icon:'🏺', name:'养剑葫', color:'#8ce39b',
+    desc:'初始 2 把细长飞剑环绕自身（各带长拖尾、颜色不同），碰到敌人造成伤害',
+    note:'每击杀 100 个敌人新增 1 把飞剑，上限 7 把',
+    apply:p=>{ p.swords = 2; p.swordAngle = 0; p.swordNext = 100; } },
+  boom: { icon:'💥', name:'崩崩乐', color:'#ff9a5c',
+    desc:'无法攻击，但生命上限提升 1000%，获得 55% 伤害减免；撞击敌人造成 30 伤害',
+    note:'纯撞击流派 · 与护盾球、减伤强化配合最佳',
+    apply:p=>{ p.noAttack = true; p.maxHp *= 11; p.hp = p.maxHp; p.armor *= 0.45; } },
+  charm: { icon:'🧧', name:'呼呼符', color:'#7ee7d8',
+    desc:'获得护体旋风球：可撞击敌人，也能替你挡伤害——每颗球可挡 2 次，挡满即碎',
+    note:'每 45 秒 +1 颗（无上限）· 原「护体旋风」能力',
+    apply:p=>{ p.orbs = 1; p.orbT = 45; p.orbHp = [ORB_GUARD]; } },
+};
+const ARTIFACT_ORDER = ['mask','steel','gourd','boom','charm'];
+
 const KILL_POINTS = { grunt:1, fast:2, tank:5, shooter:7, boss:500, bhboss:500 };
 // 玩家进度（跨局持久化：本机多通道 + 云端按设备密钥同步）
 let userPoints = 0;                       // 总积分（余额）
 let unlockedBullets = ['normal'];         // 已解锁子弹
 let equippedBullet = 'normal';            // 当前装备
+let ownedArtifacts = [];                  // 已抽到的神器
+let equippedArtifact = '';                // 当前装备的神器（'' = 不装备）
 let runPoints = 0;                        // 本局获得积分
 let chainFx = [];                         // 雷电链特效
 let saveT = 0, progressDirty = false;     // 进度节流存盘
@@ -579,13 +628,16 @@ function loadProgress(){
     unlockedBullets = Array.isArray(raw.unlocked) ? raw.unlocked.filter(id=>BULLETS[id]) : ['normal'];
     if (unlockedBullets.indexOf('normal') < 0) unlockedBullets.unshift('normal');
     equippedBullet = unlockedBullets.indexOf(raw.equipped) >= 0 ? raw.equipped : 'normal';
+    ownedArtifacts = Array.isArray(raw.artifacts) ? raw.artifacts.filter(id=>ARTIFACTS[id]) : [];
+    equippedArtifact = ownedArtifacts.indexOf(raw.artifact) >= 0 ? raw.artifact : '';
     if (raw.rev) profileRev = Math.max(profileRev, raw.rev|0);
   }
 }
 function progressSnapshot(){
   return JSON.stringify({
     v: 2, key: deviceKey, pid: playerId,
-    points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet, rev: profileRev,
+    points: userPoints, unlocked: unlockedBullets, equipped: equippedBullet,
+    artifacts: ownedArtifacts, artifact: equippedArtifact, rev: profileRev,
   });
 }
 function saveProgressLocal(){                 // 只写本机，不递增 rev
@@ -853,17 +905,8 @@ const UPGRADES = [
   { icon:'🧛', name:'吸血鬼', desc:'每击杀 1 个敌人，回复 1% 生命上限', note:'限选 1 次 · 与斩击、旋风、分裂弹等高频击杀流派配合收益最高', max:1,
     apply:p=>{ p.vampire = true; } },
   { icon:'💥', name:'致命一击', desc:'暴击率 +10%（暴击双倍伤害）', note:'初始暴击率 5%', apply:p=>p.crit+=0.10 },
-  { icon:'🌀', name:'护体旋风', desc:'获得环绕护盾球：可撞击敌人，也能替你挡伤害——每颗球可挡 2 次，挡满即碎；每 45 秒 +1 颗（无上限）',
-    note:'限选 1 次 · 贴身防守，伤害随攻击力提升', max:1,
-    apply:p=>{ p.orbs = 1; p.orbT = 45; p.orbHp = [ORB_GUARD]; } },
   { icon:'🛡️', name:'减伤装甲', desc:'受到的伤害 -15%', note:'最多叠加到 -60%', apply:p=>p.armor=Math.max(0.4,p.armor*0.85) },
-  // 🛞 坦克引擎：暂时下架（所有模式均不再出现）。要恢复：把 off 改成 false 即可。
-  { icon:'🛞', name:'坦克引擎', desc:'生命上限翻倍并回满，但攻击距离大幅缩短（约 3 个紫球）',
-    note:'限选 1 次 · 每击杀 5 个敌人，生命上限 +1%（按选择时的血量上限）', max:1, off:true,
-    apply:p=>{ p.maxHp*=2; p.hp=p.maxHp; p.atkRange=156; p.killHpBase=p.maxHp; p.killHpCount=0; } },
-  { icon:'🍳', name:'爽煎滑蛋', desc:'普攻变为斩击：每秒朝最近敌人挥出窄扇形斩击（100% 伤害，射程 300，范围伤害，可斩掉青色弹幕）；移动速度 +15%',
-    note:'限选 1 次 · 斩击角度较窄，每层分裂弹额外多一道斩击（前、后、360° 均匀分布）· 移动充能 8 秒后八向斩击（400% 伤害）', max:1,
-    apply:p=>{ p.slashMode=true; p.slashEnergy=0; p.speed*=1.15; } },
+  // 爽煎滑蛋 / 坦克引擎 / 护体旋风 已移入「神器抽奖」（水思面具 / 心之钢 / 呼呼符），普通强化不再出现
 ];
 
 // ---------- 初始化 ----------
@@ -873,10 +916,16 @@ function newGame(m='classic', kind='blackhole'){
     fireT:0, multi:1, pierce:0, magnet:70, regen:0, crit:0.05, orbs:0, burn:0, armor:1,
     level:1, xp:0, xpNeed:5, orbT:45, orbAngle:0, invul:0, orbHp:[],
     atkRange:460, slashMode:false, slashEnergy:0, killHpBase:0, killHpCount:0, faceAng:0, vampire:false,
+    swords:0, swordAngle:0, swordNext:100, noAttack:false, artifact:'',
     bullet:equippedBullet, taken:{} };
+  // 神器：装备的那件在本局开始时生效
+  if (equippedArtifact && ARTIFACTS[equippedArtifact]){
+    player.artifact = equippedArtifact;
+    ARTIFACTS[equippedArtifact].apply(player);
+  }
   enemies=[]; gems=[]; bullets=[]; parts=[]; slashFx=[]; dmgNums=[]; holes=[]; chainFx=[];
   spawnTimer=0; gameTime=0; kills=0; shake=0; runPoints=0;
-  stats = { bullet:0, burn:0, orb:0, slash:0 };
+  stats = { bullet:0, burn:0, orb:0, slash:0, sword:0 };
   camX=0; camY=0;
   spawnedBoss = false;
   upgradesGiven = 0; upgradeTimer = BOSS_UPGRADE_T; bossMobT = 2.5; matterT = 4;
@@ -1185,9 +1234,11 @@ function update(dt){
   const moving = (dx!==0 || dy!==0);
   if (moving) player.faceAng = Math.atan2(dy, dx);
 
-  // 攻击：子弹流 / 斩击流
+  // 攻击：子弹流 / 斩击流（崩崩乐神器：完全无法攻击）
   player.fireT -= dt;
-  if (player.slashMode){
+  if (player.noAttack){
+    // 崩崩乐：不发射任何攻击，靠身体撞击造成伤害（见碰撞段）
+  } else if (player.slashMode){
     // 移动充能：满 8 秒释放八向斩击
     if (moving) player.slashEnergy += dt;
     if (player.slashEnergy >= SLASH_CHARGE){
@@ -1257,6 +1308,28 @@ function update(dt){
           addDmg(e.x, e.y-e.r-8, od, false);
           burst(e.x,e.y,'#7ee7d8',3);
           if (e.hp<=0) killEnemy(e);   // 旋风击杀同样掉经验、计数
+        }
+      }
+    }
+  }
+  // 养剑葫：细长飞剑环绕，碰到敌人造成伤害（同一敌人 0.35 秒一次）
+  if (player.swords > 0){
+    player.swordAngle += dt*3.0;
+    const n = player.swords, SW_R = 82;
+    for (let i=0;i<n;i++){
+      const a = player.swordAngle + i*Math.PI*2/n;
+      const sx = player.x + Math.cos(a)*SW_R, sy = player.y + Math.sin(a)*SW_R;
+      for (let j=enemies.length-1;j>=0;j--){
+        const e = enemies[j];
+        if (e.hp<=0 || e.type==='ebullet' || e.suck || e.invul || bossShielded(e)) continue;
+        if (Math.hypot(e.x-sx, e.y-sy) < e.r+16){
+          if ((e.swordCd||0) > gameTime) continue;
+          e.swordCd = gameTime + 0.35;
+          const sd = 8 + player.dmg*1.1;
+          stats.sword += sd; e.hp -= sd; hurtFlash(e);
+          addDmg(e.x, e.y-e.r-8, sd, false);
+          burst(e.x, e.y, '#cfe8ff', 3);
+          if (e.hp<=0) killEnemy(e);
         }
       }
     }
@@ -1592,6 +1665,16 @@ function update(dt){
     if (d < e.r+player.r && player.invul<=0){
       if (hurtPlayer(e.dmg*player.armor, 0.5, 8)) return;
     }
+    // 崩崩乐：身体撞击敌人造成 30 伤害（同一敌人 0.5 秒一次）
+    if (player.noAttack && e.hp>0 && e.type!=='ebullet' && !e.invul && !e.suck
+        && (e.bumpCd||0) <= gameTime
+        && Math.hypot(e.x-player.x, e.y-player.y) < e.r+player.r){
+      e.bumpCd = gameTime + 0.5;
+      stats.sword += 30; e.hp -= 30; hurtFlash(e);
+      addDmg(e.x, e.y-e.r-10, 30, false);
+      burst(e.x, e.y, '#ffb86b', 6);
+      if (e.hp<=0) killEnemy(e);
+    }
   }
   // 水晶
   for (let i=gems.length-1;i>=0;i--){
@@ -1646,15 +1729,16 @@ function update(dt){
       if (alive < MAX_ALIVE) spawnEnemy();
     }
   } else if (mode === 'endless') {
-    // 无尽模式：曲线继续收紧（末段 0.05 秒/只），10 分钟后场上上限每 2 分钟 +20（封顶 260）
+    // 无尽模式：曲线继续收紧，10 分钟后每分钟再 -0.01 秒（最快 0.03 秒/只），并每 5 分钟多刷 1 只（最多 +2）
     spawnTimer -= dt;
     if (spawnTimer <= 0){
       const post = Math.max(0, gameTime - GAME_TIME);
-      spawnTimer = Math.max(0.05, 0.75 - Math.min(1.2, gameTime/600)*0.70);
+      spawnTimer = Math.max(0.03, Math.max(0.05, 0.75 - Math.min(1.2, gameTime/600)*0.70) - post/60*0.01);
       const cap = Math.min(260, MAX_ALIVE + Math.floor(post/120)*20);
       let alive = 0;
       for (const e of enemies) if (e.type!=='ebullet') alive++;
-      if (alive < cap) spawnEnemy();
+      const extra = Math.min(2, Math.floor(post/300));    // 每多 5 分钟，一次多刷 1 只
+      for (let k=0; k<=extra && alive<cap; k++){ spawnEnemy(); alive++; }
     }
     // 周期 BOSS：每 5 分钟随机一个（黑洞怪/血刃巨像），血量按已登场次数 +50%/个
     if (bossWarn <= 0){
@@ -1773,6 +1857,12 @@ function killEnemy(e){
   // 深空之眼：二阶段血量归零不是死亡，而是进入三阶段（重设 1500 血 + 八只触手）
   if (e.type==='eyeboss' && e.phase === 2){ eyeEnterPhase3(e); return; }
   kills++;
+  // 养剑葫：每击杀 100 个敌人新增 1 把飞剑（上限 7 把）
+  if (player.swords > 0 && player.swords < 7 && kills % 100 === 0){
+    player.swords++;
+    burst(player.x, player.y, '#8ce39b', 16);
+    slashFx.push({ x:player.x, y:player.y, ring:true, radius:70, life:0.4, maxLife:0.4, col:'#8ce39b' });
+  }
   // 积分：所有模式都累计本局积分（用于排行榜）；只有十分钟模式计入可消费余额
   const gp = KILL_POINTS[e.type] || 0;
   if (gp > 0){
@@ -1848,7 +1938,12 @@ function applyBulletEffect(b, e, dmg){
     }
     if (hits.length) burst(e.x, e.y, '#c9d4ff', 5);
   } else if (bt === 'burn'){
-    // 可叠加：每次命中都刷新 3 秒并叠加"本次基础伤害的 50%/秒"
+    // BOSS 本体与触手免疫燃烧（小怪才吃灼烧）
+    if (e.type==='bhboss' || e.type==='boss' || e.type==='eyeboss' || e.type==='eyeArm'){
+      burst(e.x, e.y, '#ff9a5c', 2);
+      return;
+    }
+    // 可叠加：每次命中都刷新持续时间并叠加"本次基础伤害的 50%/秒"
     const base = b.dmg || dmg || 0;
     e.burnT = BURN_TIME;
     e.burnDmg = (e.burnDmg || 0) + base*BURN_RATE;
@@ -1905,7 +2000,7 @@ function endGame(win, opts){
   winEl.style.display = (win || quit) ? 'block' : 'none';
   loseEl.style.display = (win || quit) ? 'none' : 'block';
   const m = Math.floor(gameTime/60), s = Math.floor(gameTime%60);
-  const total = Math.round(stats.bullet + stats.burn + stats.orb + stats.slash);
+  const total = Math.round(stats.bullet + stats.burn + stats.orb + stats.slash + (stats.sword||0));
   const dps = Math.round(total / Math.max(1, gameTime));
   const pct = v => total>0 ? Math.round(v/total*100) : 0;
   const card = (v,k) => `<div class="stat"><div class="v">${v}</div><div class="k">${k}</div></div>`;
@@ -1922,6 +2017,7 @@ function endGame(win, opts){
   const src = [];
   if (stats.bullet>0) src.push(`<b>子弹 ${pct(stats.bullet)}%</b>`);
   if (stats.slash>0)  src.push(`<b>斩击 ${pct(stats.slash)}%</b>`);
+  if (stats.sword>0)  src.push(`<b>飞剑/撞击 ${pct(stats.sword)}%</b>`);
   if (stats.burn>0)   src.push(`<b>灼烧 ${pct(stats.burn)}%</b>`);
   if (stats.orb>0)    src.push(`<b>旋风 ${pct(stats.orb)}%</b>`);
   let infoHtml = quit
@@ -2049,10 +2145,15 @@ function updateStatusBar(){
     rows.push(['🌀 旋风', `${player.orbs} 颗 · 挡 ${charges} 次`, false]);
   }
   if (stats.burn > 0) rows.push(['🔥 灼烧', statBurnVal.toLocaleString()+' 总伤害', false]);
+  if (player.swords > 0) rows.push(['🗡 飞剑', `${player.swords} 把`, false]);
+  if (player.noAttack) rows.push(['💥 撞击', '30 伤害/次', false]);
   rows.push(['🔮 子弹', bt.icon + bt.name, false]);
   if (player.slashMode){
     const ready = player.slashEnergy >= SLASH_CHARGE;
     rows.push(['🍳 普攻', ready ? '斩击 · 八向就绪' : '斩击', true]);
+  }
+  if (player.artifact && ARTIFACTS[player.artifact]){
+    rows.push([ARTIFACTS[player.artifact].icon + ' 神器', ARTIFACTS[player.artifact].name, false]);
   }
   const sig = rows.map(r => r[0]+r[1]).join('|');
   if (sig === lastStatSig) return;
@@ -2693,6 +2794,41 @@ function draw(){
     ctx.stroke();
   }
   ctx.globalAlpha = 1;
+  // 养剑葫：细长飞剑 + 长拖尾（每把颜色不同）
+  if (player.swords > 0){
+    const SW_COLORS = ['#8ce39b','#7fd8ff','#ffd76a','#ff9a5c','#c08bff','#ff7ae0','#7ee7d8'];
+    const n = player.swords, SW_R = 82;
+    for (let i=0;i<n;i++){
+      const a = player.swordAngle + i*Math.PI*2/n;
+      const cx = player.x + Math.cos(a)*SW_R, cy = player.y + Math.sin(a)*SW_R;
+      const col = SW_COLORS[i % SW_COLORS.length];
+      const tang = a + Math.PI/2, nx = -Math.sin(tang), ny = Math.cos(tang);
+      const tipX = cx + Math.cos(tang)*34, tipY = cy + Math.sin(tang)*34;
+      const tailX = cx - Math.cos(tang)*46, tailY = cy - Math.sin(tang)*46;
+      ctx.lineCap = 'round';
+      for (let k=0;k<3;k++){
+        const alpha = 0.26 - k*0.07;
+        if (alpha <= 0) continue;
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = col; ctx.lineWidth = 3.2 - k*0.8;
+        const t0 = -46 - k*18, t1 = -46 - (k+1)*18;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(tang)*t0, cy + Math.sin(tang)*t0);
+        ctx.lineTo(cx + Math.cos(tang)*t1, cy + Math.sin(tang)*t1);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(cx + nx*2.8, cy + ny*2.8);
+      ctx.lineTo(tailX, tailY);
+      ctx.lineTo(cx - nx*2.8, cy - ny*2.8);
+      ctx.closePath();
+      ctx.fillStyle = col; ctx.fill();
+      ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(tipX, tipY, 2.2, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+    }
+  }
   // 玩家
   ctx.beginPath(); ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
   ctx.fillStyle = player.invul>0 && Math.floor(gameTime*20)%2 ? '#666' : '#f2f2f2';
@@ -2821,9 +2957,11 @@ function hideAll(){
   const shop = document.getElementById('shopscreen');
   const login = document.getElementById('loginscreen');
   const lb = document.getElementById('lbscreen');
+  const art = document.getElementById('artifactscreen');
   if (shop) shop.style.display='none';
   if (login) login.style.display='none';
   if (lb) lb.style.display='none';
+  if (art) art.style.display='none';
   pauseBtn.textContent='⏸';
 }
 function goHome(){
@@ -2974,6 +3112,81 @@ document.getElementById('shopBtn').onclick = enterShop;
 document.getElementById('shopBackBtn').onclick = goHome;
 document.getElementById('shopAccountBtn').onclick = ()=> enterLogin();
 
+// ================= 神器抽奖 =================
+const artifactScreen = document.getElementById('artifactscreen');
+let artMsgT = 0;
+function artMsg(t, ok){
+  const el = document.getElementById('artMsg');
+  if (!el) return;
+  el.textContent = t || '';
+  el.style.color = ok ? '#7ee787' : (t ? '#ff9a9a' : '#ffd76a');
+  artMsgT = Date.now();
+}
+function enterArtifacts(){
+  hideAll();
+  state = 'menu';
+  artMsg('');
+  renderArtifacts();
+  artifactScreen.style.display = 'flex';
+}
+function renderArtifacts(){
+  document.getElementById('artPoints').textContent =
+    `💰 积分 ${userPoints.toLocaleString()}（抽一次 ${ARTIFACT_COST}）`;
+  const list = document.getElementById('artList');
+  list.innerHTML = '';
+  for (const id of ARTIFACT_ORDER){
+    const a = ARTIFACTS[id];
+    const owned = ownedArtifacts.indexOf(id) >= 0;
+    const eq = equippedArtifact === id;
+    const div = document.createElement('div');
+    div.className = 'bcard' + (eq ? ' equipped' : '') + (owned ? '' : ' locked');
+    div.innerHTML = `<div class="btop"><span class="bicon" style="color:${a.color}">${owned ? a.icon : '❔'}</span>`
+      + `<span class="bname">${owned ? a.name : '？？？'}</span></div>`
+      + `<div class="bdesc">${owned ? a.desc : '尚未获得 · 在神器抽奖中抽到后解锁'}</div>`
+      + (owned && a.note ? `<div class="artnote">${a.note}</div>` : '');
+    const btn = document.createElement('button');
+    if (!owned){
+      btn.textContent = '未解锁'; btn.disabled = true;
+    } else if (eq){
+      btn.textContent = '✓ 已装备（点击卸下）'; btn.className = 'eq';
+      btn.onclick = ()=>{ equippedArtifact = ''; saveProgress(); renderArtifacts(); artMsg('已卸下神器', true); };
+    } else {
+      btn.textContent = '装备';
+      btn.onclick = ()=>{ equippedArtifact = id; saveProgress(); renderArtifacts(); artMsg(`已装备【${a.name}】，下一局开始生效`, true); };
+    }
+    div.appendChild(btn);
+    list.appendChild(div);
+  }
+  const dbtn = document.getElementById('drawBtn');
+  if (ownedArtifacts.length >= ARTIFACT_ORDER.length){
+    dbtn.textContent = '🎉 已集齐全部神器'; dbtn.disabled = true;
+  } else {
+    dbtn.textContent = `🎲 抽一次 · ${ARTIFACT_COST} 积分`;
+    dbtn.disabled = userPoints < ARTIFACT_COST;
+  }
+}
+// 抽一次：只从"未拥有"的神器里随机，避免重复扣分
+function drawArtifact(){
+  const missing = ARTIFACT_ORDER.filter(id => ownedArtifacts.indexOf(id) < 0);
+  if (!missing.length){ artMsg('已集齐全部神器，无需再抽', true); return null; }
+  if (userPoints < ARTIFACT_COST){ artMsg(`积分不足，还差 ${(ARTIFACT_COST - userPoints).toLocaleString()} 积分`); return null; }
+  userPoints -= ARTIFACT_COST;
+  const id = missing[Math.floor(Math.random()*missing.length)];
+  ownedArtifacts.push(id);
+  if (!equippedArtifact) equippedArtifact = id;
+  progressDirty = false;
+  saveProgress();
+  renderArtifacts();
+  paintPointsUI();
+  const a = ARTIFACTS[id];
+  const done = ownedArtifacts.length >= ARTIFACT_ORDER.length;
+  artMsg(`✨ 抽到【${a.name}】！${done ? '已集齐全部神器！' : (equippedArtifact === id ? '已自动装备，下一局开始生效' : '可在下方装备')}`, true);
+  return id;
+}
+document.getElementById('artifactBtn').onclick = enterArtifacts;
+document.getElementById('artBackBtn').onclick = goHome;
+document.getElementById('drawBtn').onclick = drawArtifact;
+
 // ================= 排行榜 =================
 const lbScreen = document.getElementById('lbscreen');
 let lastLbBoard = 'endless_points';
@@ -3113,6 +3326,9 @@ function applyCloudProgress(row){
   if (arr.indexOf('normal') < 0) arr.unshift('normal');
   unlockedBullets = arr;
   equippedBullet = arr.indexOf(row.equipped) >= 0 ? row.equipped : 'normal';
+  const arts = String(row.artifacts || '').split(',').map(s=>s.trim()).filter(id=>ARTIFACTS[id]);
+  ownedArtifacts = arts;
+  equippedArtifact = arts.indexOf(row.artifact) >= 0 ? row.artifact : '';
   profileRev = Math.max(profileRev, row.rev|0);
   if (/^[A-Za-z]{2}$/.test(row.player_id || '')) playerId = row.player_id;
   Store.set(PID_KEY, playerId);
@@ -3126,7 +3342,7 @@ async function cloudPullProgress(force){
   if (!c || !deviceKey) return null;
   try {
     const { data, error } = await c.database.from('player_progress')
-      .select('device_key,player_id,points,unlocked,equipped,rev')
+      .select('device_key,player_id,points,unlocked,equipped,artifacts,artifact,rev')
       .eq('device_key', deviceKey).limit(1);
     if (error) throw error;
     const row = data && data[0];
@@ -3152,6 +3368,8 @@ async function cloudPushProgress(silent){
       points: Math.max(0, Math.round(userPoints)),
       unlocked: unlockedBullets.join(','),
       equipped: equippedBullet,
+      artifacts: ownedArtifacts.join(','),
+      artifact: equippedArtifact,
       rev: profileRev,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'device_key' });
@@ -3195,7 +3413,9 @@ async function doRecover(){
   writeUrlIdentity();
   refreshBossWallet();
   if (shopScreen.style.display === 'flex') renderShop();
-  setSaveMsg(`✅ 找回成功：积分 ${userPoints.toLocaleString()} · 已解锁 ${unlockedBullets.length - 1} 种子弹`, true);
+  if (artifactScreen.style.display === 'flex') renderArtifacts();
+  setSaveMsg(`✅ 找回成功：积分 ${userPoints.toLocaleString()} · 已解锁 ${unlockedBullets.length - 1} 种子弹`
+    + ` · 神器 ${ownedArtifacts.length}/${ARTIFACT_ORDER.length}`, true);
   return true;
 }
 
