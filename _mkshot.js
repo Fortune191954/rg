@@ -15,6 +15,10 @@ const drivers = {
   lb: `enterLeaderboard('endless_points');`,
   lbblade: `enterLeaderboard('boss_time_eye');`,
   bosspick: `enterBossPick(); refreshBossWallet();`,
+  pause: `hideAll(); newGame('endless'); state='playing'; gameTime=125; setPaused(true);`,
+  quitend: `hideAll(); newGame('endless'); state='playing'; gameTime=185;
+    for (let i=0;i<3;i++) update(0.02);
+    quitRun();`,
   eye1: `${setup}
     b.armAtkT = 0.001; for (let i=0;i<3;i++) update(0.05);
     state='paused';`,

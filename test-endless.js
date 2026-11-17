@@ -59,7 +59,10 @@ const G = vm.runInContext(`({
   get endlessBosses(){ return endlessBosses; },
   get endlessNewBest(){ return endlessNewBest; },
   get bossKind(){ return bossKind; },
-  newGame, update, spawnEnemy, killEnemy,
+  get runPoints(){ return runPoints; },
+  get userPoints(){ return userPoints; },
+  get endlessTimePoints(){ return endlessTimePoints; },
+  newGame, update, spawnEnemy, killEnemy, endGame,
 })`, sandbox);
 
 const assert = (cond, msg) => { if (!cond){ console.error('FAIL: ' + msg); process.exit(1); } console.log('PASS: ' + msg); };
@@ -122,12 +125,37 @@ assert(e1 && e1.type === 'grunt', '成功刷出普通怪用于核对');
 // 注意：经典刷怪公式的 diff = t/GAME_TIME 未封顶，无尽模式 t>600 后基础血量继续线性成长，再叠乘区
 const diffU = 1000/600;                       // 1.667，不封顶
 const stages = 400/300;                       // 1.333
-const slowGrow = 1000/60;                     // 17 分钟内缓慢成长：血 +1.5%/分钟，伤害 +1%/分钟
-const expectHp = (20 + diffU*60*0.60) * (1 + stages*0.5) * (1 + slowGrow*0.015);
+const slowGrow = 1000/60;                     // 17 分钟内缓慢成长：血 +2.2%/分钟，伤害 +1.6%/分钟
+const expectHp = (20 + diffU*60*0.60) * (1 + stages*0.6) * (1 + slowGrow*0.022);
 assert(Math.abs(e1.maxHp - expectHp) < 0.01, `增强乘区：maxHp=${e1.maxHp.toFixed(1)}（期望 ${expectHp.toFixed(1)}）`);
-assert(e1.dmg === Math.max(1, Math.round(10*(1+stages*0.2)*(1+slowGrow*0.01))), `伤害 +20%/5分钟 且随时间缓慢成长（dmg=${e1.dmg}）`);
+// 注意：代码先按阶段取整再乘缓慢成长，期望值要按同样顺序算
+assert(e1.dmg === Math.max(1, Math.round(Math.round(10*(1+stages*0.25))*(1+slowGrow*0.016))), `伤害 +25%/5分钟 且随时间缓慢成长（dmg=${e1.dmg}）`);
 assert(e1.xp === 1 + Math.floor(stages), `经验 +1/5分钟（xp=${e1.xp}）`);
-assert(e1.spd === Math.round((70+diffU*50) * Math.min(1.6, 1+stages*0.1)), `移速 +10%/5分钟 封顶1.6倍（spd=${e1.spd}）`);
+assert(e1.spd === Math.round((70+diffU*50) * Math.min(1.6, 1+stages*0.12)), `移速 +12%/5分钟 封顶1.6倍（spd=${e1.spd}）`);
+
+// --- 无尽积分：按存活时间结算，每分钟 300 分 ---
+G.newGame('endless'); G.state = 'playing';
+assert(G.runPoints === 0, '开局积分为 0');
+G.gameTime = 59.9; G.update(0.2);
+assert(G.runPoints === 300, `存活 1 分钟 = 300 积分（${G.runPoints}）`);
+G.gameTime = 119.9; G.update(0.2);
+assert(G.runPoints === 600, `存活 2 分钟 = 600 积分（${G.runPoints}）`);
+
+// --- BOSS 成长封顶：血量 500%、伤害 250% ---
+G.newGame('endless'); G.state = 'playing';
+vm.runInContext(`endlessBosses = 3; bossKind = 'blackhole'; spawnSelectedBoss();`, sandbox);
+let bb = G.enemies.find(e => e.type==='bhboss');
+assert(bb && bb.maxHp === 2000*2.5 && bb.dmg === 53,
+  `第 4 个 BOSS：血量 250%（${bb && bb.maxHp}）、伤害 175%（${bb && bb.dmg}）`);
+G.enemies = [];
+vm.runInContext(`endlessBosses = 20; bossKind = 'blackhole'; spawnSelectedBoss();`, sandbox);
+bb = G.enemies.find(e => e.type==='bhboss');
+assert(bb && bb.maxHp === 2000*5 && bb.dmg === 75,
+  `血量封顶 500%（${bb && bb.maxHp}）、伤害封顶 250%（${bb && bb.dmg}）`);
+G.enemies = [];
+vm.runInContext(`endlessBosses = 6; bossKind = 'eye'; spawnSelectedBoss();`, sandbox);
+const eb = G.enemies.find(e => e.type==='eyeboss');
+assert(eb && eb.maxHp === 5000*4 && eb.dmg === 100, `深空之眼同享成长（${eb && eb.maxHp} / ${eb && eb.dmg}）`);
 
 // --- 死亡结算 + 本地最佳纪录 ---
 G.gameTime = 700;
@@ -140,5 +168,25 @@ vm.runInContext(`endGame(false)`, sandbox);
 assert(G.state === 'end', '死亡进入结算');
 assert(lsCalls.some(c => c[0]==='set' && c[1]==='rg_endless_best'), '最佳纪录已写入 localStorage');
 assert(G.endlessNewBest === true, '首局即新纪录');
+
+// --- 提前结束（游玩途中返回主页）：按当前进度结算并提示 ---
+G.newGame('endless'); G.state = 'playing'; G.gameTime = 120;
+vm.runInContext(`endlessTimePoints = 600; runPoints = 600;`, sandbox);
+const before = G.userPoints;
+vm.runInContext(`endGame(false, { quit:true })`, sandbox);
+assert(G.state === 'end', '提前结束进入结算');
+assert(G.userPoints === before + 600, `提前结束仍发放时间积分（+${G.userPoints - before}）`);
+assert((els['winTitle'].textContent||'').indexOf('提前结束') >= 0, `结算标题提示提前结束（${els['winTitle'].textContent}）`);
+assert((els['endInfo'].innerHTML||'').indexOf('提前结算') >= 0, '结算信息说明已提前结算');
+
+// 十分钟模式同样支持提前结算
+G.newGame('classic'); G.state = 'playing'; G.gameTime = 30;
+vm.runInContext(`runPoints = 12; endGame(false, { quit:true })`, sandbox);
+assert(G.state === 'end' && (els['winTitle'].textContent||'').indexOf('提前结束') >= 0, '十分钟模式同样支持提前结算');
+
+// BOSS 试炼：提前退出视为挑战失败（入场费不退）
+G.newGame('boss'); G.state = 'playing'; G.gameTime = 20;
+vm.runInContext(`endGame(false, { quit:true })`, sandbox);
+assert((els['endInfo'].innerHTML||'').indexOf('提前退出视为挑战失败') >= 0, 'BOSS 试炼提前退出提示视为失败');
 
 console.log('\n全部断言通过 ✔');
