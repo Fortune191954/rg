@@ -58,7 +58,7 @@ const G = vm.runInContext(`({
   get runPoints(){ return runPoints; },
   get chainFx(){ return chainFx; },
   BULLETS, BULLET_ORDER, KILL_POINTS, UPGRADES, HIT_RATE,
-  newGame, update, killEnemy, applyBulletEffect, updateStatusBar,
+  newGame, update, killEnemy, applyBulletEffect, updateStatusBar, blastExplode,
   get stats(){ return stats; },
 })`, sandbox);
 
@@ -69,7 +69,10 @@ assert(G.BULLETS.ice.cost === 3000, '寒冰弹 3000 积分');
 assert(G.BULLETS.thunder.cost === 4500, '雷电子弹 4500 积分');
 assert(G.BULLETS.burn.cost === 5000, '灼烧弹 5000 积分');
 assert(G.BULLETS.yelve.cost === 6000, '耶律弹 6000 积分');
-assert(G.BULLET_ORDER.length === 5, '共 5 种子弹');
+assert(G.BULLET_ORDER.length === 6, '共 6 种子弹');
+assert(G.BULLETS.blast.cost === 6500, '爆炸弹 6500 积分');
+assert(/1\.8/.test(G.BULLETS.blast.desc), '爆炸弹商店文案标注固定 1.8 秒');
+assert(/1\.5 秒/.test(G.BULLETS.burn.desc), '灼烧弹商店文案已更新为 1.5 秒（与实际一致）');
 assert(G.HIT_RATE === 0.8, '命中率 80%');
 
 // --- 2. 灼热弹已从强化池移除 ---
@@ -179,6 +182,38 @@ for (let f=0; f<10; f++) G.update(1/60);
 const yb2 = G.bullets.find(b => b.id === yb.id) || G.bullets.find(b => b.bt === 'yelve');
 assert(yb2 && Math.abs(yb2.ang - a0) > 0.15, `耶律弹会转向追踪（角度变化 ${yb2 ? (yb2.ang-a0).toFixed(2) : 'n/a'}）`);
 assert(yb2 && yb2.trail.length > 3, '拖尾在累积');
+
+// --- 8.5 爆炸弹：固定 1.8 秒攻击间隔 + 120% 伤害 + 命中爆炸溅射 90% ---
+G.newGame('classic'); G.state='playing';
+G.player.atkRange = 460; G.player.fireT = 0; G.player.dmg = 100; G.player.crit = 0;
+G.player.bullet = 'blast';
+const eBl = { x:200, y:0, type:'grunt', id:90031, r:14, hp:1e6, maxHp:1e6,
+  spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 };
+G.enemies = [eBl];
+G.update(1/60);
+const bb = G.bullets.find(b => b.bt === 'blast');
+assert(!!bb, '爆炸弹已发射');
+assert(Math.abs(bb.dmg - 120) < 0.01, `爆炸弹伤害为普通弹的 120%（${bb.dmg}）`);
+assert(Math.abs(G.player.fireT - 1.8) < 1e-6, `攻击间隔固定 1.8 秒（${G.player.fireT}）`);
+// 攻速强化（fireDelay 变小）对爆炸弹无效
+G.player.fireDelay = 0.2; G.player.fireT = 0; G.bullets.length = 0; G.enemies = [eBl];
+G.update(1/60);
+assert(Math.abs(G.player.fireT - 1.8) < 1e-6, '攻速强化不改变爆炸弹的 1.8 秒间隔');
+// 状态栏显示固定攻速
+G.player.bullet = 'blast';
+G.updateStatusBar();
+assert(els['statbar'].innerHTML.includes('0.56/s 固定'), '状态栏标注爆炸弹攻速固定');
+
+// 爆炸溅射：周围敌人 90%，被直接命中的敌人不二次受伤，远处不受影响
+G.newGame('classic'); G.state='playing'; G.player.atkRange = 0;
+const primary = mk(90032, 0, 0);
+const near = mk(90033, 90, 0);
+const far = mk(90034, 320, 0);
+G.enemies = [primary, near, far];
+G.blastExplode(0, 0, 120, primary);
+assert(near.hp === 1000 - 108, `相邻敌人受 90% 伤害（-${1000-near.hp}）`);
+assert(primary.hp === 1000, '被直接命中的目标不会被爆炸二次计算');
+assert(far.hp === 1000, '爆炸半径外的敌人不受影响');
 
 // --- 9. 积分只在十分钟模式获取 ---
 G.newGame('classic'); G.state='playing';

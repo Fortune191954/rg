@@ -81,7 +81,7 @@ assert(h.includes('攻速') && h.includes('/s'), '状态栏显示攻速');
 assert(h.includes('多重') && h.includes('穿透') && h.includes('暴击'), '状态栏显示多重/穿透/暴击');
 assert(h.includes('移速') && h.includes('224'), '状态栏显示移速');
 assert(h.includes('减伤'), '状态栏显示减伤');
-assert(h.includes('2 颗 · 挡 3 次'), `状态栏显示旋风球数量与剩余格挡次数（${h.match(/旋风[^<]*/)}）`);
+assert(h.includes('2 面 · 挡 3 次'), `状态栏显示护盾数量与剩余格挡次数（${h.match(/护盾[^<]*/)}）`);
 assert(h.includes('普通弹'), '状态栏显示当前子弹');
 
 // 值不变时不重写 DOM（节流）

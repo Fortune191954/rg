@@ -19,7 +19,26 @@ const drivers = {
   art: `userPoints = 16500; ownedArtifacts = ['mask','steel','gourd']; equippedArtifact = 'gourd'; enterArtifacts();`,
   sword: `hideAll(); equippedArtifact='gourd'; newGame('endless'); state='playing';
     player.swords = 5; player.swordAngle = 0.4; player.invul = 999;
-    for (let i=0;i<4;i++) update(0.05); state='paused';`,
+    for (let i=0;i<5;i++) enemies.push({ x:Math.cos(i*1.3)*230, y:Math.sin(i*1.3)*230,
+      type:'grunt', id:88300+i, r:14, hp:800, maxHp:800, spd:0, dmg:0, col:'#c94f4f', xp:0,
+      hurtT:0, burnT:0, burnDmg:0 });
+    for (let i=0;i<16;i++) update(0.02); state='paused';`,
+  shield: `hideAll(); equippedArtifact='charm'; newGame('endless'); state='playing';
+    player.invul = 999; player.orbs = 3; player.orbHp = [2,1,2];
+    for (let i=0;i<4;i++) update(0.05);
+    for (let i=0;i<6;i++) enemies.push({ x:Math.cos(i*1.05)*150, y:Math.sin(i*1.05)*150,
+      type:'grunt', id:88400+i, r:14, hp:200, maxHp:200, spd:0, dmg:0, col:'#c94f4f', xp:0,
+      hurtT:0, burnT:0, burnDmg:0 });
+    player.orbAngle = 0.2; update(0.02); state='paused';`,
+  blast: `hideAll(); equippedBullet='blast'; newGame('endless'); state='playing';
+    player.invul = 999; player.bullet = 'blast'; player.dmg = 40; player.atkRange = 0;
+    for (let i=0;i<2;i++) update(0.05);
+    enemies.push({ x:160, y:0, type:'grunt', id:88501, r:14, hp:500, maxHp:500, spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 });
+    enemies.push({ x:205, y:30, type:'grunt', id:88502, r:12, hp:500, maxHp:500, spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 });
+    enemies.push({ x:130, y:-45, type:'grunt', id:88503, r:12, hp:500, maxHp:500, spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 });
+    bullets.push({ x:130, y:0, ang:0, spd:470, dmg:48, pierce:0, life:1.6, r:7, hit:[], bt:'blast', dud:false });
+    update(0.06); state='paused';`,
+  shop: `enterShop();`,
   boom: `hideAll(); equippedArtifact='boom'; newGame('endless'); state='playing';
     player.invul = 999; for (let i=0;i<3;i++) update(0.05); state='paused';`,
   quitend: `hideAll(); newGame('endless'); state='playing'; gameTime=185;

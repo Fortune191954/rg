@@ -65,7 +65,7 @@ const G = vm.runInContext(`({
   get ownedArtifacts(){ return ownedArtifacts; }, set ownedArtifacts(v){ ownedArtifacts = v; },
   get equippedArtifact(){ return equippedArtifact; }, set equippedArtifact(v){ equippedArtifact = v; },
   newGame, update, killEnemy, drawArtifact, renderArtifacts, saveProgress,
-  ARTIFACTS, ARTIFACT_ORDER, ARTIFACT_COST, UPGRADES,
+  ARTIFACTS, ARTIFACT_ORDER, ARTIFACT_COST, UPGRADES, ORB_MAX,
 })`, sandbox);
 const assert = (cond, msg) => { if (!cond){ console.error('FAIL: ' + msg); process.exit(1); } console.log('PASS: ' + msg); };
 
@@ -135,6 +135,27 @@ G.enemies = [swordTarget];
 G.update(1/60);
 assert(swordTarget.hp < 1000, `飞剑碰到敌人造成伤害（${Math.round(1000 - swordTarget.hp)}）`);
 
+// 飞剑追踪：敌人放在上方，飞剑应离开环绕轨道主动扑过去
+G.equippedArtifact = 'gourd'; G.newGame('classic');
+G.player.invul = 999;
+const chaseT = { x:0, y:-300, type:'grunt', id:99010, r:14, hp:5000, maxHp:5000,
+  spd:0, dmg:0, col:'#c94f4f', xp:0, hurtT:0, burnT:0, burnDmg:0 };
+G.enemies = [chaseT];
+G.update(1/60);
+const spA = G.player.swordPos[0];
+const dA = Math.hypot(spA.x-chaseT.x, spA.y-chaseT.y);
+for (let i=0;i<12;i++) G.update(1/60);
+const spB = G.player.swordPos[0];
+const dB = Math.hypot(spB.x-chaseT.x, spB.y-chaseT.y);
+assert(dB < dA - 60, `飞剑会追踪敌人（距离 ${dA.toFixed(0)} → ${dB.toFixed(0)}）`);
+assert(spB.trail.length > 3, '飞剑拖尾记录真实飞行轨迹');
+// 敌人清空后回到环绕轨道
+G.enemies = [];
+for (let i=0;i<70;i++) G.update(1/60);
+const spC = G.player.swordPos[0];
+const orbitD = Math.hypot(spC.x-G.player.x, spC.y-G.player.y);
+assert(Math.abs(orbitD - 82) < 6, `无敌人时飞剑归位环绕（距玩家 ${orbitD.toFixed(1)}px）`);
+
 // ============ 六、崩崩乐 ============
 G.equippedArtifact = 'boom'; G.newGame('classic');
 assert(G.player.noAttack === true, '崩崩乐：无法攻击');
@@ -157,7 +178,14 @@ assert(bumpTarget.hp === 70, `崩崩乐：撞击造成 30 伤害（剩 ${bumpTar
 
 // ============ 七、呼呼符 ============
 G.equippedArtifact = 'charm'; G.newGame('classic');
-assert(G.player.orbs === 1 && G.player.orbHp.join() === '2', '呼呼符：1 颗可挡 2 次的护体球');
+assert(G.player.orbs === 1 && G.player.orbHp.join() === '2', '呼呼符：1 面可挡 2 次的护体护盾');
+assert(G.ORB_MAX === 3, '护盾上限 3 面');
+G.player.orbT = 0; G.update(1/60);
+assert(G.player.orbs === 2 && G.player.orbHp.length === 2, `45 秒后 +1 面（${G.player.orbs} 面）`);
+G.player.orbT = 0; G.update(1/60);
+assert(G.player.orbs === 3 && G.player.orbHp.length === 3, `再来 45 秒到 3 面（${G.player.orbs} 面）`);
+G.player.orbT = 0; G.update(1/60);
+assert(G.player.orbs === 3 && G.player.orbHp.length === 3, '3 面后不再增加（上限生效）');
 
 // ============ 八、不装备神器 = 无效果 ============
 G.equippedArtifact = ''; G.newGame('classic');
